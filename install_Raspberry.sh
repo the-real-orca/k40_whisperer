@@ -16,7 +16,7 @@ pip install --upgrade pip
 
 # install K40 Whisperer
 cd ~
-	git clone https://github.com/the-real-orca/k40_whisperer.git
+git clone https://github.com/the-real-orca/k40_whisperer.git
 cd k40_whisperer
 sudo pip install -r requirements.txt
 sudo chmod a+x k40_whisperer.py
@@ -26,5 +26,3 @@ echo
 echo "  ${RED}replug K40 USB${NC} or ${RED}restart Rasperry Pi${NC}"
 echo "  ${GREEN}than you are ready to cut!${NC}"
 echo
-
-

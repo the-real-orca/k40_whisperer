@@ -1,18 +1,46 @@
- Raspberry Pi with LCD Touch Screen
+ Raspberry Pi with LCD Touchscreen
 ====================================
 
-System
-------
+Automatic Installation
+----------------------
 
-- copy image file
-- add "ssh" file to SD card 
+`./install_Raspberry.sh`
+
+
+Manual Installation
+-------------------
+
+###System
 
 ```bash
 sudo raspi-config -> enable SSH
 sudo apt-get update
-sudo apt-get upgrade
-sudo apt-get install mc -y
+sudo apt-get upgrade -y
 ```
+
+
+###Install K40-Whisperer
+
+**unplug K40**
+
+```bash
+sudo groupadd lasercutter
+sudo usermod -a -G lasercutter pi
+echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="5512", ENV{DEVTYPE}=="usb_device", MODE="0664", GROUP="lasercutter"' | sudo tee /etc/udev/rules.d/97-ctc-lasercutter.rules
+
+
+git clone https://github.com/the-real-orca/k40_whisperer.git
+cd k40_whisperer
+
+sudo apt-get install inkscape libjpeg-dev zlib1g-dev -y 
+pip install --upgrade pip 
+sudo pip install -r requirements.txt
+```
+
+**replug K40, restart Raspberry Pi**
+
+`python k40_whisperer.py`
+
 
 ### 5" Display (XPT2046 driver)
 
@@ -43,31 +71,4 @@ git clone https://github.com/Elecrow-keen/Elecrow-LCD35.git
 cd Elecrow-LCD35
 sudo ./Elecrow-LCD35
 ```
-
-Install K40-Whisperer
----------------------
-
-**unplug K40**
-
-```bash
-sudo groupadd lasercutter
-sudo usermod -a -G lasercutter pi
-echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="5512", ENV{DEVTYPE}=="usb_device", MODE="0664", GROUP="lasercutter"' | sudo tee /etc/udev/rules.d/97-ctc-lasercutter.rules
-
-
-git clone https://github.com/the-real-orca/k40_whisperer.git
-cd k40_whisperer
-
-sudo apt-get update
-sudo apt-get upgrade -y
-sudo apt-get install inkscape libjpeg-dev zlib1g-dev -y 
-pip install --upgrade pip 
-sudo pip install -r requirements.txt
-```
-
-**replug K40**
-
-`python k40_whisperer.py`
-
-
 
