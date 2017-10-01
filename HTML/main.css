@@ -1,0 +1,452 @@
+div {
+	width: 100%
+}
+
+fieldset {
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	border-radius: 0.3em;
+	margin-bottom: 1em;
+	padding: 0.5em 2em;		
+}
+
+legend {
+	font-size: 110%;
+	margin-left: -0.5em;
+	padding: 0 0.5em;
+	text-align: left;
+}
+
+body {
+	max-width: 1024px;
+	margin: auto;
+	padding: 1em;
+	color: #444;
+}
+
+.flex  {
+    margin-left: initial;
+}
+
+.flex > * {
+    padding: 0;
+}
+
+[disabled], .disabled {
+//	box-shadow: 0 0 0 9999px rgba(200, 200, 200, 0.5) inset;
+	background: #ccc !important;
+	color: #888;
+}		
+
+@media print {	
+	button, .state .label {
+		color: black;
+		border-color: gray !important;
+		border: medium solid;
+	}	
+
+	[disabled], .label.disabled {
+		color: lightgray;
+		border: thin solid;
+	}		
+}
+
+.message {
+	background: #e0e0e0;
+	padding: .3em;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	color: #505050;
+	border-radius: .2em;
+	box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.75) inset, .3em .3em .2em rgba(100, 100, 100, 0.4);
+}
+
+.message.prime {
+  background: #0074d9;
+  color: #1054a9;
+}	
+.message.success {
+  background: #2ecc40;
+  color: #108c20;
+}
+.message.warning {
+  background: #ff851b;
+  color: #cf651b;
+}
+.message.error {
+  background: #ff4136;
+  color: #af1116;
+}
+.message > header {
+	font-style: bold;
+	padding: .1em .5em;
+	border: 0;
+}	
+.message > header > .close {
+	top: 0;
+	right: 0;
+}
+.message section {
+	font-size: 80%;
+	padding: .1em .8em;
+}
+
+.message-stack {
+	position: fixed;
+	top: 0;
+	border-radius: 0.3em;
+	padding: 0.1em 0.6em;
+	z-index: 99;
+}
+@media all and (max-width: 700px) {
+	.message-stack {
+		position: static;
+	}
+}
+@media print {
+	.message-stack {
+		position: static;
+	}
+}
+
+.timeout {
+	display: inline-block;
+	vertical-align: 0.3em;
+	width: 5em;
+	height: 0.25em;
+	background: rgba(100, 100, 100, 0.1);
+	animation: slideLeft linear both;
+}
+
+@keyframes slideLeft {
+	0% {width: 5em; content: "\025CB";}
+	100% {width: 0; content: "\025CF";}
+}	
+
+.fadeIn {
+	animation: fadeIn 1s;
+}
+@keyframes fadeIn {
+	from {opacity: 0;}
+	to {opacity: 1;}
+}	
+
+.fadeOut {
+	opacity: 0;
+	transition: opacity 0.4s;
+}
+
+.slideUp {
+	overflow: hidden;
+	animation: slideUp 0.3s linear both;
+}
+@keyframes slideUp {
+	0% {max-height: 80vh;}
+	100% {max-height: 0; margin-top: 0; margin-bottom: 0;}
+}	
+
+.slideDown {
+	overflow: hidden;	
+	animation: slideDown 0.3s linear both;
+}
+@keyframes slideDown {
+	0% {max-height: 0; margin-top: 0; margin-bottom: 0;}
+	99% {max-height: 80vh;}
+	100% {max-height: initial;}
+}
+
+.foldable {
+}
+
+@media screen {
+	.foldable > * {
+		overflow: hidden;
+		animation: slideDown 0.4s ease-in both;
+	}
+	.foldable > .header label::before {
+		content: "\025BC \00A0";
+		font-size: 80%;
+	}
+	.foldable  > input:not(:checked) ~ .header label::before {
+		content: "\025BA \00A0";
+	}
+	.foldable  > input:not(:checked) ~ .header label::after {
+		content: "\00A0[...]";
+	}
+	.foldable  > input:not(:checked) ~ :not(.header) {
+		overflow: hidden;
+		animation: slideUp 0.4s ease-out both;
+	}
+}
+
+.progress-bar {
+	background-color: rgba(200, 190, 200, 0.2);
+	border-radius: 0.5em;
+	box-shadow: 0 .1em .3em rgba(0, 0, 0, 0.25) inset;
+	display: block;
+    padding: 0;
+    margin: 1em auto; 
+	height: 1.8em;
+}
+  
+.progress-bar > div {
+	background-color: #0074d9;
+	border-radius: inherit;
+	box-shadow: .05em .1em .5em rgba(255, 255, 255, 0.75) inset, -.05em -.1em .5em .1em rgba(0, 0, 0, 0.75) inset;
+	text-align: center;
+    text-shadow: .1em .1em .1em black;
+	color: white;
+	height: 100%;
+	padding-top: 0.1em;
+}
+
+.left {
+	left: 0;
+}
+
+.right {
+	right: 0;
+}
+
+.panel {
+	padding-bottom: 1.5em;
+	text-align: center;
+}
+
+button, .button {
+	margin-right: 1em;
+	padding: 0.6em 1em;
+	min-width: 2.5em;
+	transition: none;
+	box-shadow: .1em .1em .2em rgba(255, 255, 255, 0.5) inset, -.1em -.1em .2em rgba(0, 0, 0, 0.5) inset;
+}
+
+
+button:focus {
+	box-shadow: .1em .1em .2em rgba(255, 255, 255, 0.5) inset, -.1em -.1em .2em rgba(0, 0, 0, 0.5) inset;
+}
+
+
+button.active, .button.active, button:active, .button:active {
+	box-shadow: -.1em -.1em .1em rgba(255, 255, 255, 0.5) inset, .1em .1em .3em rgba(0, 0, 0, 0.5) inset, inset 0 0 0 99em rgba(20,20,20,0.1);
+}
+
+:checked+.group {
+	box-shadow: -.1em -.1em .1em rgba(255, 255, 255, 0.5) inset, .1em .1em .3em rgba(0, 0, 0, 0.5) inset;
+	background: #2ecc40;
+}
+
+.powerButton {
+    background: #85144b;
+}
+
+.header .title {
+	background: url("images/LaserLine.png") no-repeat;
+    background-size: 100% 0.25em;
+    background-position: 5.5em 3.2em;
+}
+.header .logo {
+	height: 5em;
+    margin: 0 1em;
+}
+
+.header .title h1 {
+    display: inline-block;
+    margin: -0.3em 0;
+    color: #85144b;
+	text-align: center;
+	text-shadow: 2px 2px 3px darkgray;	
+	vertical-align: top;
+}
+
+.header {
+    margin-bottom: 1em;
+}
+
+.canvas {
+	margin: 0.5em auto;
+	max-width: 512px;
+	max-height: 512px;
+	position: relative;
+}
+
+.dropimage {
+	height: 500px;
+    width: 500px;
+	background-image: url("uploads/mask.png");
+	background-size: 100% 100%;
+    background-repeat: no-repeat;
+	border-radius: 1px;
+	border: 2px solid #EEE;
+}
+
+.dropimage.changed {
+	border-color: #ff4136;
+}
+
+.overlay {
+    background: gray;
+    height: 100%;
+    width: 100%;
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    opacity: 0.75;
+}
+
+
+.uploading > img.uploading {
+	display: inline-block;
+}
+
+img.uploading {
+	display: none; // inline-block;
+	height: 20%;
+	width: 20%;
+	z-index: 10;
+	position: absolute;
+	left: 40%;
+	top: 40%;
+}
+
+.focusImage {
+	margin: 0.5em auto;
+	width: 80%;
+	max-width: 460px;
+	min-height: 200px;
+	border-radius: 5px;
+}
+
+.liveImage {
+	margin: 0.5em auto;
+	width: 100%;
+	max-width: 460px;
+	min-height: 200px;
+	border-radius: 5px;
+}
+
+.inline {
+	display: inline-block;
+	width: auto;
+}
+.value {
+	margin: 0.5em;
+	padding: 0.3em 0.6em;
+    display: inline-block;	
+	border: 1px solid darkgray;
+	border-radius: 5px;
+	background: #EEE;
+}
+
+.icon {
+	font-size: 160%;	
+	margin: 0;
+	padding: 0.5em 0.8em;
+	font-weight: 900;
+}
+
+table.move {
+	font-size: 125%;
+	text-align: center;
+}
+
+table.move  tr, td {
+	padding: 2px;
+	margin: 0;
+	background: none;
+}
+
+
+.previewPos  {
+	margin: 0;
+	padding: 0;
+    width: 3em;
+    height: 3em;	
+	display: table-cell;
+	position: relative;
+	background: #EEE;
+	color: #444;
+	box-shadow: .05em .05em .2em rgba(255, 255, 255, 0.5) inset, -.05em -.05em .2em rgba(0, 0, 0, 0.5) inset;
+}
+
+:checked + .previewPos {
+	box-shadow: -.05em -.05em .2em rgba(255, 255, 255, 0.5) inset, .05em .05em .2em rgba(0, 0, 0, 0.5) inset;
+	color: #F11 !important;
+}
+
+.previewPos > div {
+    width: 40%;
+    height: 40%;
+    border: solid 3px;
+    margin: 30%;
+}
+
+.previewPos > .upperLeft {
+    border-bottom: 0px;
+    border-right: 0px;
+}
+
+.previewPos > .upperRight {
+    border-bottom: 0px;
+    border-left: 0px;
+}
+
+.previewPos > .lowerLeft {
+    border-top: 0px;
+    border-right: 0px;
+}
+
+.previewPos > .lowerRight {
+    border-top: 0px;
+    border-left: 0px;
+}
+
+button.move {
+	margin: 1px;
+	padding: 0;
+	width: 2.6em;
+	height: 2.6em;
+	word-spacing: -0.7em;
+	line-height: 0.5em;
+}
+
+.tabs > .title {
+	margin: 0 1em;
+	padding: 0;
+	cursor: pointer;
+	background: inherit;
+	border: none;
+}
+.tabs > .title:not(:first-child):before {
+	margin-right: 2em;
+	content: "\226B";
+}
+
+.tabs > .title.active {
+	color: #85144b;
+	font-weight: 600;
+	background: inherit;
+	z-index: 1;
+}
+
+.tabs > .content {
+	background: inherit;
+	padding: 0.5em 0;
+	margin: 0;
+	border: none;
+}
+
+.center {
+	text-align: center;
+	vertical-align: middle;
+	align-self: center;
+}
+
+.spacing {
+	margin: 0 1em;
+}
+
+#focusAuto {
+	width: 50%;
+	margin: 2em 0 0 0;
+}

@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	
+    <!-- Picnic CSS -->
+	<link rel="stylesheet" href="libs/css/picnic.min.css">
+
+	<!-- Zepto -->
+	<script type='text/javascript' src='libs/js/zepto.min.js'></script>
+
+	<!-- Knockout.js MVVM -->
+	<script type='text/javascript' src='libs/js/knockout-3.0.0.js'></script>
+
+	<!-- Tabs -->
+	<link rel="stylesheet" href="tabs.css">
+	<script src="tabs.js"></script>
+	
+	<!-- Messages -->
+	<link rel="stylesheet" href="msg.css">
+	<script src="msg.js"></script>
+
+	
+	<!--  -->
+	<link rel="stylesheet" href="main.css">
+	<script type='text/javascript' src='main.js'></script>
+
+	
+</head>
+<body>
+
+	<div class="flex three header">
+		
+		<div class="two-third title"><img class="logo" src="" alt="Logo"/><h1>Web Laser Whisperer</h1></div>
+		<div style="text-align: right">
+			<span data-bind="value: status"></span>
+		
+			<img class="center spacing" src="images/network-error.png" alt="network connection lost" data-bind="click: function() {network(true); update()}, visible: !network()">&nbsp;
+			<button class="powerButton" data-bind="click: powerOn, css: {disabled: status() != 'off'}">On</button>
+			<button class="powerButton" data-bind="click: powerOff, css: {disabled: status() == 'off'}">Off</button>
+		</div>
+	</div>
+	
+	<!-- message stack -->
+	<div class="flex">
+		<div id="stack" class="right message-stack half-700 third-1000" data-bind="template: {foreach: msgList, afterAdd: fxFadeIn, beforeRemove: fxSlideUpRemove}">
+			<article class="card message" data-bind="css: type">
+			  <header><span data-bind="html: header"></span><span class="close">
+					<span data-bind="visible: timeoutHandle, click: removeTimeout">
+						<span class="timeout" data-bind="style: { animationDuration: timeout+'s'}"></span> <b>&#9684;</b>
+					</span>
+					&nbsp; <b data-bind="click: remove">&times;</b>
+				</span></header>
+			  <section data-bind="html: text"></section>
+			</article>
+		</div>
+	</div>
+	
+	<!-- status -->
+	<fieldset >
+		<div class="flex two-700">
+			<div class="progress-bar">
+				<div data-bind="text: progress()+' %', style:{width: progress()+'%'}"></div>
+			</div>
+			<div class="flex">
+				<div class="center"><button class='error' data-bind="">Stop</button></div>
+			</div>
+		</div>
+	</fieldset>
+
+	<div class="tabs">
+	
+		<!-- upload image -->
+		
+		<span class="title toggle" for="UploadImage">Upload</span>
+		<div class="flex three-800 content" id="UploadImage">
+			<div class="full">
+				 <fieldset class="panel">
+					<legend>File</legend>
+					<div class="canvas">
+						<label class="dropimage">
+							<img class="uploading" src="images/wait.gif"/>
+							<input id="uploadFile" title="drop file or click me" name="upload" type="file"></input>
+						</label>
+					</div>
+					drop file here (SVG or DXF)
+				</fieldset>
+			</div>	
+		</div>			
+					
+		<!-- Position -->
+		<span class="title toggle active" for="Position">Position</span>
+		<div class="flex three-800 content" id="Position">
+<!--
+			<div class="full two-third-800">
+				 <fieldset class="panel">
+					<legend>live image</legend>
+					<img class="liveImage" label="Live image from laser encraver">
+				</fieldset>
+			</div>
+-->			
+			<div class="center">
+				<table class="move">
+					<tr>
+						<td>
+							<!-- upper left corner -->
+							<label class="">
+								<input type="radio" value="upperLeft" name="previewPos" checked>
+								<div class="previewPos button"><div class="upperLeft"/></div>
+							</label>
+						</td>
+						<td>
+							<!-- up -->
+							<button class="move" data-bind="">&#9650;<br>&#9650;<br>&#9650;</button><br>
+							<button class="move" data-bind="">&#9650;<br>&#9650;</button><br>
+							<button class="move" data-bind="">&#9650;</button><br>
+						</td>
+						<td>
+							<!-- upper right corner -->
+							<label class="">
+								<input type="radio" value="upperRight" name="previewPos">
+								<div class="previewPos button"><div class="upperRight"/></div>
+							</label>
+						</td>
+					</tr>
+
+					<tr>
+						<td>
+							<!-- left -->
+							<button class="move" data-bind=""><b>&#9668; &#9668; &#9668;</b></button><button class="move" data-bind="">&#9668; &#9668;</button><button class="move" data-bind="">&#9668;</button>
+						</td>
+						<td>
+							<!-- center -->
+							<label class="">
+								<input type="radio" value="center" name="previewPos">
+								<div class="previewPos button"><b class="center">&#9587;</b></div>
+							</label>
+						</td>
+						<td>
+							<!-- right -->
+							<button class="move" data-bind="">&#9658;</button><button class="move" data-bind="">&#9658;&#9658;</button><button class="move" data-bind="">&#9658; &#9658; &#9658;</button>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<!-- lower left corner -->
+							<label class="">
+								<input type="radio" value="lowerLeft" name="previewPos">
+								<div class="previewPos button"><div class="lowerLeft"/></div>
+							</label>
+						</td>
+						<td>
+							<!-- down -->
+							<button class="move" data-bind="">&#9660;</button><br>
+							<button class="move" data-bind="">&#9660;<br>&#9660;</button><br>
+							<button class="move" data-bind="">&#9660;<br>&#9660;<br>&#9660;</button><br>
+						</td>
+						<td>
+							<!-- lower right corner -->
+							<label class="">
+								<input type="radio" value="lowerRight" name="previewPos" data-bind="checked: preview">
+								<div class="previewPos button"><div class="lowerRight"/></div>
+							</label>
+						</td>
+					</tr>
+
+					
+				</table>
+			</div>
+		</div>
+
+		<!-- live -->
+		<span class="title toggle" for="Live">Print</span>
+		<div class="flex three-800 content" id="Live">
+			<div class="full two-third-800 panel">
+				 <fieldset class="panel">
+					<legend>live image</legend>
+					<img class="liveImage" label="Live image from laser encraver" >
+				</fieldset>
+			</div>
+			<div class="center panel">
+				<div class="flex one two-500 one-800 center">
+					<div class="center">
+						time left: <span class="value" data-bind="text: timeLeft"></span> min.
+					</div>
+					<br><br><br><br>
+					<div class="center">
+						x: <span class="value" data-bind="text: pos.x"></span>
+						y: <span class="value" data-bind="text: pos.y"></span>
+					</div>
+				</div>
+			</div>
+		</div>		
+		
+	</div>
+
+	<script type='text/javascript'>
+		init();
+	</script>
+</body>
+</html>

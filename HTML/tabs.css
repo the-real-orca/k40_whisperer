@@ -1,0 +1,41 @@
+.tabs {
+	display: flex;
+	flex-flow: row wrap;
+}
+
+.tabs > input {
+	order: -1;	
+}
+
+.tabs > .title {
+	cursor: pointer;
+	background: lightgray;
+	margin: 0.5em 0.5em 0 0;
+	padding: 0.3em 1em;
+	border: 1px solid #888;
+	border-top-left-radius: 0.3em;
+	border-top-right-radius: 0.3em;
+	border-bottom: 0;
+}
+.tabs > .title.active {
+	background: whitesmoke;
+	margin-bottom: -1px;
+	z-index: 1;
+}
+
+.tabs > .content {
+	background: whitesmoke;
+	width: 100%;
+	padding: 0.5em;
+	margin: 0;
+	border: 1px solid #888;
+}
+
+@media screen {
+	.tabs > .title {
+		order: -1;
+	}
+	.tabs > .content:not(.active) {
+		display: none;
+	}
+}
