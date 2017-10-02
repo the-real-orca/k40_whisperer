@@ -37,6 +37,7 @@ body {
 	color: #888;
 }		
 
+
 @media print {	
 	button, .state .label {
 		color: black;
@@ -219,6 +220,10 @@ button, .button {
 	box-shadow: .1em .1em .2em rgba(255, 255, 255, 0.5) inset, -.1em -.1em .2em rgba(0, 0, 0, 0.5) inset;
 }
 
+button.flat, .button.flat {
+	box-shadow: none;
+	border: .1em rgba(100, 100, 100, 0.2) solid;
+}
 
 button:focus {
 	box-shadow: .1em .1em .2em rgba(255, 255, 255, 0.5) inset, -.1em -.1em .2em rgba(0, 0, 0, 0.5) inset;
@@ -366,7 +371,6 @@ table.move  tr, td {
 	position: relative;
 	background: #EEE;
 	color: #444;
-	box-shadow: .05em .05em .2em rgba(255, 255, 255, 0.5) inset, -.05em -.05em .2em rgba(0, 0, 0, 0.5) inset;
 }
 
 :checked + .previewPos {
@@ -408,6 +412,20 @@ button.move {
 	height: 2.6em;
 	word-spacing: -0.7em;
 	line-height: 0.5em;
+}
+
+
+.task > label {
+	font-size: 125%;
+}
+
+.task button, .task .button  {
+//	padding: 0.2em 0.5em;
+	padding: 0;
+	margin: 0;
+	background: none;
+	color: inherit;
+//	border: none;
 }
 
 .tabs > .title {

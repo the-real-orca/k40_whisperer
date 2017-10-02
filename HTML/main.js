@@ -10,11 +10,13 @@ ko.observableArray.fn.pushAll = function(valuesToPush) {
 var freeze = 0;
 
 function jsonGet(name, callback) {
+/* todo	
 	$.get("/laser/" + name, function(data) {
 		viewModel.network(true);
 		if ( callback )
 			callback( JSON.parse(data) )
 	});
+*/	
 }
 
 function jsonSet(name, val, callback) {
