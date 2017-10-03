@@ -7,14 +7,14 @@ ko.observableArray.fn.pushAll = function(valuesToPush) {
     return this;  //optional
 };
 
-var freeze = 0;
-
 function jsonGet(name, callback) {
+/* todo	
 	$.get("/laser/" + name, function(data) {
 		viewModel.network(true);
 		if ( callback )
 			callback( JSON.parse(data) )
 	});
+*/	
 }
 
 function jsonSet(name, val, callback) {
@@ -35,46 +35,34 @@ function jsonSet(name, val, callback) {
 }
 
 var viewModel = {
-	status: ko.observable("off"),
-	intensity: ko.observable(1),
-	focus: ko.observable(0),
+	status: {
+		task: ko.observable(),
+		progress: ko.observable(0.0),
+		timeLeft: ko.observable(),
+		usb: ko.observable(),
+		network: ko.observable("ok"),
+		temp: ko.observable(),
+		airassist: ko.observable(),
+		laser: ko.observable(),
+	},
 	pos: {
 		x: ko.observable(0),
 		y: ko.observable(0)
-	},
-	timeLeft: ko.observable("---"),
-	progress: ko.observable("---"),
-	network: ko.observable(true),
-	preview: ko.observable(),
-	powerOn: function() { jsonSet("power", 1, viewModel.status) },
-	powerOff: function() { jsonSet("power", 0, viewModel.status) },
-	focusOn: function() { jsonSet("focus", "on") },
-	focusOf: function() { jsonSet("focus", "off") },
-	focusUp: function() { jsonSet("focus", -1) },
-	focusDown: function() { jsonSet("focus", 1) },
-	focusStop: function() { jsonSet("focus", 0) },
-	focusAuto: function() { jsonSet("focus", "auto") }
+	}
 };
 
-var neje = {
+var laserCutter = {
 	start: function() { 
 		jsonSet("control", "start", viewModel.status);
 		$(".tabs > .title[for='Live']").trigger("click");
 	},
 	pause: function() { jsonSet("control", "pause", viewModel.status) },
 	reset: function() { jsonSet("control", "reset", viewModel.status) },
-	setIntensity: function() { jsonSet("intensity", parseInt(viewModel.intensity()), viewModel.intensity) },
-	previewTopLeft: function() { jsonSet("preview", "origin", viewModel.preview) },
-	previewCenter: function() { jsonSet("preview", "center", viewModel.preview) },
-	previewBox: function() { jsonSet("preview", "box", viewModel.preview) },
 	moveUp: function() { jsonSet("move/y", 1) },
 	moveDown: function() { jsonSet("move/y", -1) },
 	moveLeft: function() { jsonSet("move/x", -1) },
 	moveRight: function() { jsonSet("move/x", 1) }
 }
-
-var imgCounter = 1;
-var imgLoading = 0;
 
 function fxFadeIn(elem) {
 	if (elem.nodeType === 1) {
@@ -92,6 +80,7 @@ function init() {
 	// init image dropper
 	document.addEventListener("DOMContentLoaded", function() {
 	  [].forEach.call(document.querySelectorAll('.dropimage'), function(img){
+/* TODO		  
 		$("#uploadImageBtn").addClass("disabled");
 		img.onchange = function(e){
 		  var inputfile = this, reader = new FileReader();
@@ -102,6 +91,7 @@ function init() {
 		  }
 		  reader.readAsDataURL(e.target.files[0]);
 		}
+*/		
 	  });
 	});
 	
@@ -158,6 +148,8 @@ function init() {
 	// bind model
 	ko.applyBindings(viewModel);
 
+	
+/* TODO	
 	// bind live image update
 	$(".liveImage")
 		.on('load', function() { imgCounter++; })
@@ -176,15 +168,13 @@ function init() {
 		})
 	
 	
+*/
 
-	// activate periodical update
-	setInterval(update, 300);
-	update();
 }
 
 
 function uploadImage() {
-
+// TODO
 	var file = $("#uploadImageFile")[0].files[0];
 	
 	// check that file ia an image
@@ -230,45 +220,4 @@ function uploadImage() {
 
 function update() {
 
-	if ( !viewModel.network() )	// skip on network failure
-		return;	
-		
-	// query laser status
-	if ( !freeze ) {
-		jsonGet("status", function(data) {
-			viewModel.status(data.status);
-			viewModel.intensity(data.intensity);
-			viewModel.pos.x(data.pos.x);
-			viewModel.pos.y(data.pos.y);
-			viewModel.timeLeft(data.timeLeft);
-			viewModel.progress(data.progress);
-		});
-	}
-	
-	// fetch new live image
-	if ( imgLoading < imgCounter ) {
-		imgLoading = imgCounter;
-		$(".liveImage").attr("src", "laser/image.jpg?t=" + Date.now());
-	}
-	
-	// fetch new focus image if focus tab is active
-	if ( $("#Focus").hasClass("active") ) {
-		$(".focusImage").attr("src", "laser/focus.jpg?t=" + Date.now());
-
-		// update focus data
-		$.getJSON("laser/focus", function(data, status, xhr) {
-			if ( xhr.status == 200 && data ){
-				// decode data
-				viewModel.focus(data.focus );
-			} else {
-				// error
-				if ( viewModel.network() ) {
-					viewModel.network(false);
-					add_msg('warning', "network error", "cannot read meta data: " + xhr.statusText, 5);
-				}
-			}
-		});
-
-	}
-	
 }

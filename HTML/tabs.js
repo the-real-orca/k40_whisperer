@@ -1,4 +1,5 @@
 function init_tabs() {
+/*	
 	// add event listener for content titles
 	$(".tabs > .title").on("click", function(event){
 		var title = $(event.target);
@@ -19,4 +20,5 @@ function init_tabs() {
 	
 	// init active tabs
 	$(".tabs > .title.active").trigger("click");
+*/	
 }

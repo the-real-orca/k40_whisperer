@@ -37,6 +37,42 @@ body {
 	color: #888;
 }		
 
+.checkable {
+	margin: 0 !important;
+}
+
+input {
+	margin: 0.2em;
+}
+
+input[type="number"] {
+	width: 5em;
+	text-align: right;
+}
+
+.card .dangerous, .modal .overlay ~ * .dangerous {
+	float: inherit;
+}
+
+form > * {
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+}
+
+form table {
+	border-collapse: separate;
+	border-spacing: 0 0.6em;
+}
+
+form tr {
+	background: none !important;
+}
+
+form .name:after {
+	content: ":";
+	padding-right: 0.5em;
+}
+
 @media print {	
 	button, .state .label {
 		color: black;
@@ -200,10 +236,14 @@ body {
 
 .left {
 	left: 0;
+    text-align: left;
+	align-self: left;
 }
 
 .right {
 	right: 0;
+    text-align: right;
+	align-self: right;
 }
 
 .panel {
@@ -219,6 +259,10 @@ button, .button {
 	box-shadow: .1em .1em .2em rgba(255, 255, 255, 0.5) inset, -.1em -.1em .2em rgba(0, 0, 0, 0.5) inset;
 }
 
+button.flat, .button.flat {
+	box-shadow: none;
+	border: .1em rgba(100, 100, 100, 0.2) solid;
+}
 
 button:focus {
 	box-shadow: .1em .1em .2em rgba(255, 255, 255, 0.5) inset, -.1em -.1em .2em rgba(0, 0, 0, 0.5) inset;
@@ -257,8 +301,36 @@ button.active, .button.active, button:active, .button:active {
 	vertical-align: top;
 }
 
-.header {
-    margin-bottom: 1em;
+
+.status > * {
+	margin: 0 0.4em;
+	font-size: 110%;
+	color: #AAA;
+}
+
+.status .on {
+	color: black;
+}
+
+.status .ok {
+	color: black;
+}
+
+.status .dangerous.on {
+	color: red;
+}
+
+.status .warn {
+	color: darkorange;
+}
+
+.status .error {
+	color: #D00;
+}
+
+.status .error:before {
+	font-family: "laser-font";	
+	content: '\e82c';
 }
 
 .canvas {
@@ -307,6 +379,14 @@ img.uploading {
 	position: absolute;
 	left: 40%;
 	top: 40%;
+}
+
+.small {
+	font-size: 75%;
+}
+
+.large {
+	font-size: 125%;
 }
 
 .focusImage {
@@ -366,7 +446,6 @@ table.move  tr, td {
 	position: relative;
 	background: #EEE;
 	color: #444;
-	box-shadow: .05em .05em .2em rgba(255, 255, 255, 0.5) inset, -.05em -.05em .2em rgba(0, 0, 0, 0.5) inset;
 }
 
 :checked + .previewPos {
@@ -410,30 +489,40 @@ button.move {
 	line-height: 0.5em;
 }
 
-.tabs > .title {
-	margin: 0 1em;
-	padding: 0;
-	cursor: pointer;
-	background: inherit;
+
+.task {
+	font-size: 125%;
+}
+
+.task td  {
+	padding: 0.2em
+}
+.task td:first-child {
+	padding-left: 1em;
+}
+.task td:last-child {
+	padding-right: 1em;
+}
+
+.task button, .task .button  {
+	padding: 0.5em;
+	margin: 0;
+	min-width: 0;
+	background: none;
+	color: inherit;
 	border: none;
 }
-.tabs > .title:not(:first-child):before {
-	margin-right: 2em;
-	content: "\226B";
+
+.colorSelect {
+	margin-right: 1em;
+}
+
+.typeSelect {
+	margin-right: 1.5em;
 }
 
 .tabs > .title.active {
 	color: #85144b;
-	font-weight: 600;
-	background: inherit;
-	z-index: 1;
-}
-
-.tabs > .content {
-	background: inherit;
-	padding: 0.5em 0;
-	margin: 0;
-	border: none;
 }
 
 .center {

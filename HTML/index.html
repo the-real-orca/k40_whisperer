@@ -7,6 +7,9 @@
     <!-- Picnic CSS -->
 	<link rel="stylesheet" href="libs/css/picnic.min.css">
 
+    <!-- Icons -->
+	<link rel="stylesheet" href="libs/css/laser-font.css">
+
 	<!-- Zepto -->
 	<script type='text/javascript' src='libs/js/zepto.min.js'></script>
 
@@ -30,15 +33,15 @@
 </head>
 <body>
 
-	<div class="flex three header">
-		
-		<div class="two-third title"><img class="logo" src="" alt="Logo"/><h1>Web Laser Whisperer</h1></div>
-		<div style="text-align: right">
-			<span data-bind="value: status"></span>
-		
-			<img class="center spacing" src="images/network-error.png" alt="network connection lost" data-bind="click: function() {network(true); update()}, visible: !network()">&nbsp;
-			<button class="powerButton" data-bind="click: powerOn, css: {disabled: status() != 'off'}">On</button>
-			<button class="powerButton" data-bind="click: powerOff, css: {disabled: status() == 'off'}">Off</button>
+	<!-- header -->
+	<div class="flex two header">
+		<div class="title"><img class="logo" src="" alt="Logo"/><h1>Laser Whisperer</h1></div>
+		<div class="status ">
+			<span class="dangerous" data-bind="css: status.laser"><i class="icon-flash"></i></span>
+			<span data-bind="css: status.airassist"><i class="icon-fan"></i></span>
+			<span data-bind="css: status.temp"><i class="icon-thermometer"></i></span>
+			<span data-bind="css: status.usb" ><i class="icon-usb"></i></span>
+			<span data-bind="css: status.network" ><i class="icon-lan-connect"></i></span>
 		</div>
 	</div>
 	
@@ -57,24 +60,12 @@
 		</div>
 	</div>
 	
-	<!-- status -->
-	<fieldset >
-		<div class="flex two-700">
-			<div class="progress-bar">
-				<div data-bind="text: progress()+' %', style:{width: progress()+'%'}"></div>
-			</div>
-			<div class="flex">
-				<div class="center"><button class='error' data-bind="">Stop</button></div>
-			</div>
-		</div>
-	</fieldset>
-
 	<div class="tabs">
 	
 		<!-- upload image -->
-		
-		<span class="title toggle" for="UploadImage">Upload</span>
-		<div class="flex three-800 content" id="UploadImage">
+		<input id="UploadImage" name="tabs" type="radio" checked />
+		<label class="title" for="UploadImage"><i class="icon-picture"></i></label>
+		<div class="flex three-800 content" >
 			<div class="full">
 				 <fieldset class="panel">
 					<legend>File</legend>
@@ -84,14 +75,15 @@
 							<input id="uploadFile" title="drop file or click me" name="upload" type="file"></input>
 						</label>
 					</div>
-					drop file here (SVG or DXF)
+					click to browse filesystem, or drop file
 				</fieldset>
 			</div>	
 		</div>			
 					
 		<!-- Position -->
-		<span class="title toggle active" for="Position">Position</span>
-		<div class="flex three-800 content" id="Position">
+		<input id="Position" name="tabs" type="radio" />
+		<label class="title" for="Position"><i class="icon-move"></i></label>
+		<div class="flex three-800 content">
 <!--
 			<div class="full two-third-800">
 				 <fieldset class="panel">
@@ -100,101 +92,226 @@
 				</fieldset>
 			</div>
 -->			
-			<div class="center">
-				<table class="move">
-					<tr>
-						<td>
-							<!-- upper left corner -->
-							<label class="">
-								<input type="radio" value="upperLeft" name="previewPos" checked>
-								<div class="previewPos button"><div class="upperLeft"/></div>
-							</label>
-						</td>
-						<td>
-							<!-- up -->
-							<button class="move" data-bind="">&#9650;<br>&#9650;<br>&#9650;</button><br>
-							<button class="move" data-bind="">&#9650;<br>&#9650;</button><br>
-							<button class="move" data-bind="">&#9650;</button><br>
-						</td>
-						<td>
-							<!-- upper right corner -->
-							<label class="">
-								<input type="radio" value="upperRight" name="previewPos">
-								<div class="previewPos button"><div class="upperRight"/></div>
-							</label>
-						</td>
-					</tr>
+			<div class="center panel">
+				<fieldset class="panel">
+					<legend>Move</legend>
+					<div class="center">
+						<table class="move">
+							<tr>
+								<td>
+									<!-- upper left corner -->
+									<label class="">
+										<input type="radio" value="upperLeft" name="previewPos" checked>
+										<div class="previewPos button flat"><div class="upperLeft"/></div>
+									</label>
+								</td>
+								<td>
+									<!-- up -->
+									<button class="move" data-bind="">&#9650;<br>&#9650;<br>&#9650;</button><br>
+									<button class="move" data-bind="">&#9650;<br>&#9650;</button><br>
+									<button class="move" data-bind="">&#9650;</button><br>
+								</td>
+								<td>
+									<!-- upper right corner -->
+									<label class="">
+										<input type="radio" value="upperRight" name="previewPos">
+										<div class="previewPos button flat"><div class="upperRight"/></div>
+									</label>
+								</td>
+							</tr>
 
-					<tr>
-						<td>
-							<!-- left -->
-							<button class="move" data-bind=""><b>&#9668; &#9668; &#9668;</b></button><button class="move" data-bind="">&#9668; &#9668;</button><button class="move" data-bind="">&#9668;</button>
-						</td>
-						<td>
-							<!-- center -->
-							<label class="">
-								<input type="radio" value="center" name="previewPos">
-								<div class="previewPos button"><b class="center">&#9587;</b></div>
-							</label>
-						</td>
-						<td>
-							<!-- right -->
-							<button class="move" data-bind="">&#9658;</button><button class="move" data-bind="">&#9658;&#9658;</button><button class="move" data-bind="">&#9658; &#9658; &#9658;</button>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<!-- lower left corner -->
-							<label class="">
-								<input type="radio" value="lowerLeft" name="previewPos">
-								<div class="previewPos button"><div class="lowerLeft"/></div>
-							</label>
-						</td>
-						<td>
-							<!-- down -->
-							<button class="move" data-bind="">&#9660;</button><br>
-							<button class="move" data-bind="">&#9660;<br>&#9660;</button><br>
-							<button class="move" data-bind="">&#9660;<br>&#9660;<br>&#9660;</button><br>
-						</td>
-						<td>
-							<!-- lower right corner -->
-							<label class="">
-								<input type="radio" value="lowerRight" name="previewPos" data-bind="checked: preview">
-								<div class="previewPos button"><div class="lowerRight"/></div>
-							</label>
-						</td>
-					</tr>
+							<tr>
+								<td>
+									<!-- left -->
+									<button class="move" data-bind=""><b>&#9668; &#9668; &#9668;</b></button><button class="move" data-bind="">&#9668; &#9668;</button><button class="move" data-bind="">&#9668;</button>
+								</td>
+								<td>
+									<!-- center -->
+									<label class="">
+										<input type="radio" value="center" name="previewPos">
+										<div class="previewPos button flat"><b class="center">&#9587;</b></div>
+									</label>
+								</td>
+								<td>
+									<!-- right -->
+									<button class="move" data-bind="">&#9658;</button><button class="move" data-bind="">&#9658;&#9658;</button><button class="move" data-bind="">&#9658; &#9658; &#9658;</button>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<!-- lower left corner -->
+									<label class="">
+										<input type="radio" value="lowerLeft" name="previewPos">
+										<div class="previewPos button flat"><div class="lowerLeft"/></div>
+									</label>
+								</td>
+								<td>
+									<!-- down -->
+									<button class="move" data-bind="">&#9660;</button><br>
+									<button class="move" data-bind="">&#9660;<br>&#9660;</button><br>
+									<button class="move" data-bind="">&#9660;<br>&#9660;<br>&#9660;</button><br>
+								</td>
+								<td>
+									<!-- lower right corner -->
+									<label class="">
+										<input type="radio" value="lowerRight" name="previewPos" data-bind="">
+										<div class="previewPos button flat"><div class="lowerRight"/></div>
+									</label>
+								</td>
+							</tr>
 
-					
-				</table>
+							
+						</table>
+					</div>
+				</fieldset>
 			</div>
 		</div>
 
-		<!-- live -->
-		<span class="title toggle" for="Live">Print</span>
-		<div class="flex three-800 content" id="Live">
+		
+		<!-- Print -->
+		<input id="Print" name="tabs" type="radio" />
+		<label class="title" for="Print"><i class="icon-flash"></i></label>
+		<div class="content">
+<!--
 			<div class="full two-third-800 panel">
 				 <fieldset class="panel">
 					<legend>live image</legend>
 					<img class="liveImage" label="Live image from laser encraver" >
 				</fieldset>
 			</div>
-			<div class="center panel">
-				<div class="flex one two-500 one-800 center">
-					<div class="center">
-						time left: <span class="value" data-bind="text: timeLeft"></span> min.
-					</div>
-					<br><br><br><br>
-					<div class="center">
-						x: <span class="value" data-bind="text: pos.x"></span>
-						y: <span class="value" data-bind="text: pos.y"></span>
-					</div>
-				</div>
+-->			
+			<div class="center">
+				<fieldset class="">
+					<legend>Tasks</legend>
+					<table class="">
+						<tr class="task">
+							<td>
+								<label>
+									<input type="checkbox" checked><span class="checkable"></span>
+								</label>
+							</td>
+							<td>
+								<button class="flat"><span>raster</span> <i class="icon-sliders"></i></button>
+							</td>
+							<td>
+								<button class="flat right"><i class="icon-play"></i></button>
+							</td>
+						</tr>
+						<tr class="task">
+							<td>
+								<label>
+									<input type="checkbox" checked><span class="checkable"></span>
+								</label>
+							</td>
+							<td>
+								<button class="flat"><span>engrave</span> <i class="icon-sliders"></i></button>
+							</td>
+							<td>
+								<button class="flat right"><i class="icon-play"></i></button>
+							</td>
+						</tr>
+						<tr class="task">
+							<td>
+								<label>
+									<input type="checkbox" checked><span class="checkable"></span>
+								</label>
+							</td>
+							<td>
+								<button class="flat"><span>cut</span> <i class="icon-sliders"></i></button>
+							</td>
+							<td>
+								<button class="flat right"><i class="icon-play"></i></button>
+							</td>
+						</tr>
+						
+					</table>
+				</fieldset>
+				<button class="right"><i class="icon-play"></i></button>
 			</div>
 		</div>		
 		
 	</div>
 
+<label for="dialog_taskSettings" class="button">Show modal</label>
+
+<div class="modal">
+	<input id="dialog_taskSettings" type="checkbox"  />
+	<label for="dialog_taskSettings" class="overlay"></label>
+	<article>
+		<header>
+			<h3>Task Settings</h3>
+			<label for="dialog_taskSettings" class="close">&times;</label>
+		</header>
+		<section class="content">
+			<form>
+				<input input="text" placeholder="Task Name" />
+				
+
+				<table>
+					<tr>
+						<td class="name">color</td>
+						<td>
+							<label class="colorSelect" style="color: #222">
+								<input type="checkbox" />
+								<span class="checkable"><i class="icon-brush large"></i></span>
+							</label>
+							<label class="colorSelect" style="color: red">
+								<input type="checkbox" />
+								<span class="checkable"><i class="icon-brush large"></i></span>
+							</label>
+							<label class="colorSelect" style="color: green">
+								<input type="checkbox" />
+								<span class="checkable"><i class="icon-brush large"></i></span>
+							</label>
+							<label class="colorSelect" style="color: blue">
+								<input type="checkbox" />
+								<span class="checkable"><i class="icon-brush large"></i></span>
+							</label>
+							<label class="colorSelect" style="color: orange">
+								<input type="checkbox" />
+								<span class="checkable"><i class="icon-brush large"></i></span>
+							</label>
+						</td>
+					</tr>				
+					<tr>
+						<td class="name">type</td>
+						<td>
+							<label class="typeSelect" >
+								<input name="typeSelect" type="radio" checked />
+								<span class="checkable"><i class="icon-move large">??</i></span>
+							</label>
+							<label class="typeSelect" >
+								<input name="typeSelect" type="radio" />
+								<span class="checkable"><i class="icon-ellipsis large">??</i></span>
+							</label>
+						</td>
+					</tr>
+
+					<tr>
+						<td class="name">speed</td>
+						<td><input type="number" placeholder="10" min="0"></input> <span class="unit">mm/s</span></td>
+					</tr>
+
+					<tr>
+						<td class="name">repeat</td>
+						<td><input type="number" placeholder="1" min="1"></input> <i class="icon-retweet large"></i></td>
+					</tr>
+				</table>
+
+				<label>
+					<input type="checkbox" checked /><span class="checkable">message before task</span>
+				</label>
+				<textarea class="" placeholder="Task Message ..."></textarea>
+			</form>
+		</section>
+		<footer class="right">
+			<label for="dialog_taskSettings" class="button dangerous">Cancel</label>
+			<label for="dialog_taskSettings" class="button success">OK</label>
+		</footer>
+	</article>
+</div>
+	
+	
 	<script type='text/javascript'>
 		init();
 	</script>

@@ -3,10 +3,6 @@
 	flex-flow: row wrap;
 }
 
-.tabs > input {
-	order: -1;	
-}
-
 .tabs > .title {
 	cursor: pointer;
 	background: lightgray;
@@ -16,11 +12,15 @@
 	border-top-left-radius: 0.3em;
 	border-top-right-radius: 0.3em;
 	border-bottom: 0;
+	display: inline-block;
 }
-.tabs > .title.active {
+.tabs > input[type=radio]:checked + .title {
 	background: whitesmoke;
 	margin-bottom: -1px;
-	z-index: 1;
+}
+
+.tabs > input[type=radio]:checked + .title + .content {
+	display: inherit;
 }
 
 .tabs > .content {
@@ -31,11 +31,12 @@
 	border: 1px solid #888;
 }
 
+
 @media screen {
 	.tabs > .title {
 		order: -1;
 	}
-	.tabs > .content:not(.active) {
+	.tabs > .content {
 		display: none;
 	}
 }
