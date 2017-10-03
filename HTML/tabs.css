@@ -6,21 +6,24 @@
 .tabs > .title {
 	cursor: pointer;
 	background: lightgray;
-	margin: 0.5em 0.5em 0 0;
+	margin: 0.5em 0.5em -2px 0;
 	padding: 0.3em 1em;
 	border: 1px solid #888;
 	border-top-left-radius: 0.3em;
 	border-top-right-radius: 0.3em;
 	border-bottom: 0;
 	display: inline-block;
+	height: fit-content;
+	width: fit-content;
 }
+
 .tabs > input[type=radio]:checked + .title {
 	background: whitesmoke;
-	margin-bottom: -1px;
+	z-index: 100;	
 }
 
 .tabs > input[type=radio]:checked + .title + .content {
-	display: inherit;
+	display: inline-block;
 }
 
 .tabs > .content {

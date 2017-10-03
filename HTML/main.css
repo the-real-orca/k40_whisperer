@@ -521,8 +521,27 @@ button.move {
 	margin-right: 1.5em;
 }
 
-.tabs > .title.active {
-	color: #85144b;
+.tabs {
+	flex-flow: column wrap-reverse;
+	height: 90%;
+	align-content: center;
+}
+
+.tabs > .title {
+	font-size: 150%;
+	padding: 1em;
+	margin: 0.5em 0.5em 0 -2px;
+	border: 1px solid #888;
+	border-left: 0;
+	border-radius: 0;
+	border-top-right-radius: 0.3em;
+	border-bottom-right-radius: 0.3em;
+}
+
+.tabs > .content {
+	width: 80%;
+	height: auto;
+	flex: 1 90%;
 }
 
 .center {
