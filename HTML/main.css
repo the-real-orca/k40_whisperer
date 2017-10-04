@@ -521,28 +521,21 @@ button.move {
 	margin-right: 1.5em;
 }
 
-.tabs {
-	flex-flow: column wrap-reverse;
-	height: 90%;
-	align-content: center;
+.tabs > * {
+	background: #FAFAFA;
 }
 
 .tabs > .title {
-	font-size: 150%;
-	padding: 1em;
-	margin: 0.5em 0.5em 0 -2px;
-	border: 1px solid #888;
-	border-left: 0;
-	border-radius: 0;
-	border-top-right-radius: 0.3em;
-	border-bottom-right-radius: 0.3em;
+	font-size: 125%;
+	margin-bottom: -1px;
 }
 
-.tabs > .content {
-	width: 80%;
-	height: auto;
-	flex: 1 90%;
+.tabs.side-right > .title {
+	padding: 1em;	
+	margin-left: -1px;
 }
+
+
 
 .center {
 	text-align: center;
@@ -552,9 +545,4 @@ button.move {
 
 .spacing {
 	margin: 0 1em;
-}
-
-#focusAuto {
-	width: 50%;
-	margin: 2em 0 0 0;
 }

@@ -131,8 +131,6 @@ function init() {
 	$('button, .button').on('keypress', function(e) { if ( e.key == ' ' || e.keyCode == 32 ) {$(e.target).trigger('pressed', e);} })
 	$('button, .button').on('keyup', function(e) { if ( e.key == ' ' || e.keyCode == 32 ) {$(e.target).trigger('released', e);} })		
 	
-	// init tabs
-	init_tabs();
 	
 	// init messages
 	init_msg();

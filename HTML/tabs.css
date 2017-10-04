@@ -3,22 +3,25 @@
 	flex-flow: row wrap;
 }
 
-.tabs > .title {
-	cursor: pointer;
-	background: lightgray;
-	margin: 0.5em 0.5em -2px 0;
-	padding: 0.3em 1em;
+.tabs > * {
 	border: 1px solid #888;
+}
+
+.tabs > .title {
+	box-shadow: 0 0 0 9999px rgba(10, 10, 10, 0.1) inset;
+	cursor: pointer;
+	margin: 0.5em 0.5em 0 0;
+	padding: 0.4em 1em;
 	border-top-left-radius: 0.3em;
 	border-top-right-radius: 0.3em;
-	border-bottom: 0;
+	border-bottom-style: none;
 	display: inline-block;
 	height: fit-content;
 	width: fit-content;
 }
 
 .tabs > input[type=radio]:checked + .title {
-	background: whitesmoke;
+	box-shadow: none;
 	z-index: 100;	
 }
 
@@ -27,11 +30,32 @@
 }
 
 .tabs > .content {
-	background: whitesmoke;
 	width: 100%;
 	padding: 0.5em;
 	margin: 0;
-	border: 1px solid #888;
+}
+
+
+.tabs.side-right {
+	flex-flow: column wrap-reverse;
+	height: 90%;
+	align-content: center;
+}
+
+.tabs.side-right > .title {
+//	padding: 1em;
+	margin: 0 0.5em 0.5em 0;
+	border-radius: 0;
+	border-top-right-radius: 0.3em;
+	border-bottom-right-radius: 0.3em;
+	border-bottom-style: solid;
+	border-left-style: none;
+}
+
+.tabs > .content {
+	width: 80%;
+	height: auto;
+	flex: 1 99%;
 }
 
 
