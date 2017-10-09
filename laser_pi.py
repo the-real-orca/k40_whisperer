@@ -3,45 +3,36 @@
 
 import sys
 import time
-from nano_library import K40_CLASS
+import k40_wrapper
 
 
-#    def Initialize_Laser():
-k40=K40_CLASS()
+laser=k40_wrapper.LASER_CLASS()
 try:
     print ("INIT:")
-    k40.initialize_device()
-    print ("DATA:")
-    print (k40.read_data())
-    print ("HELLO:")
-    print (k40.say_hello())
-    print ("HOME:")
-    print (k40.home_position())
-    print (k40.read_data())
-#			self.laserX  = 0.0
-#			self.laserY  = 0.0
+    laser.init("mm")
+	
+    print ("HOME:"); laser.home(); time.sleep(3)
         
-    print ("MOVE")
-    print (k40.rapid_move(10/25.4,0))
-    time.sleep(5)
-    print (k40.read_data())
-    print ("UNLOCK:")
-    print (k40.unlock_rail())
-    print ("RELEASE:")
-    print (k40.release_usb())
+    print ("MOVE ABS: 100, -100"); laser.goto(100, -100); time.sleep(2)
+
+    print ("MOVE REL: 50, 0"); laser.move(50, 0); time.sleep(2)
+    print ("MOVE REL: -50, -50"); laser.move(-50, -50); time.sleep(2)
+
+    print ("MOVE ABS: 0, 0"); laser.goto(0, 0); time.sleep(2)
+
+    print ("UNLOCK:"); laser.unlock(); time.sleep(2)
+
+    print ("RELEASE:"); laser.release()
 
 except StandardError as e:
-#		except RuntimeError as e: #(RuntimeError, TypeError, NameError, StandardError):
     error_text = "%s" %(e)
     if "BACKEND" in error_text.upper():
         error_text = error_text + " (libUSB driver not installed)"
     print ("USB Error: %s" %(error_text))
-    k40=None
     sys.exit()
 
 except:
     print("Unknown USB Error")
-    k40=None
     sys.exit()
                 
 
