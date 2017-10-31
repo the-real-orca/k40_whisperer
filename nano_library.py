@@ -47,21 +47,35 @@ class K40_CLASS:
         self.unlock  = [166,0,73,83,50,80,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,166,15]
         self.home    = [166,0,73,80,80,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,166,228]
         self.estop  =  [166,0,73,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,166,130]
-        
-    def say_hello(self):
-        self.dev.write(self.write_addr,self.hello,self.timeout)
-        return self.read_data()
+
+    
+
+    def send_retry(self, write_addr, data, timeout):
+        cnt=1
+        while cnt < self.n_timeouts:
+            try:
+                self.dev.write(write_addr,data,timeout)
+                break
+            except:
+                cnt=cnt+1
+                time.sleep(0.1)
+        if cnt == self.n_timeouts:
+            raise StandardError("Number of timeouts exceeded.")
 
     def send_array(self,array):
-        self.dev.write(self.write_addr,array,self.timeout)
+        self.send_retry(self.write_addr,array,self.timeout)
         self.read_data()
-    
+
+    def say_hello(self):
+        self.send_retry(self.write_addr,self.hello,self.timeout)
+        return self.read_data()
+
     def unlock_rail(self):
-        self.dev.write(self.write_addr,self.unlock,self.timeout)
+        self.send_retry(self.write_addr,self.unlock,self.timeout)
         return self.say_hello()
 
     def e_stop(self):
-        self.dev.write(self.write_addr,self.estop,self.timeout)
+        self.send_retry(self.write_addr,self.estop,self.timeout)
         return self.say_hello()
 
     def reset_usb(self):
@@ -72,7 +86,7 @@ class K40_CLASS:
         self.dev = None
 
     def home_position(self):
-        self.dev.write(self.write_addr,self.home,self.timeout)
+        self.send_retry(self.write_addr,self.home,self.timeout)
         self.say_hello()
         return self.say_hello()
     
@@ -136,6 +150,7 @@ class K40_CLASS:
                 except:
                     cnt=cnt+1
                     update_gui("Timeout #%d, packet number %d of %d" %(cnt,packet_cnt,len(packets)))
+                    time.sleep(0.1)
             if cnt == self.n_timeouts:
                 update_gui("Too Many Timeouts(%d) Quiting..." %(cnt))
                 break
