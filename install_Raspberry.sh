@@ -11,8 +11,9 @@ echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="5512", ENV{D
 # get dependencies
 sudo apt-get update
 sudo apt-get upgrade -y
+sudo apt-get install python-pip git -y
 sudo apt-get install inkscape libjpeg-dev zlib1g-dev -y 
-pip install --upgrade pip 
+sudo pip install --upgrade pip 
 
 # install K40 Whisperer
 cd ~

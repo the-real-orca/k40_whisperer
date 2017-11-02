@@ -13,6 +13,9 @@
 	<!-- Zepto -->
 	<script type='text/javascript' src='libs/js/zepto.min.js'></script>
 
+	<!-- WebSockets -->
+	<script type="text/javascript" src="libs/js/socket.io.slim.js"></script>
+	
 	<!-- Knockout.js MVVM -->
 	<script type='text/javascript' src='libs/js/knockout-3.0.0.js'></script>
 
@@ -28,19 +31,21 @@
 	<link rel="stylesheet" href="main.css">
 	<script type='text/javascript' src='main.js'></script>
 
-	
 </head>
 <body>
 
 	<!-- header -->
 	<div class="flex two header">
-		<div class="title"><img class="logo" src="" alt="Logo"/><h1>Laser Pi</h1></div>
+		<div class="title"><img class="logo" src="" alt="Logo"/><h1>Pi Whisperer</h1></div>
 		<div class="status ">
-			<span class="dangerous" data-bind="css: status.laser"><i class="icon-flash"></i></span>
-			<span data-bind="css: status.airassist"><i class="icon-fan"></i></span>
-			<span data-bind="css: status.temp"><i class="icon-thermometer"></i></span>
-			<span data-bind="css: status.usb" ><i class="icon-usb"></i></span>
-			<span data-bind="css: status.network" ><i class="icon-lan-connect"></i></span>
+			<span class="dangerous" data-bind="css: { ok: status.laser, error: alert.laser }"><i class="icon-laser"></i></span>
+			<span data-bind="css: { ok: status.airassist, error: alert.airassist }"><i class="icon-fan"></i> <span data-bind="text: status.airassist"></span>%</span>
+			
+			<span data-bind="css: { ok: status.waterTemp, error: alert.waterTemp }"><i class="icon-thermometer"></i> <span data-bind="text: status.waterTemp"></span>&deg;C</span>
+			<span data-bind="css: { ok: status.waterFlow, error: alert.waterFlow }"><i class="icon-air"></i> <span data-bind="text: status.waterFlow"></span>l/min</span>
+			
+			<span data-bind="css: { ok: status.usb, error: alert.usb }" ><i class="icon-usb"></i></span>
+			<span data-bind="css: { ok: status.network, error: alert.network }" ><i class="icon-lan-connect"></i></span>
 		</div>
 	</div>
 	
@@ -59,11 +64,12 @@
 		</div>
 	</div>
 	
+	<!-- main content -->
 	<div class="tabs side-right">
 	
-		<!-- upload image -->
-		<input id="UploadImage" name="mainTabsGroup" type="radio" checked />
-		<label class="title" for="UploadImage"><i class="icon-picture"></i></label>
+		<!-- Upload -->
+		<input id="Upload" name="mainTabsGroup" type="radio"  />
+		<label class="title" for="Upload"><i class="icon-picture"></i></label>
 		<div class="content" >
 			<div class="full">
 				 <fieldset class="panel">
@@ -81,17 +87,9 @@
 					
 		
 		<!-- Position -->
-		<input id="Position" name="mainTabsGroup" type="radio" />
+		<input id="Position" name="mainTabsGroup" type="radio" checked/>
 		<label class="title" for="Position"><i class="icon-move"></i></label>
 		<div class="content">
-<!--
-			<div class="full two-third-800">
-				 <fieldset class="panel">
-					<legend>live image</legend>
-					<img class="liveImage" label="Live image from laser encraver">
-				</fieldset>
-			</div>
--->			
 			<div class="center panel">
 				<fieldset class="panel">
 					<legend>Move</legend>
@@ -101,21 +99,21 @@
 								<td>
 									<!-- upper left corner -->
 									<label class="">
-										<input type="radio" value="upperLeft" name="previewPos" checked>
-										<div class="previewPos button flat"><div class="upperLeft"/></div>
+										<input type="radio" value="upperLeft" name="anchorPos" data-bind="checked: anchor">
+										<div class="anchorPos button flat"><div class="upperLeft"/></div>
 									</label>
 								</td>
 								<td>
 									<!-- up -->
-									<button class="move" data-bind="">&#9650;<br>&#9650;<br>&#9650;</button><br>
-									<button class="move" data-bind="">&#9650;<br>&#9650;</button><br>
-									<button class="move" data-bind="">&#9650;</button><br>
+									<button class="move" data-bind="click: move.bind($data, 0, $root.config.stepSize()*10 )">&#9650;<br>&#9650;<br>&#9650;</button><br>
+									<button class="move" data-bind="click: move.bind($data, 0, $root.config.stepSize() )">&#9650;<br>&#9650;</button><br>
+									<button class="move" data-bind="click: move.bind($data, 0, $root.config.stepSize()/10 )">&#9650;</button><br>
 								</td>
 								<td>
 									<!-- upper right corner -->
 									<label class="">
-										<input type="radio" value="upperRight" name="previewPos">
-										<div class="previewPos button flat"><div class="upperRight"/></div>
+										<input type="radio" value="upperRight" name="anchorPos" data-bind="checked: anchor">
+										<div class="anchorPos button flat"><div class="upperRight"/></div>
 									</label>
 								</td>
 							</tr>
@@ -123,39 +121,39 @@
 							<tr>
 								<td>
 									<!-- left -->
-									<button class="move" data-bind=""><b>&#9668; &#9668; &#9668;</b></button><button class="move" data-bind="">&#9668; &#9668;</button><button class="move" data-bind="">&#9668;</button>
+									<button class="move" data-bind="click: move.bind($data, -$root.config.stepSize()*10, 0)"><b>&#9668; &#9668; &#9668;</b></button><button class="move" data-bind="click: move.bind($data, -$root.config.stepSize(), 0)">&#9668; &#9668;</button><button class="move" data-bind="click: move.bind($data, -$root.config.stepSize()/10, 0)">&#9668;</button>
 								</td>
 								<td>
 									<!-- center -->
 									<label class="">
-										<input type="radio" value="center" name="previewPos">
-										<div class="previewPos button flat"><b class="center">&#9587;</b></div>
+										<input type="radio" value="center" name="anchorPos" data-bind="checked: anchor">
+										<div class="anchorPos button flat"><b class="center">&#9587;</b></div>
 									</label>
 								</td>
 								<td>
 									<!-- right -->
-									<button class="move" data-bind="">&#9658;</button><button class="move" data-bind="">&#9658;&#9658;</button><button class="move" data-bind="">&#9658; &#9658; &#9658;</button>
+									<button class="move" data-bind="click: move.bind($data, $root.config.stepSize()/10, 0)">&#9658;</button><button class="move" data-bind="click: move.bind($data, $root.config.stepSize(), 0)">&#9658; &#9658;</button><button class="move" data-bind="click: move.bind($data, $root.config.stepSize()*10, 0)">&#9658; &#9658; &#9658;</button>
 								</td>
 							</tr>
 							<tr>
 								<td>
 									<!-- lower left corner -->
 									<label class="">
-										<input type="radio" value="lowerLeft" name="previewPos">
-										<div class="previewPos button flat"><div class="lowerLeft"/></div>
+										<input type="radio" value="lowerLeft" name="anchorPos" data-bind="checked: anchor">
+										<div class="anchorPos button flat"><div class="lowerLeft"/></div>
 									</label>
 								</td>
 								<td>
 									<!-- down -->
-									<button class="move" data-bind="">&#9660;</button><br>
-									<button class="move" data-bind="">&#9660;<br>&#9660;</button><br>
-									<button class="move" data-bind="">&#9660;<br>&#9660;<br>&#9660;</button><br>
+									<button class="move" data-bind="click: move.bind($data, 0, -$root.config.stepSize()/10 )">&#9660;</button><br>
+									<button class="move" data-bind="click: move.bind($data, 0, -$root.config.stepSize() )">&#9660;<br>&#9660;</button><br>
+									<button class="move" data-bind="click: move.bind($data, 0, -$root.config.stepSize()*10 )">&#9660;<br>&#9660;<br>&#9660;</button><br>
 								</td>
 								<td>
 									<!-- lower right corner -->
 									<label class="">
-										<input type="radio" value="lowerRight" name="previewPos" data-bind="">
-										<div class="previewPos button flat"><div class="lowerRight"/></div>
+										<input type="radio" value="lowerRight" name="anchorPos"  data-bind="checked: anchor">
+										<div class="anchorPos button flat"><div class="lowerRight"/></div>
 									</label>
 								</td>
 							</tr>
@@ -170,7 +168,7 @@
 		
 		<!-- Print -->
 		<input id="Print" name="mainTabsGroup" type="radio" />
-		<label class="title" for="Print"><i class="icon-flash"></i></label>
+		<label class="title" for="Print"><i class="icon-laser"></i></label>
 		<div class="content">
 <!--
 			<div class="full two-third-800 panel">

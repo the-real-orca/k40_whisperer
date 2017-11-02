@@ -4,8 +4,11 @@
 Automatic Installation
 ----------------------
 
-`./install_Raspberry.sh`
-
+```bash
+wget https://raw.githubusercontent.com/the-real-orca/k40_whisperer/master/install_Raspberry.sh
+chmod a+x ./install_Raspberry.sh
+./install_Raspberry.sh
+```
 
 Manual Installation
 -------------------
@@ -31,9 +34,9 @@ echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="5512", ENV{D
 
 git clone https://github.com/the-real-orca/k40_whisperer.git
 cd k40_whisperer
-
-sudo apt-get install inkscape libjpeg-dev zlib1g-dev -y 
-pip install --upgrade pip 
+sudo apt-get install python-pip
+sudo apt-get install inkscape libjpeg-dev zlib1g-dev -y
+sudo pip install --upgrade pip 
 sudo pip install -r requirements.txt
 ```
 
@@ -72,5 +75,12 @@ cd Elecrow-LCD35
 sudo ./Elecrow-LCD35
 ```
 
+
+###Install Pi-Whisperer
+
+```bash
+cd k40_whisperer
+sudo pip install flask-socketio
+```
 
 

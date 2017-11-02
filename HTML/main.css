@@ -308,16 +308,8 @@ button.active, .button.active, button:active, .button:active {
 	color: #AAA;
 }
 
-.status .on {
-	color: black;
-}
-
 .status .ok {
 	color: black;
-}
-
-.status .dangerous.on {
-	color: red;
 }
 
 .status .warn {
@@ -325,7 +317,7 @@ button.active, .button.active, button:active, .button:active {
 }
 
 .status .error {
-	color: #D00;
+	color: #D00 !important;
 }
 
 .status .error:before {
@@ -437,7 +429,7 @@ table.move  tr, td {
 }
 
 
-.previewPos  {
+.anchorPos  {
 	margin: 0;
 	padding: 0;
     width: 3em;
@@ -448,34 +440,34 @@ table.move  tr, td {
 	color: #444;
 }
 
-:checked + .previewPos {
+:checked + .anchorPos {
 	box-shadow: -.05em -.05em .2em rgba(255, 255, 255, 0.5) inset, .05em .05em .2em rgba(0, 0, 0, 0.5) inset;
 	color: #F11 !important;
 }
 
-.previewPos > div {
+.anchorPos > div {
     width: 40%;
     height: 40%;
     border: solid 3px;
     margin: 30%;
 }
 
-.previewPos > .upperLeft {
+.anchorPos > .upperLeft {
     border-bottom: 0px;
     border-right: 0px;
 }
 
-.previewPos > .upperRight {
+.anchorPos > .upperRight {
     border-bottom: 0px;
     border-left: 0px;
 }
 
-.previewPos > .lowerLeft {
+.anchorPos > .lowerLeft {
     border-top: 0px;
     border-right: 0px;
 }
 
-.previewPos > .lowerRight {
+.anchorPos > .lowerRight {
     border-top: 0px;
     border-left: 0px;
 }

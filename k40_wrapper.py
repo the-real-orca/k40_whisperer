@@ -45,53 +45,58 @@ class LASER_CLASS:
 		# connect and init laser main board
 		self.release()
 		self.nano = K40_CLASS()
-		self.nano.initialize_device(True)
+		self.nano.initialize_device(verbose)
 		self.x = False
 		self.y = False
 
+	def isInit(self):
+		return ( self.nano != False )
+		
 	def release(self):
-                if not(self.nano): return
-                self.unlock()
-                time.sleep(1)
-                self.nano.release_usb()
-                
+		if not( self.isInit() ): return
+		self.unlock()
+		time.sleep(0.5)
+		self.nano.release_usb()
+		time.sleep(0.5)
+		self.nano = False
+		
 
 	def unlock(self):
-                if not(self.nano): return
-# TODO wait for laser to be ready
-                self.nano.unlock_rail()
+		if not( self.isInit() ): return
+		self.nano.unlock_rail()
 		
+	def read_data(self):
+		if not( self.isInit() ): return
+		return self.nano.read_data()
+				
+	
 	def home(self):
-                if not(self.nano): return
-# TODO wait for laser to be ready
-                self.nano.home_position()
+		if not( self.isInit() ): return
+		self.nano.home_position()
 		self.x = 0
 		self.y = 0
 
-        # move relative to current position
-	def move(self, dx, dy):
-                if not(self.nano): return
-# TODO wait for laser to be ready
+	# move relative to current position
+	def move(self, dx, dy, speed):
+		if not( self.isInit() ): return
 # TODO check movement area
-                dxmils = round(dx*self.scale)
+		dxmils = round(dx*self.scale)
 		dymils = round(dy*self.scale)
-		print(dxmils, dymils)
 		self.nano.rapid_move(dxmils, dymils)
-		self.x += dx
-		self.y += dy
+		self.x += dxmils/self.scale
+		self.y += dymils/self.scale
 		
 	# go to absolute position
 	def goto(self, x, y):
-                if not(self.nano): return
-# TODO wait for laser to be ready
+		if not( self.isInit() ): return
 # TODO check movement area
 		dxmils = round( (x-self.x) *self.scale)
 		dymils = round( (y-self.y) *self.scale)
 		self.nano.rapid_move(dxmils, dymils)
-		self.x = x
-		self.y = y
+		self.x += dxmils/self.scale
+		self.y += dymils/self.scale
 	
 	def stop(self):
-                if not(self.nano): return
+		if not( self.isInit() ): return
 		self.nano.e_stop();
 
