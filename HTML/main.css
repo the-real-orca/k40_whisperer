@@ -322,7 +322,27 @@ button.active, .button.active, button:active, .button:active {
 
 .status .error:before {
 	font-family: "laser-font";	
-	content: '\e82c';
+	content: "\e82c";
+}
+
+.unit:after {
+	font-size: 90%;
+    padding-left: 0.1em;	
+}
+.unit.percent:after {
+	content: "%";
+}
+.unit.temp:after {
+	content: "°C";
+}
+.unit.pos:after {
+	content: "mm";
+}
+.unit.speed:after {
+	content: "mm/s";
+}
+.unit.flowrate:after {
+	content: "l/min";
 }
 
 .canvas {
@@ -420,6 +440,7 @@ img.uploading {
 table.move {
 	font-size: 125%;
 	text-align: center;
+	margin: auto;
 }
 
 table.move  tr, td {

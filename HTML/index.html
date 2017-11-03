@@ -17,7 +17,7 @@
 	<script type="text/javascript" src="libs/js/socket.io.slim.js"></script>
 	
 	<!-- Knockout.js MVVM -->
-	<script type='text/javascript' src='libs/js/knockout-3.0.0.js'></script>
+	<script type='text/javascript' src='libs/js/knockout-3.4.2.js'></script>
 
 	<!-- Tabs -->
 	<link rel="stylesheet" href="tabs.css">
@@ -39,10 +39,10 @@
 		<div class="title"><img class="logo" src="" alt="Logo"/><h1>Pi Whisperer</h1></div>
 		<div class="status ">
 			<span class="dangerous" data-bind="css: { ok: status.laser, error: alert.laser }"><i class="icon-laser"></i></span>
-			<span data-bind="css: { ok: status.airassist, error: alert.airassist }"><i class="icon-fan"></i> <span data-bind="text: status.airassist"></span>%</span>
+			<span data-bind="css: { ok: status.airassist, error: alert.airassist }"><i class="icon-fan"></i> <span data-bind="text: status.airassist" class="unit percent"></span></span>
 			
-			<span data-bind="css: { ok: status.waterTemp, error: alert.waterTemp }"><i class="icon-thermometer"></i> <span data-bind="text: status.waterTemp"></span>&deg;C</span>
-			<span data-bind="css: { ok: status.waterFlow, error: alert.waterFlow }"><i class="icon-air"></i> <span data-bind="text: status.waterFlow"></span>l/min</span>
+			<span data-bind="css: { ok: status.waterTemp, error: alert.waterTemp }"><i class="icon-thermometer"></i> <span data-bind="text: status.waterTemp" class="unit temp"></span></span>
+			<span data-bind="css: { ok: status.waterFlow, error: alert.waterFlow }"><i class="icon-air"></i> <span data-bind="text: status.waterFlow" class="unit flowrate"></span></span>
 			
 			<span data-bind="css: { ok: status.usb, error: alert.usb }" ><i class="icon-usb"></i></span>
 			<span data-bind="css: { ok: status.network, error: alert.network }" ><i class="icon-lan-connect"></i></span>
@@ -68,18 +68,16 @@
 	<div class="tabs side-right">
 	
 		<!-- Upload -->
-		<input id="Upload" name="mainTabsGroup" type="radio"  />
+		<input id="Upload" name="mainTabsGroup" type="radio" checked />
 		<label class="title" for="Upload"><i class="icon-picture"></i></label>
 		<div class="content" >
 			<div class="full">
 				 <fieldset class="panel">
-					<legend>File</legend>
-					<div class="canvas">
-						<label class="dropimage">
-							<img class="uploading" src="images/wait.gif"/>
-							<input id="uploadFile" title="drop file or click me" name="upload" type="file"></input>
-						</label>
-					</div>
+					<form method="post" enctype="multipart/form-data" action="upload">
+						<input id="uploadFile" title="drop file or click me" name="file" type="file"></input>
+						<input type="submit">
+					</form>				 
+					<legend>Workspace</legend>
 					click to browse filesystem, or drop file
 				</fieldset>
 			</div>	
@@ -87,13 +85,24 @@
 					
 		
 		<!-- Position -->
-		<input id="Position" name="mainTabsGroup" type="radio" checked/>
+		<input id="Position" name="mainTabsGroup" type="radio"/>
 		<label class="title" for="Position"><i class="icon-move"></i></label>
 		<div class="content">
 			<div class="center panel">
-				<fieldset class="panel">
+				<fieldset>
+					<legend>Position</legend>
+					<div class="flex center two-500">
+						<div >
+							<b>X:</b> <input type="number" data-bind="numericValue: pos.x, precision: 2"></input><span class="unit pos"></span>
+						</div>
+						<div >
+							<b>Y:</b> <input type="number" data-bind="numericValue: pos.y, precision: 2"></input><span class="unit pos"></span>
+						</div>
+					</div>
+				</fieldset>
+				<fieldset>
 					<legend>Move</legend>
-					<div class="center">
+					<div class="panel center">
 						<table class="move">
 							<tr>
 								<td>
@@ -230,84 +239,85 @@
 		
 	</div>
 
-<label for="dialog_taskSettings" class="button">Show modal</label>
+	<div class="modal">
+		<input id="dialog_taskSettings" type="checkbox"  />
+		<label for="dialog_taskSettings" class="overlay"></label>
+		<article>
+			<header>
+				<h3>Task Settings</h3>
+				<label for="dialog_taskSettings" class="close">&times;</label>
+			</header>
+			<section class="content">
+				<form>
+					<input input="text" placeholder="Task Name" />
 
-<div class="modal">
-	<input id="dialog_taskSettings" type="checkbox"  />
-	<label for="dialog_taskSettings" class="overlay"></label>
-	<article>
-		<header>
-			<h3>Task Settings</h3>
-			<label for="dialog_taskSettings" class="close">&times;</label>
-		</header>
-		<section class="content">
-			<form>
-				<input input="text" placeholder="Task Name" />
+					<table>
+						<tr>
+							<td class="name">color</td>
+							<td>
+								<label class="colorSelect" style="color: #222">
+									<input type="checkbox" />
+									<span class="checkable"><i class="icon-brush large"></i></span>
+								</label>
+								<label class="colorSelect" style="color: red">
+									<input type="checkbox" />
+									<span class="checkable"><i class="icon-brush large"></i></span>
+								</label>
+								<label class="colorSelect" style="color: green">
+									<input type="checkbox" />
+									<span class="checkable"><i class="icon-brush large"></i></span>
+								</label>
+								<label class="colorSelect" style="color: blue">
+									<input type="checkbox" />
+									<span class="checkable"><i class="icon-brush large"></i></span>
+								</label>
+								<label class="colorSelect" style="color: orange">
+									<input type="checkbox" />
+									<span class="checkable"><i class="icon-brush large"></i></span>
+								</label>
+							</td>
+						</tr>				
+						<tr>
+							<td class="name">type</td>
+							<td>
+								<label class="typeSelect" >
+									<input name="typeSelect" type="radio" checked />
+									<span class="checkable"><i class="icon-lines large"></i></span>
+								</label>
+								<label class="typeSelect" >
+									<input name="typeSelect" type="radio" />
+									<span class="checkable"><i class="icon-dots large"></i></span>
+								</label>
+							</td>
+						</tr>
 
-				<table>
-					<tr>
-						<td class="name">color</td>
-						<td>
-							<label class="colorSelect" style="color: #222">
-								<input type="checkbox" />
-								<span class="checkable"><i class="icon-brush large"></i></span>
-							</label>
-							<label class="colorSelect" style="color: red">
-								<input type="checkbox" />
-								<span class="checkable"><i class="icon-brush large"></i></span>
-							</label>
-							<label class="colorSelect" style="color: green">
-								<input type="checkbox" />
-								<span class="checkable"><i class="icon-brush large"></i></span>
-							</label>
-							<label class="colorSelect" style="color: blue">
-								<input type="checkbox" />
-								<span class="checkable"><i class="icon-brush large"></i></span>
-							</label>
-							<label class="colorSelect" style="color: orange">
-								<input type="checkbox" />
-								<span class="checkable"><i class="icon-brush large"></i></span>
-							</label>
-						</td>
-					</tr>				
-					<tr>
-						<td class="name">type</td>
-						<td>
-							<label class="typeSelect" >
-								<input name="typeSelect" type="radio" checked />
-								<span class="checkable"><i class="icon-lines large"></i></span>
-							</label>
-							<label class="typeSelect" >
-								<input name="typeSelect" type="radio" />
-								<span class="checkable"><i class="icon-dots large"></i></span>
-							</label>
-						</td>
-					</tr>
+						<tr>
+							<td class="name">speed</td>
+							<td><input type="number" placeholder="10" min="0"></input> <span class="unit">mm/s</span></td>
+						</tr>
 
-					<tr>
-						<td class="name">speed</td>
-						<td><input type="number" placeholder="10" min="0"></input> <span class="unit">mm/s</span></td>
-					</tr>
+						<tr>
+							<td class="name">repeat</td>
+							<td><input type="number" placeholder="1" min="1"></input> <i class="icon-retweet large"></i></td>
+						</tr>
+					</table>
 
-					<tr>
-						<td class="name">repeat</td>
-						<td><input type="number" placeholder="1" min="1"></input> <i class="icon-retweet large"></i></td>
-					</tr>
-				</table>
-
-				<label>
-					<input type="checkbox" checked /><span class="checkable">message before task</span>
-				</label>
-				<textarea class="" placeholder="Task Message ..."></textarea>
-			</form>
-		</section>
-		<footer class="right">
-			<label for="dialog_taskSettings" class="button dangerous">Cancel</label>
-			<label for="dialog_taskSettings" class="button success">OK</label>
-		</footer>
-	</article>
-</div>
+					<label>
+						<input type="checkbox" checked /><span class="checkable">message before task</span>
+					</label>
+					<textarea class="" placeholder="Task Message ..."></textarea>
+				</form>
+			</section>
+			<footer class="right">
+				<label for="dialog_taskSettings" class="button dangerous">Cancel</label>
+				<label for="dialog_taskSettings" class="button success">OK</label>
+			</footer>
+		</article>
+	</div>
 	
+<!-- DEBUG -->
+<label for="dialog_taskSettings" class="button">Show modal</label>
+<div>sequence: <span data-bind="text: seqNr"/><span></div>
 	
 	<script type='text/javascript'>
 		init();

@@ -77,8 +77,9 @@ class LASER_CLASS:
 		self.y = 0
 
 	# move relative to current position
-	def move(self, dx, dy, speed):
+	def move(self, dx, dy):
 		if not( self.isInit() ): return
+		print("move: " + str(dx) + "/" + str(dy))
 # TODO check movement area
 		dxmils = round(dx*self.scale)
 		dymils = round(dy*self.scale)
@@ -89,6 +90,7 @@ class LASER_CLASS:
 	# go to absolute position
 	def goto(self, x, y):
 		if not( self.isInit() ): return
+		print("goto: " + str(x) + "/" + str(y))
 # TODO check movement area
 		dxmils = round( (x-self.x) *self.scale)
 		dymils = round( (y-self.y) *self.scale)

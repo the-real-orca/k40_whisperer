@@ -6,6 +6,20 @@ ko.observableArray.fn.pushAll = function(valuesToPush) {
     this.valueHasMutated()
     return this  //optional
 };
+ko.bindingHandlers.numericValue = {
+    init: function(element, valueAccessor) {
+		$(element).on("change", ()=>{
+			var value = valueAccessor();
+			value( parseFloat(element.value) )
+		})
+    },	
+	update: function(element, valueAccessor, allBindingsAccessor) {
+		var value = parseFloat(ko.utils.unwrapObservable(valueAccessor()))
+		var precision = ko.utils.unwrapObservable(allBindingsAccessor().precision) || ko.bindingHandlers.numericValue.defaultPrecision
+		element.value = value.toFixed(precision);
+	},
+	defaultPrecision: 2
+};
 function fxFadeIn(elem) {
 	if (elem.nodeType === 1) {
 		$(elem).addClass("fadeIn").on('animationend webkitAnimationEnd', function(){ $(elem).removeClass("fadeIn")})
@@ -19,8 +33,21 @@ function fxSlideUpRemove(elem) {
 
 
 var socket = undefined
+
+// communication functions
+function move(dx, dy) {
+	if ( !socket || viewModel.instable ) return
+	socket.send({move: {dx: parseFloat(dx), dy: parseFloat(dy)}, seqNr: viewModel.seqNr})
+}
+function moveTo(x, y) {
+	if ( !socket || viewModel.instable ) return
+	socket.send({goto: {x: parseFloat(x), y: parseFloat(y)}, seqNr: viewModel.seqNr})
+}
+
 // view model data
 var viewModel = {
+	instable: false,
+	seqNr: 0,
 	status: {
 		laser: ko.observable(0),
 		usb: ko.observable(false),
@@ -45,24 +72,20 @@ var viewModel = {
 		height: ko.observable(0)
 	},
 	pos: {
-		x: ko.observable(0),
-		y: ko.observable(0)
+		x: ko.observable(),
+		y: ko.observable()
 	},
 	anchor: ko.observable('upperLeft')
 
 };
 // view model functions
-viewModel.move = function(dx, dy) {
-		socket.emit("json", {move: {
-			dx: dx,
-			dy: dy
-		}})
-	}
 viewModel.anchor.subscribe(function (val) {
-		socket.emit("json", {anchor: val})
+		if ( viewModel.instable ) return
+		socket.send({anchor: val, seqNr: viewModel.seqNr})
     }, this)
-
-
+viewModel.pos.x.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
+viewModel.pos.y.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
+	
 
 function init() {
 
@@ -105,8 +128,10 @@ function init() {
 	// init messages
 	init_msg()
 	
-	
 	// bind model
+	ko.options = {
+		deferUpdates: true
+	}
 	ko.applyBindings(viewModel)
 
 	// init Web Sockets
@@ -131,6 +156,7 @@ function init() {
 	// handle incomming message
 	socket.on('message', function(data) {
 		console.log('Received message', data)
+		viewModel.instable = true
 		
 		// update status
 		if ( typeof data.status == "object" ) {
@@ -144,8 +170,8 @@ function init() {
 	
 		// update position
 		if ( typeof data.pos == "object" ) {
-			viewModel.pos.x( data.pos.x )
-			viewModel.pos.y( data.pos.y )
+			viewModel.pos.x( parseFloat(data.pos.x) )
+			viewModel.pos.y( parseFloat(data.pos.y) )
 		}
 
 		// update anchor
@@ -155,6 +181,12 @@ function init() {
 
 		
 		// TODO
+		
+		
+		// update sequence as final step to avoid data races
+		// -> intermediate requests will be ignored due-to sequence error
+		viewModel.seqNr = data.seqNr
+		viewModel.instable = false
 	})
 
 	

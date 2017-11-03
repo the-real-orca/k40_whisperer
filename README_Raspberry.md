@@ -80,7 +80,7 @@ sudo ./Elecrow-LCD35
 
 ```bash
 cd k40_whisperer
-sudo pip install flask-socketio
+sudo pip install flask-socketio eventlet
 ```
 
 
