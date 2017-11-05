@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 '''
 This script is the comunicatin wrapper for the Laser Cutter.
 
@@ -27,13 +27,18 @@ from nano_library import K40_CLASS
 
 class LASER_CLASS:
 	def __init__(self):
+		print ("LASER_CLASS __init__")
 		self.unit = ""
 		self.scale = 0
 		self.x = False
 		self.y = False
-		self.nano = False
+		self.nano = K40_CLASS()
 
-	def init(self, unit, verbose=False):
+	def __del__(self):
+		print ("LASER_CLASS __del__")
+		self.release()
+
+	def init(self, unit="mm", verbose=False):
 		# set unit
 		if unit == "in" or unit == "inch":
 			self.unit = "in"
@@ -41,37 +46,39 @@ class LASER_CLASS:
 		else:
 			self.unit = "mm"
 			self.scale = 1000 / 25.4
-			
+
 		# connect and init laser main board
 		self.release()
-		self.nano = K40_CLASS()
 		self.nano.initialize_device(verbose)
-		self.x = False
-		self.y = False
 
 	def isInit(self):
-		return ( self.nano != False )
-		
+		return ( self.nano.dev != None )
+
 	def release(self):
 		if not( self.isInit() ): return
+		print("LASER_CLASS released")
+		self.x = False
+		self.y = False
 		self.unlock()
 		time.sleep(0.5)
 		self.nano.release_usb()
 		time.sleep(0.5)
-		self.nano = False
-		
 
 	def unlock(self):
 		if not( self.isInit() ): return
+		print("unlock")
+		self.x = False
+		self.y = False
 		self.nano.unlock_rail()
-		
+
 	def read_data(self):
 		if not( self.isInit() ): return
 		return self.nano.read_data()
-				
-	
+
 	def home(self):
 		if not( self.isInit() ): return
+		print("home")
+		self.nano.reset_usb()
 		self.nano.home_position()
 		self.x = 0
 		self.y = 0
@@ -79,6 +86,7 @@ class LASER_CLASS:
 	# move relative to current position
 	def move(self, dx, dy):
 		if not( self.isInit() ): return
+		if self.x is False or self.y is False: return
 		print("move: " + str(dx) + "/" + str(dy))
 # TODO check movement area
 		dxmils = round(dx*self.scale)
@@ -86,10 +94,12 @@ class LASER_CLASS:
 		self.nano.rapid_move(dxmils, dymils)
 		self.x += dxmils/self.scale
 		self.y += dymils/self.scale
-		
+
 	# go to absolute position
-	def goto(self, x, y):
+	def moveTo(self, x, y):
 		if not( self.isInit() ): return
+		if self.x is False or self.y is False:
+			self.home()
 		print("goto: " + str(x) + "/" + str(y))
 # TODO check movement area
 		dxmils = round( (x-self.x) *self.scale)
@@ -97,8 +107,9 @@ class LASER_CLASS:
 		self.nano.rapid_move(dxmils, dymils)
 		self.x += dxmils/self.scale
 		self.y += dymils/self.scale
-	
+
 	def stop(self):
 		if not( self.isInit() ): return
+		print("stop")
 		self.nano.e_stop();
 

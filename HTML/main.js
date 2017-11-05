@@ -12,11 +12,11 @@ ko.bindingHandlers.numericValue = {
 			var value = valueAccessor();
 			value( parseFloat(element.value) )
 		})
-    },	
+    },
 	update: function(element, valueAccessor, allBindingsAccessor) {
 		var value = parseFloat(ko.utils.unwrapObservable(valueAccessor()))
 		var precision = ko.utils.unwrapObservable(allBindingsAccessor().precision) || ko.bindingHandlers.numericValue.defaultPrecision
-		element.value = value.toFixed(precision);
+		element.value = value.toFixed(precision)
 	},
 	defaultPrecision: 2
 };
@@ -34,14 +34,34 @@ function fxSlideUpRemove(elem) {
 
 var socket = undefined
 
-// communication functions
+// laser functions
 function move(dx, dy) {
 	if ( !socket || viewModel.instable ) return
 	socket.send({move: {dx: parseFloat(dx), dy: parseFloat(dy)}, seqNr: viewModel.seqNr})
 }
 function moveTo(x, y) {
 	if ( !socket || viewModel.instable ) return
-	socket.send({goto: {x: parseFloat(x), y: parseFloat(y)}, seqNr: viewModel.seqNr})
+	socket.send({moveTo: {x: parseFloat(x), y: parseFloat(y)}, seqNr: viewModel.seqNr})
+}
+function initLaser() {
+	if ( !socket ) return
+	socket.send({cmd: 'init', seqNr: viewModel.seqNr})
+}
+function releaseLaser() {
+	if ( !socket ) return
+	socket.send({cmd: 'release', seqNr: viewModel.seqNr})
+}
+function home() {
+	if ( !socket ) return
+	socket.send({cmd: 'home', seqNr: viewModel.seqNr})
+}
+function stop() {
+	if ( !socket ) return
+	socket.send({cmd: 'stop', seqNr: viewModel.seqNr})
+}
+function unlock() {
+	if ( !socket || viewModel.instable ) return
+	socket.send({cmd: 'unlock', seqNr: viewModel.seqNr})
 }
 
 // view model data
@@ -72,29 +92,33 @@ var viewModel = {
 		height: ko.observable(0)
 	},
 	pos: {
-		x: ko.observable(),
-		y: ko.observable()
+		valid: ko.observable(false),
+		x: ko.observable(0),
+		y: ko.observable(0)
 	},
 	anchor: ko.observable('upperLeft')
 
 };
 // view model functions
+viewModel.status.networkIcon = ko.pureComputed(function() {
+	return this.status.network() ? "icon-lan-connect" : "icon-lan-disconnect";
+}, viewModel);
 viewModel.anchor.subscribe(function (val) {
 		if ( viewModel.instable ) return
 		socket.send({anchor: val, seqNr: viewModel.seqNr})
     }, this)
 viewModel.pos.x.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
 viewModel.pos.y.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
-	
+
 
 function init() {
 
 	// add pressed / released events for buttons
 	var eventPressed = null
-	$('button, .button').on('touchstart', function(e) { 
+	$('button, .button').on('touchstart', function(e) {
 		if ( eventPressed ) {
 			if ( eventPressed.target == e.target )		// ignore multiple events on same target
-				return;									
+				return;
 			$(eventPressed.target).trigger('released');	// release previous element
 		}
 		eventPressed = e
@@ -105,11 +129,11 @@ function init() {
 			return;
 		$(eventPressed.target).trigger('released', ex)
 		eventPressed = null;
-	})	
-	$('button, .button').on('mousedown', function(e) { 
+	})
+	$('button, .button').on('mousedown', function(e) {
 		if ( eventPressed ) {
 			if ( eventPressed.target == e.target )		// ignore multiple events on same target
-				return;						
+				return;
 			$(eventPressed.target).trigger('released');	// release previous element
 		}
 		eventPressed = e
@@ -122,21 +146,25 @@ function init() {
 		eventPressed = null
 	})
 	$('button, .button').on('keypress', function(e) { if ( e.key == ' ' || e.keyCode == 32 ) {$(e.target).trigger('pressed', e);} })
-	$('button, .button').on('keyup', function(e) { if ( e.key == ' ' || e.keyCode == 32 ) {$(e.target).trigger('released', e);} })		
-	
-	
+	$('button, .button').on('keyup', function(e) { if ( e.key == ' ' || e.keyCode == 32 ) {$(e.target).trigger('released', e);} })
+
+
 	// init messages
 	init_msg()
-	
-	// bind model
+
+
+	// bind view model
 	ko.options = {
 		deferUpdates: true
 	}
 	ko.applyBindings(viewModel)
+	$("#uploadFile").on("change", (el)=>{
+		$("#uploadSubmit").click()
+	})
 
 	// init Web Sockets
 	socket = io.connect()
-		
+
 	// socket connected to server
 	socket.on('connect', function() {
 		viewModel.status.network(true);
@@ -157,7 +185,7 @@ function init() {
 	socket.on('message', function(data) {
 		console.log('Received message', data)
 		viewModel.instable = true
-		
+
 		// update status
 		if ( typeof data.status == "object" ) {
 			for ( var key in data.status )
@@ -167,11 +195,17 @@ function init() {
 			for ( var key in data.alert )
 				viewModel.alert[key]( data.alert[key] )
 		}
-	
+
 		// update position
 		if ( typeof data.pos == "object" ) {
-			viewModel.pos.x( parseFloat(data.pos.x) )
-			viewModel.pos.y( parseFloat(data.pos.y) )
+			var x = parseFloat(data.pos.x), y = parseFloat(data.pos.y)
+			if ( isNaN(x) || isNaN(y) ) {
+				viewModel.pos.valid(false)
+			} else {
+				viewModel.pos.valid(true)
+				viewModel.pos.x(x)
+				viewModel.pos.y(y)
+			}
 		}
 
 		// update anchor
@@ -179,16 +213,16 @@ function init() {
 			viewModel.anchor( data.anchor )
 		}
 
-		
+
 		// TODO
-		
-		
+
+
 		// update sequence as final step to avoid data races
 		// -> intermediate requests will be ignored due-to sequence error
 		viewModel.seqNr = data.seqNr
 		viewModel.instable = false
 	})
 
-	
+
 }
 

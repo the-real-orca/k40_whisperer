@@ -194,9 +194,9 @@ class K40_CLASS:
         # configuration will be the active one
         try:
             self.dev.set_configuration()
-        except:
+        except StandardError as error:
             #return "Unable to set USB Device configuration."
-            raise StandardError("Unable to set USB Device configuration.")
+            raise StandardError("Unable to set USB Device configuration. " + str(error))
 
         # get an endpoint instance
         cfg = self.dev.get_active_configuration()

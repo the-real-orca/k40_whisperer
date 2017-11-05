@@ -6,7 +6,7 @@ fieldset {
 	border: 1px solid rgba(0, 0, 0, 0.2);
 	border-radius: 0.3em;
 	margin-bottom: 1em;
-	padding: 0.5em 2em;		
+	padding: 0.5em 2em;
 }
 
 legend {
@@ -35,7 +35,7 @@ body {
 //	box-shadow: 0 0 0 9999px rgba(200, 200, 200, 0.5) inset;
 	background: #ccc !important;
 	color: #888;
-}		
+}
 
 .checkable {
 	margin: 0 !important;
@@ -73,17 +73,17 @@ form .name:after {
 	padding-right: 0.5em;
 }
 
-@media print {	
+@media print {
 	button, .state .label {
 		color: black;
 		border-color: gray !important;
 		border: medium solid;
-	}	
+	}
 
 	[disabled], .label.disabled {
 		color: lightgray;
 		border: thin solid;
-	}		
+	}
 }
 
 .message {
@@ -98,7 +98,7 @@ form .name:after {
 .message.prime {
   background: #0074d9;
   color: #1054a9;
-}	
+}
 .message.success {
   background: #2ecc40;
   color: #108c20;
@@ -115,7 +115,7 @@ form .name:after {
 	font-style: bold;
 	padding: .1em .5em;
 	border: 0;
-}	
+}
 .message > header > .close {
 	top: 0;
 	right: 0;
@@ -155,7 +155,7 @@ form .name:after {
 @keyframes slideLeft {
 	0% {width: 5em; content: "\025CB";}
 	100% {width: 0; content: "\025CF";}
-}	
+}
 
 .fadeIn {
 	animation: fadeIn 1s;
@@ -163,7 +163,7 @@ form .name:after {
 @keyframes fadeIn {
 	from {opacity: 0;}
 	to {opacity: 1;}
-}	
+}
 
 .fadeOut {
 	opacity: 0;
@@ -177,10 +177,10 @@ form .name:after {
 @keyframes slideUp {
 	0% {max-height: 80vh;}
 	100% {max-height: 0; margin-top: 0; margin-bottom: 0;}
-}	
+}
 
 .slideDown {
-	overflow: hidden;	
+	overflow: hidden;
 	animation: slideDown 0.3s linear both;
 }
 @keyframes slideDown {
@@ -219,10 +219,10 @@ form .name:after {
 	box-shadow: 0 .1em .3em rgba(0, 0, 0, 0.25) inset;
 	display: block;
     padding: 0;
-    margin: 1em auto; 
+    margin: 1em auto;
 	height: 1.8em;
 }
-  
+
 .progress-bar > div {
 	background-color: #0074d9;
 	border-radius: inherit;
@@ -297,7 +297,7 @@ button.active, .button.active, button:active, .button:active {
     margin: -0.3em 0;
     color: #85144b;
 	text-align: center;
-	text-shadow: 2px 2px 3px darkgray;	
+	text-shadow: 2px 2px 3px darkgray;
 	vertical-align: top;
 }
 
@@ -321,13 +321,13 @@ button.active, .button.active, button:active, .button:active {
 }
 
 .status .error:before {
-	font-family: "laser-font";	
+	font-family: "laser-font";
 	content: "\e82c";
 }
 
 .unit:after {
 	font-size: 90%;
-    padding-left: 0.1em;	
+    padding-left: 0.1em;
 }
 .unit.percent:after {
 	content: "%";
@@ -352,18 +352,23 @@ button.active, .button.active, button:active, .button:active {
 	position: relative;
 }
 
-.dropimage {
-	height: 500px;
-    width: 500px;
-	background-image: url("uploads/mask.png");
-	background-size: 100% 100%;
-    background-repeat: no-repeat;
-	border-radius: 1px;
-	border: 2px solid #EEE;
+.upload {
+    position: relative;
 }
 
-.dropimage.changed {
-	border-color: #ff4136;
+.upload input {
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: pointer;
+    position: absolute;
+}
+.upload ~ input[type="submit"] {
+    display: none;
 }
 
 .overlay {
@@ -424,14 +429,14 @@ img.uploading {
 .value {
 	margin: 0.5em;
 	padding: 0.3em 0.6em;
-    display: inline-block;	
+    display: inline-block;
 	border: 1px solid darkgray;
 	border-radius: 5px;
 	background: #EEE;
 }
 
 .icon {
-	font-size: 160%;	
+	font-size: 160%;
 	margin: 0;
 	padding: 0.5em 0.8em;
 	font-weight: 900;
@@ -454,7 +459,7 @@ table.move  tr, td {
 	margin: 0;
 	padding: 0;
     width: 3em;
-    height: 3em;	
+    height: 3em;
 	display: table-cell;
 	position: relative;
 	background: #EEE;
@@ -544,7 +549,7 @@ button.move {
 }
 
 .tabs.side-right > .title {
-	padding: 1em;	
+	padding: 1em;
 	margin-left: -1px;
 }
 

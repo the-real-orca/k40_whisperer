@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-	
+
     <!-- Picnic CSS -->
 	<link rel="stylesheet" href="libs/css/picnic.min.css">
 
@@ -15,18 +15,18 @@
 
 	<!-- WebSockets -->
 	<script type="text/javascript" src="libs/js/socket.io.slim.js"></script>
-	
+
 	<!-- Knockout.js MVVM -->
 	<script type='text/javascript' src='libs/js/knockout-3.4.2.js'></script>
 
 	<!-- Tabs -->
 	<link rel="stylesheet" href="tabs.css">
-	
+
 	<!-- Messages -->
 	<link rel="stylesheet" href="msg.css">
 	<script src="msg.js"></script>
 
-	
+
 	<!--  -->
 	<link rel="stylesheet" href="main.css">
 	<script type='text/javascript' src='main.js'></script>
@@ -40,15 +40,15 @@
 		<div class="status ">
 			<span class="dangerous" data-bind="css: { ok: status.laser, error: alert.laser }"><i class="icon-laser"></i></span>
 			<span data-bind="css: { ok: status.airassist, error: alert.airassist }"><i class="icon-fan"></i> <span data-bind="text: status.airassist" class="unit percent"></span></span>
-			
+
 			<span data-bind="css: { ok: status.waterTemp, error: alert.waterTemp }"><i class="icon-thermometer"></i> <span data-bind="text: status.waterTemp" class="unit temp"></span></span>
 			<span data-bind="css: { ok: status.waterFlow, error: alert.waterFlow }"><i class="icon-air"></i> <span data-bind="text: status.waterFlow" class="unit flowrate"></span></span>
-			
+
 			<span data-bind="css: { ok: status.usb, error: alert.usb }" ><i class="icon-usb"></i></span>
-			<span data-bind="css: { ok: status.network, error: alert.network }" ><i class="icon-lan-connect"></i></span>
+			<span data-bind="css: { ok: status.network, error: alert.network }" ><i data-bind="css: status.networkIcon"></i></span>
 		</div>
 	</div>
-	
+
 	<!-- message stack -->
 	<div class="flex">
 		<div id="stack" class="right message-stack half-700 third-1000" data-bind="template: {foreach: msgList, afterAdd: fxFadeIn, beforeRemove: fxSlideUpRemove}">
@@ -63,45 +63,57 @@
 			</article>
 		</div>
 	</div>
-	
+
 	<!-- main content -->
 	<div class="tabs side-right">
-	
+
 		<!-- Upload -->
 		<input id="Upload" name="mainTabsGroup" type="radio" checked />
 		<label class="title" for="Upload"><i class="icon-picture"></i></label>
 		<div class="content" >
 			<div class="full">
 				 <fieldset class="panel">
-					<form method="post" enctype="multipart/form-data" action="upload">
-						<input id="uploadFile" title="drop file or click me" name="file" type="file"></input>
-						<input type="submit">
-					</form>				 
 					<legend>Workspace</legend>
-					click to browse filesystem, or drop file
+					<form method="post" enctype="multipart/form-data" action="upload">
+						<label class="upload button" ><i class="icon-folder-open"></i> Open
+							<input id="uploadFile" title="drop file or click me" name="file" type="file" ></input>
+						</label>
+						<input id="uploadSubmit" type="submit"></input>
+					</form>
 				</fieldset>
-			</div>	
-		</div>			
-					
-		
+			</div>
+		</div>
+
+
 		<!-- Position -->
 		<input id="Position" name="mainTabsGroup" type="radio"/>
 		<label class="title" for="Position"><i class="icon-move"></i></label>
 		<div class="content">
 			<div class="center panel">
 				<fieldset>
-					<legend>Position</legend>
-					<div class="flex center two-500">
+					<legend>Move</legend>
+					<div class="flex center four-500">
 						<div >
-							<b>X:</b> <input type="number" data-bind="numericValue: pos.x, precision: 2"></input><span class="unit pos"></span>
+							<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off"></i> Init</button>
+							<button data-bind="click: releaseLaser, visible: status.usb"><i class="icon-off"></i> Release</button>
 						</div>
 						<div >
-							<b>Y:</b> <input type="number" data-bind="numericValue: pos.y, precision: 2"></input><span class="unit pos"></span>
+							<button data-bind="css: {success: !pos.valid()}, click: home, enable: status.usb"><i class="icon-crosshairs-gps"></i> Home</button>
+						</div>
+						<div >
+							<button data-bind="click: unlock, enable: status.usb"><i class="icon-eject"></i> Unlock</button>
+						</div>
+						<div >
+							<button data-bind="click: stop, enable: status.usb" class="error"><i class="icon-close-octagon"></i> Stop</button>
+						</div>
+						<div >
+							<b>X:</b> <input type="number" data-bind="numericValue: pos.x, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
+						</div>
+						<div >
+							<b>Y:</b> <input type="number" data-bind="numericValue: pos.y, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
 						</div>
 					</div>
-				</fieldset>
-				<fieldset>
-					<legend>Move</legend>
+					<hr  style="margin: 2em 0em">
 					<div class="panel center">
 						<table class="move">
 							<tr>
@@ -167,14 +179,14 @@
 								</td>
 							</tr>
 
-							
+
 						</table>
 					</div>
 				</fieldset>
 			</div>
 		</div>
 
-		
+
 		<!-- Print -->
 		<input id="Print" name="mainTabsGroup" type="radio" />
 		<label class="title" for="Print"><i class="icon-laser"></i></label>
@@ -186,7 +198,7 @@
 					<img class="liveImage" label="Live image from laser encraver" >
 				</fieldset>
 			</div>
--->			
+-->
 			<div class="center">
 				<fieldset class="">
 					<legend>Tasks</legend>
@@ -230,13 +242,13 @@
 								<button class="flat right"><i class="icon-play"></i></button>
 							</td>
 						</tr>
-						
+
 					</table>
 				</fieldset>
 				<button class="right"><i class="icon-play"></i></button>
 			</div>
-		</div>		
-		
+		</div>
+
 	</div>
 
 	<div class="modal">
@@ -276,7 +288,7 @@
 									<span class="checkable"><i class="icon-brush large"></i></span>
 								</label>
 							</td>
-						</tr>				
+						</tr>
 						<tr>
 							<td class="name">type</td>
 							<td>
@@ -314,11 +326,11 @@
 			</footer>
 		</article>
 	</div>
-	
+
 <!-- DEBUG -->
 <label for="dialog_taskSettings" class="button">Show modal</label>
 <div>sequence: <span data-bind="text: seqNr"/><span></div>
-	
+
 	<script type='text/javascript'>
 		init();
 	</script>
