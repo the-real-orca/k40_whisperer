@@ -1,1 +1,3 @@
 *.pyc
+/Thumbs.db
+/.spyproject
