@@ -1,0 +1,26 @@
+@startuml
+title: Vector Cut
+
+ -> App: send_data("Vector_Cut")
+activate App
+App -> App: optimize_paths(Vcut)
+note left
+**Vcut**: list of lines
+[dx, dy, polygon index]
+end note
+App --> egv_inst: egv(target=lambda s:data.append(s))
+activate egv_inst
+App -> egv_inst: make_egv_data(Vcut, ...)
+App <-- egv_inst: data
+deactivate egv_inst
+App -> App: send_egv_data(data)
+activate App
+App -> K40: send_data(egvData, guiCallback, stopFlag)
+activate K40
+App <- K40
+deactivate K40
+App <- App
+deactivate App
+ <- App
+deactivate App
+@enduml

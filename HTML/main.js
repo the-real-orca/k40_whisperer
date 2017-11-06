@@ -63,6 +63,10 @@ function unlock() {
 	if ( !socket || viewModel.instable ) return
 	socket.send({cmd: 'unlock', seqNr: viewModel.seqNr})
 }
+function runTasks() {
+	if ( !socket || viewModel.instable ) return
+	socket.send({cmd: 'run', params: {task: []}, seqNr: viewModel.seqNr})
+}
 
 // view model data
 var viewModel = {

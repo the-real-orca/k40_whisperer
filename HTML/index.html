@@ -36,7 +36,7 @@
 
 	<!-- header -->
 	<div class="flex two header">
-		<div class="title"><img class="logo" src="" alt="Logo"/><h1>Pi Whisperer</h1></div>
+		<div class="title"><img class="logo" src="" alt="Logo"/><h1>Laser Whisperer</h1></div>
 		<div class="status ">
 			<span class="dangerous" data-bind="css: { ok: status.laser, error: alert.laser }"><i class="icon-laser"></i></span>
 			<span data-bind="css: { ok: status.airassist, error: alert.airassist }"><i class="icon-fan"></i> <span data-bind="text: status.airassist" class="unit percent"></span></span>
@@ -245,7 +245,7 @@
 
 					</table>
 				</fieldset>
-				<button class="right"><i class="icon-play"></i></button>
+				<button class="right"  data-bind="click: runTasks"><i class="icon-play"></i></button>
 			</div>
 		</div>
 

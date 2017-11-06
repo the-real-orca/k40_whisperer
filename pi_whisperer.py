@@ -8,6 +8,7 @@ import thread
 
 # import laser communication
 import k40_wrapper
+from task_manager import TaskManager
 
 # import web framework
 from flask import g, Flask, request, redirect, url_for
@@ -55,7 +56,7 @@ def sendStatus(broadcast = True):
 	send(payload, json=True, broadcast=broadcast)
 
 # init laser
-laser=k40_wrapper.LASER_CLASS()
+laser = k40_wrapper.LASER_CLASS()
 
 # setup periodic laser check
 def laser_thread():
@@ -79,6 +80,9 @@ def laser_thread():
 	#sendStatus()
 #thread.start_new_thread(laser_thread, ())
 #laser_thread()
+
+# init task manager
+tasks = TaskManager(laser)
 
 # upload tools
 def allowed_file(filename):
@@ -141,13 +145,22 @@ def handleData(data):
 			"release": laser.release,
 			"home": laser.home,
 			"unlock": laser.unlock,
-			"stop": laser.stop
+			"stop": laser.stop,
+			"run": tasks.run
 		}
 		try:
 			# execute command
-			commands[ str(data["cmd"]).lower() ]()
-		except:
-			pass
+			cmdName = str(data["cmd"]).lower()
+			params = None
+			if "params" in data:
+				params = data["params"]
+			print(cmdName, params)
+			if params is None:
+				commands[cmdName]()
+			else:
+				commands[cmdName](params)
+		except StandardError as e:
+			print(e)
 
 	# send status
 	sendStatus()
