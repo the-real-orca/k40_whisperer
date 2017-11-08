@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-
+import utils
 
 class TaskManager:
 	def __init__(self, laser):
@@ -10,9 +10,12 @@ class TaskManager:
 	def run(self, params):
 		# TODO process data
 		# list of lines (dx, dy, polygon index)
-		lines = [ [0,0,0], [10,0,0], [10,-10,0], [0,-10,0], [0,0,0], \
-		   [20,0,1], [30,0,1], [20,-10,1], [20,0,1] ] 	# simulate data
-		print("lines", lines)
-		#TODO lines = self.optimize_paths(lines)
+		polylines = [ \
+			utils.PolyLine(points=[[0,0], [10,0], [10,-10], [0,-10], [0,0]]), \
+			utils.PolyLine(points=[[20,0], [30,0], [20,-10], [20,0]]) \
+			]
+
+		polylines = utils.optimizeLines(polylines)
+
 		feedRate = 50
-		self.laser.processVector(lines, feedRate) #TODO additional params
+		self.laser.processVector(polylines, feedRate) #TODO additional params

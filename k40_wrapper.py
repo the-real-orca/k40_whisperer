@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
 import time
+import utils
+import numpy as np
 
 ##############################################################################
 
@@ -149,14 +151,24 @@ class LASER_CLASS:
 		return True
 
 
-	def processVector(self, lines, feedRate, originX = 0, originY = 0, repeat = 1):
+	def processVector(self, polylines, feedRate, originX = 0, originY = 0, repeat = 1):
 		if not( self.isInit() ): return
-		data=[]
-		egv_inst = egv(target=lambda s:data.append(s))
+
+		# convert polylines to ecoords
+		ecoords=[]
+		loop = 0
+		for line in polylines:
+			loop += 1
+			x = np.zeros((len(line.points), 3))
+			x[:,0:2] = line.points
+			x[:,2] = loop
+			ecoords.extend(x.tolist())
 
 		# generate data for K40 controller board
+		data=[]
+		egv_inst = egv(target=lambda s:data.append(s))
 		egv_inst.make_egv_data(
-			lines,									\
+			ecoords,									\
 			startX = -originX,					\
 			startY = -originY,					\
 			units = 'mm',							\

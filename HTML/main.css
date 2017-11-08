@@ -388,14 +388,10 @@ button.active, .button.active, button:active, .button:active {
 	display: inline-block;
 }
 
-img.uploading {
-	display: none; // inline-block;
-	height: 20%;
-	width: 20%;
-	z-index: 10;
-	position: absolute;
-	left: 40%;
-	top: 40%;
+.workspace {
+    border: 1px solid gray;
+    padding: 0;
+    background: white;
 }
 
 .small {
@@ -406,41 +402,11 @@ img.uploading {
 	font-size: 125%;
 }
 
-.focusImage {
-	margin: 0.5em auto;
-	width: 80%;
-	max-width: 460px;
-	min-height: 200px;
-	border-radius: 5px;
-}
-
-.liveImage {
-	margin: 0.5em auto;
-	width: 100%;
-	max-width: 460px;
-	min-height: 200px;
-	border-radius: 5px;
-}
-
 .inline {
 	display: inline-block;
 	width: auto;
 }
-.value {
-	margin: 0.5em;
-	padding: 0.3em 0.6em;
-    display: inline-block;
-	border: 1px solid darkgray;
-	border-radius: 5px;
-	background: #EEE;
-}
 
-.icon {
-	font-size: 160%;
-	margin: 0;
-	padding: 0.5em 0.8em;
-	font-weight: 900;
-}
 
 table.move {
 	font-size: 125%;

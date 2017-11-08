@@ -9,6 +9,10 @@ import thread
 # import laser communication
 import k40_wrapper
 from task_manager import TaskManager
+from file_manager import FileManager
+
+# import file tools
+from svg_reader import SVG_READER
 
 # import web framework
 from flask import g, Flask, request, redirect, url_for
@@ -16,14 +20,17 @@ from flask_socketio import SocketIO, send, emit
 from werkzeug.utils import secure_filename
 
 # configuration
+STATIC_FOLDER = 'HTML'
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = set(['svg', 'dxf', 'png', 'jpg', 'jpeg'])
 MAX_CONTENT_LENGTH = 64 * 1024 * 1024
+workspaceImg = ""
 
 # application
 print("init application")
-app = Flask(__name__, static_url_path='', static_folder='HTML')
+app = Flask(__name__, static_url_path='', static_folder=STATIC_FOLDER)
 app.app_context()
+app.config['STATIC_FOLDER'] = STATIC_FOLDER
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 socketio = SocketIO(app)
@@ -51,6 +58,9 @@ def sendStatus(broadcast = True):
 		"pos": {
 			"x": laser.x,
 			"y": laser.y
+		},
+		"workspace": {
+			"img": workspaceImg
 		}
 	}
 	send(payload, json=True, broadcast=broadcast)
@@ -84,10 +94,8 @@ def laser_thread():
 # init task manager
 tasks = TaskManager(laser)
 
-# upload tools
-def allowed_file(filename):
-	return '.' in filename and \
-		   filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+# init file manager
+filemanager = FileManager()
 
 
 # routing table
@@ -105,7 +113,10 @@ def upload_file():
 	if not(file) or file.filename == '':
 		return redirect("#")
 	filename = secure_filename(file.filename)
-	file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+	path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+	path = os.path.join(app.config['STATIC_FOLDER'], path)
+	file.save(path)
+	filemanager.open(path)
 	return redirect("#")
 
 @socketio.on('connect')
@@ -171,4 +182,3 @@ print("start webserver")
 if __name__ == '__main__':
 	socketio.run(app, host='0.0.0.0', port='8080', debug=True)
 	print("SHUTDOWN")
-

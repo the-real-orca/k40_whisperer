@@ -93,7 +93,8 @@ var viewModel = {
 	},
 	workspace: {
 		width: ko.observable(0),
-		height: ko.observable(0)
+		height: ko.observable(0),
+		img: ko.observable("")
 	},
 	pos: {
 		valid: ko.observable(false),
@@ -217,6 +218,10 @@ function init() {
 			viewModel.anchor( data.anchor )
 		}
 
+		if ( typeof data.workspace == "object" ) {
+			if ( "img" in data.workspace )
+				viewModel.workspace.img( data.workspace["img"] )
+		}
 
 		// TODO
 
