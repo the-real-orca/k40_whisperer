@@ -391,6 +391,7 @@ button.active, .button.active, button:active, .button:active {
 .workspace {
     border: 1px solid gray;
     padding: 0;
+	margin: auto;
     background: white;
 }
 

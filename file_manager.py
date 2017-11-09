@@ -1,8 +1,7 @@
-#!/usr/bin/env python
-
 import os
 from dxf import DXF_CLASS
 import utils
+
 
 class FileManager:
 
@@ -44,7 +43,7 @@ class FileManager:
 			print("DXF Import: unknown unit '%s'", dxf_units)
 			return False
 
-		polylines, bounds = utils.makeLines(dxf_lines, scale=dxf_scale)
+		polylines = utils.makeLines(dxf_lines, scale=dxf_scale, color=utils.RED)
 		polylines = utils.optimizeLines(polylines)
 		return polylines
 

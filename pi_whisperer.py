@@ -10,6 +10,7 @@ import thread
 import k40_wrapper
 from task_manager import TaskManager
 from file_manager import FileManager
+from workspace import Workspace, Drawing
 
 # import file tools
 from svg_reader import SVG_READER
@@ -36,34 +37,6 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 socketio = SocketIO(app)
 seqNr = 1
 
-
-# send laser status
-def sendStatus(broadcast = True):
-	payload = {
-		"seqNr": seqNr,
-		"status": {
-			"laser": False,
-			"usb": laser.isInit(),
-			"airassist": 0,
-			"waterTemp": 0,
-			"waterFlow": 0,
-		},
-		"alert": {
-			"laser": False,
-			"usb": not(laser.isInit()),
-			"airassist": False,
-			"waterTemp": False,
-			"waterFlow": False
-		},
-		"pos": {
-			"x": laser.x,
-			"y": laser.y
-		},
-		"workspace": {
-			"img": workspaceImg
-		}
-	}
-	send(payload, json=True, broadcast=broadcast)
 
 # init laser
 laser = k40_wrapper.LASER_CLASS()
@@ -97,7 +70,42 @@ tasks = TaskManager(laser)
 # init file manager
 filemanager = FileManager()
 
+# init workspace
+workspace = Workspace()
 
+
+# send laser status
+def sendStatus(broadcast = True):
+	payload = {
+		"seqNr": seqNr,
+		"status": {
+			"laser": False,
+			"usb": laser.isInit(),
+			"airassist": 0,
+			"waterTemp": 0,
+			"waterFlow": 0,
+		},
+		"alert": {
+			"laser": False,
+			"usb": not(laser.isInit()),
+			"airassist": False,
+			"waterTemp": False,
+			"waterFlow": False
+		},
+		"pos": {
+			"x": laser.x,
+			"y": laser.y
+		},
+		"workspace": {
+			"width": workspace.size[0],
+			"height": workspace.size[1],
+			"originOffset": workspace.originOffset,
+			"drawingImages": []
+		}
+	}
+	send(payload, json=True, broadcast=broadcast)
+
+	
 # routing table
 @app.route('/')
 def index():
@@ -116,7 +124,9 @@ def upload_file():
 	path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 	path = os.path.join(app.config['STATIC_FOLDER'], path)
 	file.save(path)
-	filemanager.open(path)
+	polylines = filemanager.open(path)
+	drawing = Drawing(filename, polylines)
+	workspace.add(drawing)
 	return redirect("#")
 
 @socketio.on('connect')

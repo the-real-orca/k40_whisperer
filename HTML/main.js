@@ -92,9 +92,17 @@ var viewModel = {
 		stepSize: ko.observable(2)
 	},
 	workspace: {
-		width: ko.observable(0),
-		height: ko.observable(0),
-		img: ko.observable("")
+		width: ko.observable(100),
+		height: ko.observable(100),
+		originOffset: {
+			x: ko.observable(0),
+			y: ko.observable(0)
+		},
+		drawings: ko.observableArray([{
+			name: ko.observable("test"),
+			color: ko.observable("red"),
+			img: ko.observable("images/hazard-laser.svg")
+		}])
 	},
 	pos: {
 		valid: ko.observable(false),
@@ -218,13 +226,20 @@ function init() {
 			viewModel.anchor( data.anchor )
 		}
 
+		// update workspace
 		if ( typeof data.workspace == "object" ) {
-			if ( "img" in data.workspace )
-				viewModel.workspace.img( data.workspace["img"] )
+			if ( "width" in data.workspace )
+				viewModel.workspace.width( data.workspace["width"] )
+			if ( "height" in data.workspace )
+				viewModel.workspace.width( data.workspace["height"] )
+			if ( "originOffset" in data.workspace ) {
+				viewModel.workspace.originOffset.x( data.workspace["originOffset"][0] )
+				viewModel.workspace.originOffset.y( data.workspace["originOffset"][1] )
+			}
+			if ( "drawings" in data.workspace ) {
+				// TODO
+			}
 		}
-
-		// TODO
-
 
 		// update sequence as final step to avoid data races
 		// -> intermediate requests will be ignored due-to sequence error

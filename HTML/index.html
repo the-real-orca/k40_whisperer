@@ -74,10 +74,15 @@
 			<div class="full">
 				 <fieldset class="panel">
 					<legend>Workspace</legend>
-					<div class="workspace">
-						<img data-bind="attr: {src: workspace.img}" alt="workspace">
+					<div class="workspace" data-bind="style: {width: workspace.width()+'mm', height: workspace.height()+'mm'}">
 					</div>
-
+					<table class="center" data-bind="foreach: workspace.drawings">
+						<tr>
+							<td><span data-bind="text: name"></span></td>
+							<td><button class="icon-brush" data-bind="style: {color: color()}"></button></td>
+							<td><button class="close">&times;</button></td>
+						</tr>
+					<table>
 					<form method="post" enctype="multipart/form-data" action="upload">
 						<label class="upload button" ><i class="icon-folder-open"></i> Open
 							<input id="uploadFile" title="drop file or click me" name="file" type="file" ></input>

@@ -1,8 +1,17 @@
-
 import numpy as np
 
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+CYAN = (0, 255, 255)
+MAGENTA = (255, 0, 255)
+
+
 class PolyLine:
-	def __init__(self, points = [], color = 0):
+	def __init__(self, points = [], color = BLACK):
 		self.color = color
 		self.points = np.array(points)
 
@@ -43,9 +52,7 @@ def equal(a, b, tol=0.001, dim=False):
 		return True
 
 
-def makeLines(lines, scale=1, color=0):
-	xMax, yMax = -1e10, -1e10
-	xMin, yMin =  1e10,  1e10
+def makeLines(lines, scale=1, color=BLACK):
 	polylines=[]
 	old = [0,0,0,0]
 	p = PolyLine([], color)
@@ -59,14 +66,10 @@ def makeLines(lines, scale=1, color=0):
 			p.append([coords[0], coords[1]]) # add start point
 		p.append([coords[2], coords[3]]) # add end point
 		old = coords
-		xMax = max(xMax, coords[0], coords[2])
-		yMax = max(yMax, coords[1], coords[3])
-		xMin = min(xMin, coords[0], coords[2])
-		yMin = min(yMin, coords[1], coords[3])
 	# finalize polylines list
 	polylines.append(p)
 
-	return polylines, [xMin, yMin, xMax, yMax]
+	return polylines
 
 
 def optimizeLines(polylines):
