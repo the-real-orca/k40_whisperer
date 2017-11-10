@@ -10,7 +10,7 @@ import thread
 import k40_wrapper
 from task_manager import TaskManager
 from file_manager import FileManager
-from workspace import Workspace, Drawing
+from workspace import Workspace
 
 # import file tools
 from svg_reader import SVG_READER
@@ -100,12 +100,21 @@ def sendStatus(broadcast = True):
 			"width": workspace.size[0],
 			"height": workspace.size[1],
 			"originOffset": workspace.originOffset,
-			"drawingImages": []
+			"drawings": []
+
 		}
 	}
+	for k in workspace.drawings:
+		draw = workspace.drawings[k]
+		payload["workspace"]["drawings"].append({
+			"id": draw.id,
+			"name": draw.id,
+			"url": draw.url
+		})
+
 	send(payload, json=True, broadcast=broadcast)
 
-	
+
 # routing table
 @app.route('/')
 def index():
@@ -121,11 +130,10 @@ def upload_file():
 	if not(file) or file.filename == '':
 		return redirect("#")
 	filename = secure_filename(file.filename)
-	path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-	path = os.path.join(app.config['STATIC_FOLDER'], path)
+	url = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+	path = os.path.join(app.config['STATIC_FOLDER'], url)
 	file.save(path)
-	polylines = filemanager.open(path)
-	drawing = Drawing(filename, polylines)
+	drawing = filemanager.open(path, url)
 	workspace.add(drawing)
 	return redirect("#")
 

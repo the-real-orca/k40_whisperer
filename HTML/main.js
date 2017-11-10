@@ -98,11 +98,7 @@ var viewModel = {
 			x: ko.observable(0),
 			y: ko.observable(0)
 		},
-		drawings: ko.observableArray([{
-			name: ko.observable("test"),
-			color: ko.observable("red"),
-			img: ko.observable("images/hazard-laser.svg")
-		}])
+		drawings: ko.observableArray()
 	},
 	pos: {
 		valid: ko.observable(false),
@@ -122,7 +118,7 @@ viewModel.anchor.subscribe(function (val) {
     }, this)
 viewModel.pos.x.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
 viewModel.pos.y.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
-
+viewModel.workspace.drawings.extend({ rateLimit: 100 });
 
 function init() {
 
@@ -236,8 +232,15 @@ function init() {
 				viewModel.workspace.originOffset.x( data.workspace["originOffset"][0] )
 				viewModel.workspace.originOffset.y( data.workspace["originOffset"][1] )
 			}
-			if ( "drawings" in data.workspace ) {
-				// TODO
+			if ( data.workspace.drawings instanceof Array ) {
+				viewModel.workspace.drawings.removeAll()
+				for ( var i = 0; i < data.workspace.drawings.length; i++ ) {
+					var json = data.workspace.drawings[i]
+					var draw = {}
+					for ( var key in json )
+						draw[key] = ko.observable(json[key])
+					viewModel.workspace.drawings.push(draw)
+				}
 			}
 		}
 
@@ -246,6 +249,7 @@ function init() {
 		viewModel.seqNr = data.seqNr
 		viewModel.instable = false
 	})
+
 
 
 }

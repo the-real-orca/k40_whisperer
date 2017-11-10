@@ -5,7 +5,7 @@ import utils
 
 class FileManager:
 
-	def openDXF(self, path):
+	def openDXF(self, path, url):
 		dxf_import=DXF_CLASS()
 		try:
 			fd = open(path)
@@ -43,15 +43,23 @@ class FileManager:
 			print("DXF Import: unknown unit '%s'", dxf_units)
 			return False
 
-		polylines = utils.makeLines(dxf_lines, scale=dxf_scale, color=utils.RED)
+		polylines = utils.makePolyLines(dxf_lines, scale=dxf_scale, color=utils.RED)
 		polylines = utils.optimizeLines(polylines)
-		return polylines
+
+		# create SVG image for displaying
+		name = os.path.basename(path).replace("_", " ")
+		path += ".svg"; url +=".svg"
+		utils.saveSVG(polylines, path)
+
+		# create drawings object
+		drawing = utils.Drawing(name, polylines, url)
+		return drawing
 
 
-	def open(self, path):
+	def open(self, path, url):
 		# open by filetype
 		ext = os.path.splitext(path.lower())[1]
 		if ext==".dxf":
-			return self.openDXF(path)
+			return self.openDXF(path, url)
 		else:
 			return False

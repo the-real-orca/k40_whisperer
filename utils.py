@@ -1,19 +1,31 @@
 import numpy as np
+import svgutils.transform as sg
+from lxml import etree
 
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-YELLOW = (255, 255, 0)
-CYAN = (0, 255, 255)
-MAGENTA = (255, 0, 255)
+
+BLACK = "black"		#(0, 0, 0)
+WHITE = "white"		#(255, 255, 255)
+RED = "red"			#(255, 0, 0)
+GREEN = "green"		#(0, 255, 0)
+BLUE = "blue"			#(0, 0, 255)
+YELLOW = "yellow"	#(255, 255, 0)
+CYAN = "cyan"			#(0, 255, 255)
+MAGENTA = "magenta"	#(255, 0, 255)
 
 
 class PolyLine:
 	def __init__(self, points = [], color = BLACK):
 		self.color = color
 		self.points = np.array(points)
+
+	def encode(self):
+		data = {
+			"color": self.color,
+			"points": []
+			}
+		for p in self.points:
+			data.points.append(p)
+		return data
 
 	def appendPolyLine(self, polyline):
 		if equal(polyline.points[0], self.points[-1]):
@@ -40,6 +52,12 @@ class PolyLine:
 	def reverse(self):
 		self.points = self.points[::-1]
 
+class Drawing:
+	def __init__(self, id, polylines, url):
+		self.id = id
+		self.polylines = polylines
+		self.url = url
+
 
 def equal(a, b, tol=0.001, dim=False):
 	# use max distance for comparing
@@ -52,7 +70,7 @@ def equal(a, b, tol=0.001, dim=False):
 		return True
 
 
-def makeLines(lines, scale=1, color=BLACK):
+def makePolyLines(lines, scale=1, color=BLACK):
 	polylines=[]
 	old = [0,0,0,0]
 	p = PolyLine([], color)
@@ -101,3 +119,38 @@ def optimizeLines(polylines):
 
 	# combine segments
 	return polylines
+
+
+def saveSVG(polylines, path):
+	# compute canvas size
+	strokeWidth = 0.5
+	xMin=[]; xMax=[]
+	yMin=[]; yMax=[]
+	for line in polylines:
+		xMin.append( min(line.points[:,0]) )
+		xMax.append( max(line.points[:,0]) )
+		yMin.append( min(line.points[:,1]) )
+		yMax.append( max(line.points[:,1]) )
+	xMin = min(xMin); xMax = max(xMax)
+	yMin = min(yMin); yMax = max(yMax)
+	width = xMax - xMin
+	height = yMax - yMin
+
+	# create SVG
+	svg = sg.SVGFigure(str(width)+"mm", str(height)+"mm")
+	svg.root.set("viewBox", "0 0 %s %s" % (width, height))
+	svgLines = []
+	for line in polylines:
+		# custom path creation
+		linedata = "M{} {} ".format(*line.points[0])
+		linedata += " ".join(map(lambda x: "L{} {}".format(*x), line.points[1:]))
+		linedata = etree.Element(sg.SVG+"path",
+						   {"d": linedata, "stroke-width": str(strokeWidth), "stroke": line.color, "fill": "none"})
+		svgLines.append( sg.FigureElement(linedata) )
+	g = sg.GroupElement(svgLines)
+	g.moveto(-xMin, -yMin) # move the drawing to be in viewBox
+	svg.append(g)
+
+	# save generated SVG files
+	svg.save(path)
+
