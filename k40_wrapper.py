@@ -156,9 +156,7 @@ class LASER_CLASS:
 
 		# convert polylines to ecoords
 		ecoords=[]
-		loop = 0
-		for line in polylines:
-			loop += 1
+		for loop, line in enumerate(polylines, start=1):
 			x = np.zeros((len(line.points), 3))
 			x[:,0:2] = line.points
 			x[:,2] = loop

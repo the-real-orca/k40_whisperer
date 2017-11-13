@@ -3,19 +3,30 @@
 import utils
 
 class TaskManager:
-	def __init__(self, laser):
+	def __init__(self, laser, workspace):
 		self.laser = laser
+		self.workspace = workspace
 
+	def run(self, params = None):
+	
+		#TODO default params
+		params = {
+			feedRate: 50
+			}
+			
+		drawings = self.workspace.drawings
+		drawingPolylines = [drawings[k].polylines for k in drawings] 
 
-	def run(self, params):
-		# TODO process data
-		# list of lines (dx, dy, polygon index)
-		polylines = [ \
-			utils.PolyLine(points=[[0,0], [10,0], [10,-10], [0,-10], [0,0]]), \
-			utils.PolyLine(points=[[20,0], [30,0], [20,-10], [20,0]]) \
-			]
+		#TODO for selected tasks ...
+		colors = [utils.BLACK, utils.RED]
+		
+		# filter polylines by task color
+		polylines = list(filter(lambda p: p.color in colors, drawingPolylines))
 
+		# connect segmented polylines and
+		# TODO reorder from inner to outer
 		polylines = utils.optimizeLines(polylines)
 
-		feedRate = 50
-		self.laser.processVector(polylines, feedRate) #TODO additional params
+		# send polylines to laser
+		self.laser.processVector(polylines, params.feedRate) #TODO additional params
+		

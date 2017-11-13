@@ -90,19 +90,18 @@ def makePolyLines(lines, scale=1, color=BLACK):
 	return polylines
 
 
-def optimizeLines(polylines):
+def optimizeLines(polylines, ignoreColor=False):
 
 	# combine polyline segments
 	i = 0
-	while i < len(polylines):
-		print("")
-		a = polylines[i]
+	while i < len(polylines):	# cannot use enumerate() since we change the list on-the-fly
 		j = 0
 		while j < len(polylines):
 			b = polylines[j]
 			connectedEndStart = equal(a.points[-1], b.points[0], dim=2)		# compare x,y end point with start point of segments
 			connectedEndEnd = equal(a.points[-1], b.points[-1], dim=2)		# compare x,y end point with end point of segments
-			if i != j and a.color == b. color and (connectedEndStart or connectedEndEnd):
+			if i != j and (connectedEndStart or connectedEndEnd) and \ 
+				(a.color == b. color or ignoreColor):
 				if connectedEndEnd:
 					b.reverse()
 				# connect segments
@@ -113,32 +112,36 @@ def optimizeLines(polylines):
 			else:
 				j += 1
 		i += 1
-
+		
 	# reorder: inner -> outer regions
 	# TODO
 
 	# combine segments
 	return polylines
 
-
+def reorderInnerToOuter(polylines)
+	
+	
 def saveSVG(polylines, path):
 	# compute canvas size
 	strokeWidth = 0.5
 	xMin=[]; xMax=[]
 	yMin=[]; yMax=[]
-	for line in polylines:
-		xMin.append( min(line.points[:,0]) )
-		xMax.append( max(line.points[:,0]) )
-		yMin.append( min(line.points[:,1]) )
-		yMax.append( max(line.points[:,1]) )
-	xMin = min(xMin); xMax = max(xMax)
-	yMin = min(yMin); yMax = max(yMax)
+	#for line in polylines:
+	#	xMin.append( min(line.points[:,0]) )
+	#	xMax.append( max(line.points[:,0]) )
+	#	yMin.append( min(line.points[:,1]) )
+	#	yMax.append( max(line.points[:,1]) )
+	xPoints = [line.points[:,0] for line in polylines]
+	xMin = min(xPoints); xMax = max(xPoints)
+	yPoints = [line.points[:,1] for line in polylines]
+	yMin = min(yPoints); yMax = max(yPoints)
 	width = xMax - xMin
 	height = yMax - yMin
 
 	# create SVG
 	svg = sg.SVGFigure(str(width)+"mm", str(height)+"mm")
-	svg.root.set("viewBox", "0 0 %s %s" % (width, height))
+	svg.root.set("viewBox", "%s %s %s %s" % (xMin, yMin, width, height))
 	svgLines = []
 	for line in polylines:
 		# custom path creation

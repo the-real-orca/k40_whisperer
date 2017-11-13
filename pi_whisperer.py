@@ -133,8 +133,8 @@ def upload_file():
 	url = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 	path = os.path.join(app.config['STATIC_FOLDER'], url)
 	file.save(path)
-	drawing = filemanager.open(path, url)
-	workspace.add(drawing)
+	if drawing = filemanager.open(path, url):
+		workspace.add(drawing)
 	return redirect("#")
 
 @socketio.on('connect')
@@ -146,50 +146,49 @@ def handleData(data):
 	global seqNr
 	print("sequence:" + str(seqNr)); print(data)
 
-	# check request sequence
-	if data["seqNr"] != seqNr:
-		# sqeuence error -> ignore request and resend status
-		sendStatus()
-		print("ignore request\n")
-		return
+	try:
+		# check request sequence
+		if data.get("seqNr", False) != seqNr:
+			# sqeuence error -> ignore request and resend status
+			sendStatus()
+			print("ignore request\n")
+			return
 
-	# increment sequence
-	seqNr += 1
+		# increment sequence
+		seqNr += 1
 
-	# move laser
-	if "move" in data:
-		laser.move( float(data["move"]["dx"]), float(data["move"]["dy"]) );
-	if "moveTo" in data:
-		laser.moveTo( float(data["moveTo"]["x"]), float(data["moveTo"]["y"]) );
+		# move laser
+		if "move" in data:
+			laser.move( float(data["move"]["dx"]), float(data["move"]["dy"]) );
+		if "moveTo" in data:
+			laser.moveTo( float(data["moveTo"]["x"]), float(data["moveTo"]["y"]) );
 
-	# change anchor position
-	if "anchor" in data:
-		print("setAnchor: " + data["anchor"])
-		# TODO handle anchor change
+		# change anchor position
+		if "anchor" in data:
+			print("setAnchor: " + data["anchor"])
+			# TODO handle anchor change
 
-	# handle command
-	if "cmd" in data:
-		commands = {
-			"init": laser.init,
-			"release": laser.release,
-			"home": laser.home,
-			"unlock": laser.unlock,
-			"stop": laser.stop,
-			"run": tasks.run
-		}
-		try:
-			# execute command
-			cmdName = str(data["cmd"]).lower()
-			params = None
-			if "params" in data:
-				params = data["params"]
-			print(cmdName, params)
-			if params is None:
-				commands[cmdName]()
-			else:
-				commands[cmdName](params)
-		except StandardError as e:
-			print(e)
+		# handle command
+		if "cmd" in data:
+			commands = {
+				"init": laser.init,
+				"release": laser.release,
+				"home": laser.home,
+				"unlock": laser.unlock,
+				"stop": laser.stop,
+				"run": tasks.run
+			}
+			try:
+				# execute command
+				cmdName = str(data["cmd"]).lower()
+				params = data.get("params", None)
+				print(cmdName, params)
+				if params is None:
+					commands[cmdName]()
+				else:
+					commands[cmdName](params)
+			except StandardError as e:
+				print(e)
 
 	# send status
 	sendStatus()

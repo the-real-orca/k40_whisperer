@@ -17,3 +17,4 @@ class Workspace:
 	def remove(self, id):
 		del self.drawings[id]
 		self.update()
+
