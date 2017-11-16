@@ -65,7 +65,7 @@ def laser_thread():
 #laser_thread()
 
 # init task manager
-tasks = TaskManager(laser)
+taskmanager = TaskManager(laser)
 
 # init file manager
 filemanager = FileManager()
@@ -102,7 +102,8 @@ def sendStatus(broadcast = True):
 			"originOffset": workspace.originOffset,
 			"drawings": []
 
-		}
+		},
+		"tasks": []
 	}
 	for k in workspace.drawings:
 		draw = workspace.drawings[k]
@@ -111,6 +112,16 @@ def sendStatus(broadcast = True):
 			"name": draw.id,
 			"url": draw.url
 		})
+	for task in taskmanager.tasks:
+		payload["tasks"].append({
+			"id": task.id,
+			"name": task.id,
+			"colors": task.colors,
+			"speed": task.speed,
+			"intensity": task.intensity,
+			"type": task.type
+		})
+		
 
 	send(payload, json=True, broadcast=broadcast)
 
