@@ -7,7 +7,7 @@ class TaskManager:
 		self.laser = laser
 		self.workspace = workspace
 
-	def run(self, params = None):
+	def runVectorTask(self, params = None):
 	
 		#TODO default params
 		params = {
@@ -23,10 +23,11 @@ class TaskManager:
 		# filter polylines by task color
 		polylines = list(filter(lambda p: p.color in colors, drawingPolylines))
 
-		# connect segmented polylines and
-		# TODO reorder from inner to outer
-		polylines = utils.optimizeLines(polylines)
-
+		# connect segmented polylines and reorder from inner to outer
+		draw = utils.Drawing(self.task.name, polylines)
+		draw.optimize()
+		draw.saveSVG("HTML/images/cut.svg")
+		
 		# send polylines to laser
-		self.laser.processVector(polylines, params.feedRate) #TODO additional params
+		self.laser.processVector(draw.polylines, params.feedRate) #TODO additional params
 		

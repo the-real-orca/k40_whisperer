@@ -51,7 +51,7 @@ class PolyLine:
 
 					 
 class Drawing:
-	def __init__(self, id, polylines, url):
+	def __init__(self, id, polylines, url=""):
 		self.id = id
 		self.polylines = polylines
 		self.url = url
@@ -92,6 +92,97 @@ class Drawing:
 		# save generated SVG files
 		svg.save(filePath)
 
+	def optimize(self, ignoreColor=False):
+		self.combineLines(ignoreColor)
+		self.reorderInnerToOuter()
+
+	def combineLines(self, ignoreColor=False):
+
+		# combine polyline segments
+		i = 0
+		while i < len(self.polylines):	# cannot use enumerate() since we change the list on-the-fly
+			j = 0
+			while j < len(self.polylines):
+				b = self.polylines[j]
+				connectedEndStart = equal(a.points[-1], b.points[0], dim=2)		# compare x,y end point with start point of segments
+				connectedEndEnd = equal(a.points[-1], b.points[-1], dim=2)		# compare x,y end point with end point of segments
+				if i != j and (connectedEndStart or connectedEndEnd) and \ 
+					(a.color == b. color or ignoreColor):
+					if connectedEndEnd:
+						b.reverse()
+					# connect segments
+					a.append(b)
+					# remove added segment from path and re-adjust indizes
+					self.polylines.pop(j)
+					if j < i: i -= 1
+				else:
+					j += 1
+			i += 1
+			
+		# reorder: inner -> outer regions
+		return self.reorderInnerToOuter()
+
+		
+	def reorderInnerToOuter(self)
+		# build polyline tree
+		class Node(object):
+			def __init__(self, data):
+				self.data = data
+				self.children = []
+				
+		if len(self.polylines) < 2:
+			return polylines
+
+		root = []
+		for polyline in self.polylines:
+			group = root
+			# recursively test if polyline is inside any element of the current group
+			while ( group != None):
+				for node in group:
+					# test if current polyline is inside of nodes polyline
+					if node.data.contains(polyline):
+						# dive recursively into node
+						group = node.children
+						break
+
+					# test if nodes polyline is inside of current polyline
+					if polyline.contains(node.data):
+						# created node for current polyline and wrap surronded nodes
+						node = Node(polyline)
+						node.children = [x for x in group if polyline.contains(x.data)]
+						# remove wrapped nodes from group (in-place manipulation!)
+						for x in node.children:
+							group.remove(x)
+						# exit
+						group = None
+						break
+				else:
+					# add new element to group
+					group.append( Node(polyline) )
+					group = None
+					break
+		
+		# walk through tree bottom->up
+		polylines = []
+		node = root
+		childIndex = 0
+		stack = []
+		while node:
+			# append polyline if all children have been processed 
+			if len(node.children) >= childIndex:
+				polylines.append(node.data)
+				node, childIndex = stack.pop()
+				continue
+			
+			# dive into next child
+			next = node.children[childIndex]
+			stack.append(node, childIndex+1)
+			childIndex = 0
+			node = next
+
+		self.polylines = polylines
+		return polylines
+		
 		
 def equal(a, b, tol=0.001, dim=False):
 	# use max distance for comparing
@@ -123,76 +214,3 @@ def makePolyLines(lines, scale=1, color=BLACK):
 
 	return polylines
 
-
-def optimizeLines(polylines, ignoreColor=False):
-
-	# combine polyline segments
-	i = 0
-	while i < len(polylines):	# cannot use enumerate() since we change the list on-the-fly
-		j = 0
-		while j < len(polylines):
-			b = polylines[j]
-			connectedEndStart = equal(a.points[-1], b.points[0], dim=2)		# compare x,y end point with start point of segments
-			connectedEndEnd = equal(a.points[-1], b.points[-1], dim=2)		# compare x,y end point with end point of segments
-			if i != j and (connectedEndStart or connectedEndEnd) and \ 
-				(a.color == b. color or ignoreColor):
-				if connectedEndEnd:
-					b.reverse()
-				# connect segments
-				a.append(b)
-				# remove added segment from path and readjust indizes
-				polylines.pop(j)
-				if j < i: i -= 1
-			else:
-				j += 1
-		i += 1
-		
-	# reorder: inner -> outer regions
-	# TODO
-
-	# combine segments
-	return polylines
-
-	
-def reorderInnerToOuter(polylines)
-	# build polyline tree
-	class Node(object):
-		def __init__(self, data):
-			self.data = data
-			self.children = []
-			
-	if len(polylines) < 2:
-		return polylines
-
-	root = []
-	for polyline in polylines:
-		group = root
-		# recursively test if polyline is inside any element of the current group
-		while ( group != None):
-			for node in group:
-				# test if current polyline is inside of nodes polyline
-				if node.data.contains(polyline):
-					# dive recursively into node
-					group = node.children
-					break
-
-				# test if nodes polyline is inside of current polyline
-				if polyline.contains(node.data):
-					# created node for current polyline and wrap surronded nodes
-					node = Node(polyline)
-					node.children = [x for x in group if polyline.contains(x.data)]
-					# remove wrapped nodes from group (in-place manipulation!)
-					for x in node.children:
-						group.remove(x)
-					# exit
-					group = None
-					break
-			else:
-				# add new element to group
-				group.append( Node(polyline) )
-				group = None
-				break
-	
-		# walk through tree bottom->up
-		
-		## TODO
