@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.path as path
 import svgutils.transform as sg
 from lxml import etree
 
@@ -16,7 +17,7 @@ MAGENTA = "magenta"	#(255, 0, 255)
 class PolyLine:
 	def __init__(self, points = [], color = BLACK):
 		self.color = color
-		self.points = np.array(points)
+		self.path = path.Path(np.array(points))
 
 	def encode(self):
 		data = {
@@ -28,20 +29,10 @@ class PolyLine:
 		return data
 
 	def appendPolyLine(self, polyline):
-		if equal(polyline.points[0], self.points[-1]):
-			s = 1
-		else:
-			s = 0
-		if len(self.points):
-			self.points = np.concatenate((self.points, polyline.points[s:]), axis=0)
-		else:
-			self.points = np.array(polyline.points[s:])
+		self.path.make_compound_path(polyline.path)
 
 	def appendPoint(self, p):
-		if len(self.points):
-			self.points = np.concatenate((self.points,[p]), axis=0)
-		else:
-			self.points = np.array([p])
+		self.path.vertices = np.concatenate((self.path.vertices,[p]), axis=0)
 
 	def append(self, p):
 		if isinstance(p, PolyLine):
@@ -50,8 +41,12 @@ class PolyLine:
 			self.appendPoint(p)
 
 	def reverse(self):
-		self.points = self.points[::-1]
+		self.path.vertices = self.path.vertices[::-1]
 
+	def contains(self, polyline):
+		return self.path.contains_path(polyline)
+
+					 
 class Drawing:
 	def __init__(self, id, polylines, url):
 		self.id = id
@@ -119,8 +114,49 @@ def optimizeLines(polylines, ignoreColor=False):
 	# combine segments
 	return polylines
 
-def reorderInnerToOuter(polylines)
 	
+def reorderInnerToOuter(polylines)
+	# build polyline tree
+	class Node(object):
+		def __init__(self, data):
+			self.data = data
+			self.children = []
+			
+	if len(polylines) < 2:
+		return polylines
+
+	root = []
+	for polyline in polylines:
+		group = root
+		# recursively test if polyline is inside any element of the current group
+		while ( group != None):
+			for node in group:
+				# test if current polyline is inside of nodes polyline
+				if node.data.contains(polyline):
+					# dive recursively into node
+					group = node.children
+					break
+
+				# test if nodes polyline is inside of current polyline
+				if polyline.contains(node.data):
+					# created node for current polyline and wrap surronded nodes
+					node = Node(polyline)
+					node.children = [x for x in group if polyline.contains(x.data)]
+					# remove wrapped nodes from group (in-place manipulation!)
+					for x in node.children:
+						group.remove(x)
+					# exit
+					group = None
+					break
+			else:
+				# add new element to group
+				group.append( Node(polyline) )
+				group = None
+				break
+	
+		# walk through tree bottom->up
+		
+		## TODO
 	
 def saveSVG(polylines, path):
 	# compute canvas size
