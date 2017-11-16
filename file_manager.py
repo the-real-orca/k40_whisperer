@@ -46,13 +46,14 @@ class FileManager:
 		polylines = utils.makePolyLines(dxf_lines, scale=dxf_scale, color=utils.RED)
 		polylines = utils.optimizeLines(polylines)
 
-		# create SVG image for displaying
+		# create drawings object
 		name = os.path.basename(path).replace("_", " ")
 		path += ".svg"; url +=".svg"
-		utils.saveSVG(polylines, path)
-
-		# create drawings object
 		drawing = utils.Drawing(name, polylines, url)
+
+		# create SVG image for displaying
+		drawing.saveSVG(path)
+
 		return drawing
 
 

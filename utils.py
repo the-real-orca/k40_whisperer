@@ -19,6 +19,9 @@ class PolyLine:
 		self.color = color
 		self.path = path.Path(np.array(points))
 
+	def getVertices()
+		return self.path.vertices
+		
 	def encode(self):
 		data = {
 			"color": self.color,
@@ -53,7 +56,43 @@ class Drawing:
 		self.polylines = polylines
 		self.url = url
 
+	def saveSVG(self, filePath)
+		# compute canvas size
+		strokeWidth = 0.5
+		xMin=[]; xMax=[]
+		yMin=[]; yMax=[]
+		#for line in polylines:
+		#	xMin.append( min(line.points[:,0]) )
+		#	xMax.append( max(line.points[:,0]) )
+		#	yMin.append( min(line.points[:,1]) )
+		#	yMax.append( max(line.points[:,1]) )
+		xPoints = [line.getVertices()[:,0] for line in polylines]
+		xMin = min(xPoints); xMax = max(xPoints)
+		yPoints = [line.getVertices()[:,1] for line in polylines]
+		yMin = min(yPoints); yMax = max(yPoints)
+		width = xMax - xMin
+		height = yMax - yMin
 
+		# create SVG
+		svg = sg.SVGFigure(str(width)+"mm", str(height)+"mm")
+		svg.root.set("viewBox", "%s %s %s %s" % (xMin, yMin, width, height))
+		svgLines = []
+		for line in polylines:
+			# custom path creation
+			points = line.getVertices()
+			linedata = "M{} {} ".format(*points[0])
+			linedata += " ".join(map(lambda x: "L{} {}".format(*x), points[1:]))
+			linedata = etree.Element(sg.SVG+"path",
+							   {"d": linedata, "stroke-width": str(strokeWidth), "stroke": line.color, "fill": "none"})
+			svgLines.append( sg.FigureElement(linedata) )
+		g = sg.GroupElement(svgLines)
+		g.moveto(-xMin, -yMin) # move the drawing to be in viewBox
+		svg.append(g)
+
+		# save generated SVG files
+		svg.save(filePath)
+
+		
 def equal(a, b, tol=0.001, dim=False):
 	# use max distance for comparing
 	d = abs(np.array(a)-np.array(b))
@@ -157,39 +196,3 @@ def reorderInnerToOuter(polylines)
 		# walk through tree bottom->up
 		
 		## TODO
-	
-def saveSVG(polylines, path):
-	# compute canvas size
-	strokeWidth = 0.5
-	xMin=[]; xMax=[]
-	yMin=[]; yMax=[]
-	#for line in polylines:
-	#	xMin.append( min(line.points[:,0]) )
-	#	xMax.append( max(line.points[:,0]) )
-	#	yMin.append( min(line.points[:,1]) )
-	#	yMax.append( max(line.points[:,1]) )
-	xPoints = [line.points[:,0] for line in polylines]
-	xMin = min(xPoints); xMax = max(xPoints)
-	yPoints = [line.points[:,1] for line in polylines]
-	yMin = min(yPoints); yMax = max(yPoints)
-	width = xMax - xMin
-	height = yMax - yMin
-
-	# create SVG
-	svg = sg.SVGFigure(str(width)+"mm", str(height)+"mm")
-	svg.root.set("viewBox", "%s %s %s %s" % (xMin, yMin, width, height))
-	svgLines = []
-	for line in polylines:
-		# custom path creation
-		linedata = "M{} {} ".format(*line.points[0])
-		linedata += " ".join(map(lambda x: "L{} {}".format(*x), line.points[1:]))
-		linedata = etree.Element(sg.SVG+"path",
-						   {"d": linedata, "stroke-width": str(strokeWidth), "stroke": line.color, "fill": "none"})
-		svgLines.append( sg.FigureElement(linedata) )
-	g = sg.GroupElement(svgLines)
-	g.moveto(-xMin, -yMin) # move the drawing to be in viewBox
-	svg.append(g)
-
-	# save generated SVG files
-	svg.save(path)
-
