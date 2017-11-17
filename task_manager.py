@@ -13,7 +13,7 @@ class Task:
 		self.speed = speed
 		self.intensity = intensity
 		self.type = type
-	
+
 
 class TaskManager:
 	def __init__(self, laser, workspace):
@@ -23,24 +23,23 @@ class TaskManager:
 
 	def run(self, params = None):
 		# TODO
-			
+
 		self.runVectorTask(self.tasks[0])
-		
+
 	def runVectorTask(self, task):
-		# get polylines from all drawings in workspace	
+		# get polylines from all drawings in workspace
 		drawings = self.workspace.drawings
-		drawingPolylines = [drawings[k].polylines for k in drawings] 
-		
+		drawingPolylines = [drawings[k].polylines for k in drawings]
+
 		# filter polylines by task color
 		polylines = list(filter(lambda p: p.color in task.colors, drawingPolylines))
 
 		# connect segmented polylines and reorder from inner to outer
 		draw = utils.Drawing(task.id, polylines)
-		draw.optimize()
+		draw.optimize(ignoreColor=True)
 		draw.saveSVG("HTML/images/cut.svg")
-		
+
 		# send polylines to laser
 		self.laser.processVector(draw.polylines, task.speed) #TODO intensity
-		
 
-		
+

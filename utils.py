@@ -4,89 +4,120 @@ import svgutils.transform as sg
 from lxml import etree
 
 
-BLACK = "black"		#(0, 0, 0)
-WHITE = "white"		#(255, 255, 255)
-RED = "red"			#(255, 0, 0)
-GREEN = "green"		#(0, 255, 0)
-BLUE = "blue"			#(0, 0, 255)
-YELLOW = "yellow"	#(255, 255, 0)
-CYAN = "cyan"			#(0, 255, 255)
-MAGENTA = "magenta"	#(255, 0, 255)
+BLACK = "black"      #(0, 0, 0)
+WHITE = "white"      #(255, 255, 255)
+RED = "red"          #(255, 0, 0)
+GREEN = "green"      #(0, 255, 0)
+BLUE = "blue"        #(0, 0, 255)
+YELLOW = "yellow"    #(255, 255, 0)
+CYAN = "cyan"        #(0, 255, 255)
+MAGENTA = "magenta"  #(255, 0, 255)
 
 
-class PolyLine:
+class Polyline:
 	def __init__(self, points = [], color = BLACK):
 		self.color = color
-		self.path = path.Path(np.array(points))
+		self._points = np.array(points)
 
-	def getVertices()
-		return self.path.vertices
-		
+	def __repr__(self):
+		str = "(" + self.color
+		str += ": " + self._points[:2].__str__()
+		if len(self._points) >= 2:
+			str += "..."
+		str += ")"
+		str = str.replace("\n", ",")
+		return str
+
+	def __bool__(self):
+		return len(self._points) > 0
+
+	def getPoints(self):
+		return self._points
+
 	def encode(self):
-		data = {
+		return {
 			"color": self.color,
-			"points": []
+			"points": self.getPoints()
 			}
-		for p in self.points:
-			data.points.append(p)
-		return data
 
-	def appendPolyLine(self, polyline):
-		self.path.make_compound_path(polyline.path)
+	def appendPolyline(self, polyline):
+		points = polyline.getPoints()
+		if len(points)==0:
+				return
+		if len(self._points)>0:
+			if equal(points[0], self._points[-1]):
+				s = 1
+			else:
+				s = 0
+			self._points = np.concatenate((self._points, points[s:]), axis=0)
+		else:
+			self._points = np.array(points)
 
 	def appendPoint(self, p):
-		self.path.vertices = np.concatenate((self.path.vertices,[p]), axis=0)
+		if len(self._points)>0:
+			self._points = np.concatenate((self._points,[p]), axis=0)
+		else:
+			self._points = np.array([p])
 
 	def append(self, p):
-		if isinstance(p, PolyLine):
-			self.appendPolyLine(p)
+		if isinstance(p, Polyline):
+			self.appendPolyline(p)
 		else:
 			self.appendPoint(p)
 
 	def reverse(self):
-		self.path.vertices = self.path.vertices[::-1]
+		self._points = self._points[::-1]
 
 	def contains(self, polyline):
-		return self.path.contains_path(polyline)
+		if len(self._points)==0 or not(isinstance(polyline, Polyline)) or len(polyline.getPoints())==0:
+			return False
+		p = path.Path(self._points, closed=True)
+		return all(p.contains_points(polyline.getPoints()))
 
-					 
+
 class Drawing:
-	def __init__(self, id, polylines, url=""):
+	def __init__(self, id, polylines):
 		self.id = id
+		for line in polylines:
+			if not(isinstance(line, Polyline)):
+				raise Exception('polylines: type error')
 		self.polylines = polylines
-		self.url = url
 
-	def saveSVG(self, filePath)
+	def saveSVG(self, filePath):
 		# compute canvas size
-		strokeWidth = 0.5
+
+		print("saveSVG")
+		for line in self.polylines: print(line)
+		strokeWidth = 0.2
 		xMin=[]; xMax=[]
 		yMin=[]; yMax=[]
-		#for line in polylines:
-		#	xMin.append( min(line.points[:,0]) )
-		#	xMax.append( max(line.points[:,0]) )
-		#	yMin.append( min(line.points[:,1]) )
-		#	yMax.append( max(line.points[:,1]) )
-		xPoints = [line.getVertices()[:,0] for line in polylines]
-		xMin = min(xPoints); xMax = max(xPoints)
-		yPoints = [line.getVertices()[:,1] for line in polylines]
-		yMin = min(yPoints); yMax = max(yPoints)
-		width = xMax - xMin
-		height = yMax - yMin
+		for line in self.polylines:
+			points = line.getPoints()
+			xMin.append( min(points[:,0]) )
+			xMax.append( max(points[:,0]) )
+			yMin.append( min(points[:,1]) )
+			yMax.append( max(points[:,1]) )
+		xMin = min(xMin); xMax = max(xMax)
+		yMin = min(yMin); yMax = max(yMax)
+		width = xMax - xMin +strokeWidth
+		height = yMax - yMin +strokeWidth
 
 		# create SVG
 		svg = sg.SVGFigure(str(width)+"mm", str(height)+"mm")
-		svg.root.set("viewBox", "%s %s %s %s" % (xMin, yMin, width, height))
+		svg.root.set("viewBox", "%s %s %s %s" % (xMin-strokeWidth/2, yMin-strokeWidth/2, width, height))
 		svgLines = []
-		for line in polylines:
+		for line in self.polylines:
 			# custom path creation
-			points = line.getVertices()
+			points = line.getPoints()
 			linedata = "M{} {} ".format(*points[0])
 			linedata += " ".join(map(lambda x: "L{} {}".format(*x), points[1:]))
-			linedata = etree.Element(sg.SVG+"path",
-							   {"d": linedata, "stroke-width": str(strokeWidth), "stroke": line.color, "fill": "none"})
+			linedata = etree.Element(sg.SVG+"path", {"d": linedata,
+								   "stroke-width": str(strokeWidth),
+								   "stroke-linecap": "square",
+								   "stroke": line.color,
+								   "fill": "none"})
 			svgLines.append( sg.FigureElement(linedata) )
 		g = sg.GroupElement(svgLines)
-		g.moveto(-xMin, -yMin) # move the drawing to be in viewBox
 		svg.append(g)
 
 		# save generated SVG files
@@ -97,17 +128,25 @@ class Drawing:
 		self.reorderInnerToOuter()
 
 	def combineLines(self, ignoreColor=False):
-
 		# combine polyline segments
 		i = 0
-		while i < len(self.polylines):	# cannot use enumerate() since we change the list on-the-fly
+		while i < len(self.polylines):    # cannot use enumerate() since we change the list on-the-fly
 			j = 0
+			a = self.polylines[i]
+			pointsA = a.getPoints()
+			if len(pointsA)==0:
+				self.polylines.pop(i)
+				continue
 			while j < len(self.polylines):
 				b = self.polylines[j]
-				connectedEndStart = equal(a.points[-1], b.points[0], dim=2)		# compare x,y end point with start point of segments
-				connectedEndEnd = equal(a.points[-1], b.points[-1], dim=2)		# compare x,y end point with end point of segments
-				if i != j and (connectedEndStart or connectedEndEnd) and \ 
-					(a.color == b. color or ignoreColor):
+				pointsB = b.getPoints()
+				if len(pointsB)==0:
+					j += 1
+					continue
+				connectedEndStart = equal(pointsA[-1], pointsB[0], dim=2)	# compare x,y end point with start point of segments
+				connectedEndEnd = equal(pointsA[-1], pointsB[-1], dim=2)	# compare x,y end point with end point of segments
+				if i != j and (connectedEndStart or connectedEndEnd) \
+					and (a.color == b. color or ignoreColor):
 					if connectedEndEnd:
 						b.reverse()
 					# connect segments
@@ -118,72 +157,91 @@ class Drawing:
 				else:
 					j += 1
 			i += 1
-			
+
 		# reorder: inner -> outer regions
 		return self.reorderInnerToOuter()
 
-		
-	def reorderInnerToOuter(self)
+
+	def reorderInnerToOuter(self):
 		# build polyline tree
 		class Node(object):
 			def __init__(self, data):
 				self.data = data
 				self.children = []
-				
-		if len(self.polylines) < 2:
-			return polylines
 
-		root = []
+		if len(self.polylines) < 2:
+			return self.polylines
+
+		print("build polyline tree +++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+		baseGroup = []
 		for polyline in self.polylines:
-			group = root
+			group = baseGroup
+			print("test", polyline,"-----------------------------------")
 			# recursively test if polyline is inside any element of the current group
 			while ( group != None):
+				print("group", [a.data for a in group])
 				for node in group:
 					# test if current polyline is inside of nodes polyline
 					if node.data.contains(polyline):
 						# dive recursively into node
+						print("dive into", node.data)
 						group = node.children
 						break
 
 					# test if nodes polyline is inside of current polyline
 					if polyline.contains(node.data):
 						# created node for current polyline and wrap surronded nodes
-						node = Node(polyline)
-						node.children = [x for x in group if polyline.contains(x.data)]
+						print("envelop", node.data)
+
+						n = Node(polyline)
+						n.children = [x for x in group if polyline.contains(x.data)]
 						# remove wrapped nodes from group (in-place manipulation!)
-						for x in node.children:
+						for x in n.children:
 							group.remove(x)
+						group.append(n)
+
+						print("new group", [a.data for a in group])
 						# exit
 						group = None
 						break
 				else:
 					# add new element to group
 					group.append( Node(polyline) )
+					print("append", polyline,"to", group[0].data)
 					group = None
 					break
-		
+
 		# walk through tree bottom->up
 		polylines = []
-		node = root
+		node = Node(None)
+		node.children = baseGroup
 		childIndex = 0
 		stack = []
-		while node:
-			# append polyline if all children have been processed 
-			if len(node.children) >= childIndex:
-				polylines.append(node.data)
-				node, childIndex = stack.pop()
-				continue
-			
+		print("walk through tree +++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+		while True:
+			print("node", node.data, len(node.children), childIndex)
+			# append polyline if all children have been processed
+			if len(node.children) <= childIndex:
+				if node.data:
+					polylines.append(node.data)
+				if len(stack) > 0:
+					node, childIndex = stack.pop()
+					continue
+				else:
+					break
+
 			# dive into next child
 			next = node.children[childIndex]
-			stack.append(node, childIndex+1)
+			stack.append([node, childIndex+1])
 			childIndex = 0
 			node = next
 
+		print("optimized polylines")
+		for p in polylines: print(p)
 		self.polylines = polylines
 		return polylines
-		
-		
+
+
 def equal(a, b, tol=0.001, dim=False):
 	# use max distance for comparing
 	d = abs(np.array(a)-np.array(b))
@@ -195,17 +253,16 @@ def equal(a, b, tol=0.001, dim=False):
 		return True
 
 
-def makePolyLines(lines, scale=1, color=BLACK):
+def makePolylines(lines, scale=1, color=BLACK):
 	polylines=[]
 	old = [0,0,0,0]
-	p = PolyLine([], color)
+	p = Polyline([], color)
 	for line in lines:
 		coords = np.array(line)*scale
 		# check and see if we need to move to a new discontinuous start point
 		if not(equal(old[2:4], coords[0:2])):
-			if len(p.points):
-				polylines.append(p)
-			p = PolyLine([], color)
+			polylines.append(p)
+			p = Polyline([], color)
 			p.append([coords[0], coords[1]]) # add start point
 		p.append([coords[2], coords[3]]) # add end point
 		old = coords

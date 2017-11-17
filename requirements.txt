@@ -1,3 +1,6 @@
 lxml
 pyusb
 pillow
+svgutils
+numpy
+matplotlib

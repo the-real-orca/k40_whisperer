@@ -1,4 +1,3 @@
-import utils
 
 class Workspace:
 	def __init__(self, width=100, height=100, originOffset=[0,0]):
@@ -10,8 +9,8 @@ class Workspace:
 		print("workspace has been updated -> reload")
 		# TODO
 
-	def add(self, drawing):
-		self.drawings[drawing.id] = drawing
+	def add(self, drawing, url):
+		self.drawings[drawing.id] = [drawing, url]
 		self.update()
 
 	def remove(self, id):

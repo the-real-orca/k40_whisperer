@@ -20,7 +20,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
 import time
-import utils
 import numpy as np
 
 ##############################################################################
@@ -158,7 +157,7 @@ class LASER_CLASS:
 		ecoords=[]
 		for loop, line in enumerate(polylines, start=1):
 			x = np.zeros((len(line.points), 3))
-			x[:,0:2] = line.points
+			x[:,0:2] = line.getVertices()
 			x[:,2] = loop
 			ecoords.extend(x.tolist())
 

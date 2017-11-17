@@ -21,22 +21,24 @@ from flask_socketio import SocketIO, send, emit
 from werkzeug.utils import secure_filename
 
 # configuration
-STATIC_FOLDER = 'HTML'
-UPLOAD_FOLDER = 'uploads'
+HTML_FOLDER = 'HTML'
+UPLOAD_FOLDER = HTML_FOLDER + '/uploads'
 ALLOWED_EXTENSIONS = set(['svg', 'dxf', 'png', 'jpg', 'jpeg'])
 MAX_CONTENT_LENGTH = 64 * 1024 * 1024
 workspaceImg = ""
 
 # application
 print("init application")
-app = Flask(__name__, static_url_path='', static_folder=STATIC_FOLDER)
+app = Flask(__name__, static_url_path='', static_folder=HTML_FOLDER)
 app.app_context()
-app.config['STATIC_FOLDER'] = STATIC_FOLDER
+app.config['HTML_FOLDER'] = HTML_FOLDER
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 socketio = SocketIO(app)
 seqNr = 1
 
+def pathToURL(path):
+	return os.path.relpath(path, HTML_FOLDER)
 
 # init laser
 laser = k40_wrapper.LASER_CLASS()
@@ -64,14 +66,15 @@ def laser_thread():
 #thread.start_new_thread(laser_thread, ())
 #laser_thread()
 
-# init task manager
-taskmanager = TaskManager(laser)
 
 # init file manager
 filemanager = FileManager()
 
 # init workspace
 workspace = Workspace()
+
+# init task manager
+taskmanager = TaskManager(laser, workspace)
 
 
 # send laser status
@@ -106,11 +109,11 @@ def sendStatus(broadcast = True):
 		"tasks": []
 	}
 	for k in workspace.drawings:
-		draw = workspace.drawings[k]
+		draw, url = workspace.drawings[k]
 		payload["workspace"]["drawings"].append({
 			"id": draw.id,
 			"name": draw.id,
-			"url": draw.url
+			"url": url
 		})
 	for task in taskmanager.tasks:
 		payload["tasks"].append({
@@ -121,7 +124,7 @@ def sendStatus(broadcast = True):
 			"intensity": task.intensity,
 			"type": task.type
 		})
-		
+
 
 	send(payload, json=True, broadcast=broadcast)
 
@@ -141,11 +144,13 @@ def upload_file():
 	if not(file) or file.filename == '':
 		return redirect("#")
 	filename = secure_filename(file.filename)
-	url = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-	path = os.path.join(app.config['STATIC_FOLDER'], url)
+	path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 	file.save(path)
-	if drawing = filemanager.open(path, url):
-		workspace.add(drawing)
+	drawing, path = filemanager.open(path)
+	if drawing:
+		url = pathToURL(path)
+		print(url)
+		workspace.add(drawing, url)
 	return redirect("#")
 
 @socketio.on('connect')
@@ -187,7 +192,7 @@ def handleData(data):
 				"home": laser.home,
 				"unlock": laser.unlock,
 				"stop": laser.stop,
-				"run": tasks.run
+				"run": taskmanager.run
 			}
 			try:
 				# execute command
@@ -198,12 +203,12 @@ def handleData(data):
 					commands[cmdName]()
 				else:
 					commands[cmdName](params)
-			except StandardError as e:
+			except Exception as e:
 				print(e)
-
-	# send status
-	sendStatus()
-	print("")
+	finally:
+		# send status
+		sendStatus()
+		print("status", data)
 
 
 print("start webserver")

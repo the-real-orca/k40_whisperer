@@ -75,11 +75,12 @@
 				 <fieldset class="panel">
 					<legend>Workspace</legend>
 					<div class="workspace" data-bind="foreach: workspace.drawings, style: {width: workspace.width()+'mm', height: workspace.height()+'mm'}">
-						<img data-bind="alt: name, attr: {src: url}" />
+						<object data-bind="alt: name, attr: {data: url, name: name}" type="image/svg+xml"></object>
 					</div>
 					<table class="center" data-bind="foreach: workspace.drawings">
 						<tr>
-							<td><span data-bind="text: name"></span></td>
+							<td><span data-bind="text: name"></span>
+							<span data-bind="text: url"></span></td>
 							<td><button class="inline icon-cog"></button></td>
 							<td><button class="inline">x</button></td>
 						</tr>
