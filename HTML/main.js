@@ -98,6 +98,10 @@ var viewModel = {
 			x: ko.observable(0),
 			y: ko.observable(0)
 		},
+		drawingsOrigin: {
+			x: ko.observable(0),
+			y: ko.observable(0)
+		},
 		drawings: ko.observableArray()
 	},
 	pos: {
@@ -231,6 +235,10 @@ function init() {
 			if ( "originOffset" in data.workspace ) {
 				viewModel.workspace.originOffset.x( data.workspace["originOffset"][0] )
 				viewModel.workspace.originOffset.y( data.workspace["originOffset"][1] )
+			}
+			if ( "drawingsOrigin" in data.workspace ) {
+				viewModel.workspace.drawingsOrigin.x( data.workspace["drawingsOrigin"][0] )
+				viewModel.workspace.drawingsOrigin.y( data.workspace["drawingsOrigin"][1] )
 			}
 			if ( data.workspace.drawings instanceof Array ) {
 				viewModel.workspace.drawings.removeAll()

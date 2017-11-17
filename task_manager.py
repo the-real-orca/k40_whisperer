@@ -29,7 +29,7 @@ class TaskManager:
 	def runVectorTask(self, task):
 		# get polylines from all drawings in workspace
 		drawings = self.workspace.drawings
-		drawingPolylines = [drawings[k].polylines for k in drawings]
+		drawingPolylines = [drawings[k].polylines + drawings[k].position for k in drawings]
 
 		# filter polylines by task color
 		polylines = list(filter(lambda p: p.color in task.colors, drawingPolylines))
@@ -40,6 +40,6 @@ class TaskManager:
 		draw.saveSVG("HTML/images/cut.svg")
 
 		# send polylines to laser
-		self.laser.processVector(draw.polylines, task.speed) #TODO intensity
+		self.laser.processVector(draw.polylines, feedRate=task.speed) #TODO intensity
 
 

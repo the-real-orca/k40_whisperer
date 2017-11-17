@@ -82,17 +82,23 @@ class Drawing:
 			if not(isinstance(line, Polyline)):
 				raise Exception('polylines: type error')
 		self.polylines = polylines
+		self.position = [0,0]
+		self.param = {}
+		self._strokeWidth = 0.2
+		self.update()
 
-	def saveSVG(self, filePath):
-		# compute canvas size
+	def update(self):
+		viewBox, strokeWidth = self.getViewBox(0)
+		self.size = viewBox[2:4]
 
-		print("saveSVG")
-		for line in self.polylines: print(line)
-		strokeWidth = 0.2
+	def getViewBox(self, strokeWidth = None):
+		if strokeWidth is None: strokeWidth = self._strokeWidth
 		xMin=[]; xMax=[]
 		yMin=[]; yMax=[]
 		for line in self.polylines:
 			points = line.getPoints()
+			if len(points)==0:
+				continue
 			xMin.append( min(points[:,0]) )
 			xMax.append( max(points[:,0]) )
 			yMin.append( min(points[:,1]) )
@@ -101,23 +107,32 @@ class Drawing:
 		yMin = min(yMin); yMax = max(yMax)
 		width = xMax - xMin +strokeWidth
 		height = yMax - yMin +strokeWidth
+		return [xMin, yMin, width, height], strokeWidth
+
+	def saveSVG(self, filePath):
+		# compute canvas size
+
+		print("saveSVG")
+		for line in self.polylines: print(line)
+		[xMin, yMin, width, height], strokeWidth = self.getViewBox()
 
 		# create SVG
 		svg = sg.SVGFigure(str(width)+"mm", str(height)+"mm")
-		svg.root.set("viewBox", "%s %s %s %s" % (xMin-strokeWidth/2, yMin-strokeWidth/2, width, height))
+		svg.root.set("viewBox", "%s %s %s %s" % (xMin, yMin, width, height))
 		svgLines = []
 		for line in self.polylines:
 			# custom path creation
 			points = line.getPoints()
 			linedata = "M{} {} ".format(*points[0])
 			linedata += " ".join(map(lambda x: "L{} {}".format(*x), points[1:]))
+			# TODO <polyline fill="none" stroke="black" points="20,100 40,60 70,80 100,20"/>
 			linedata = etree.Element(sg.SVG+"path", {"d": linedata,
 								   "stroke-width": str(strokeWidth),
 								   "stroke-linecap": "square",
 								   "stroke": line.color,
 								   "fill": "none"})
 			svgLines.append( sg.FigureElement(linedata) )
-		g = sg.GroupElement(svgLines)
+		g = sg.GroupElement(svgLines, {'id': "root"})
 		svg.append(g)
 
 		# save generated SVG files

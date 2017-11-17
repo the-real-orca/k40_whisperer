@@ -74,9 +74,12 @@
 			<div class="full">
 				 <fieldset class="panel">
 					<legend>Workspace</legend>
-					<div class="workspace" data-bind="foreach: workspace.drawings, style: {width: workspace.width()+'mm', height: workspace.height()+'mm'}">
-						<object data-bind="alt: name, attr: {data: url, name: name}" type="image/svg+xml"></object>
-					</div>
+					<svg class="workspace" data-bind="style: {width: workspace.width()+'mm', height: workspace.height()+'mm'}" viewBox="0 0 100 100">
+						<use href="images/origin.svg#origin" data-bind="attr: {x: workspace.drawingsOrigin.x, y: workspace.drawingsOrigin.x}"></use>
+						<g data-bind="foreach: workspace.drawings">
+							<use data-bind="attr: {href: url()+'#root', x: x, y: y}"></use>
+						</g>
+					</svg>
 					<table class="center" data-bind="foreach: workspace.drawings">
 						<tr>
 							<td><span data-bind="text: name"></span>

@@ -103,17 +103,22 @@ def sendStatus(broadcast = True):
 			"width": workspace.size[0],
 			"height": workspace.size[1],
 			"originOffset": workspace.originOffset,
+			"drawingsOrigin": workspace.drawingsOrigin,
 			"drawings": []
 
 		},
 		"tasks": []
 	}
 	for k in workspace.drawings:
-		draw, url = workspace.drawings[k]
+		draw = workspace.drawings[k]
 		payload["workspace"]["drawings"].append({
 			"id": draw.id,
 			"name": draw.id,
-			"url": url
+			"x": draw.position[0],
+			"y": draw.position[1],
+			"width": draw.size[0],
+			"height": draw.size[1],
+			"url": draw.param.get("url", "")
 		})
 	for task in taskmanager.tasks:
 		payload["tasks"].append({
@@ -148,9 +153,14 @@ def upload_file():
 	file.save(path)
 	drawing, path = filemanager.open(path)
 	if drawing:
-		url = pathToURL(path)
-		print(url)
-		workspace.add(drawing, url)
+		if len(workspace.drawings)==0:
+			# set drawings origin for first drawing to fit to workspace
+			viewBox, strokeWidth = drawing.getViewBox(strokeWidth=0)
+			workspace.drawingsOrigin[0] = workspace.originOffset[0] - min(viewBox[0],0)
+			workspace.drawingsOrigin[1] = workspace.originOffset[1] - min(viewBox[1],0)
+		drawing.position = list(workspace.drawingsOrigin)
+		drawing.param["url"] = pathToURL(path)
+		workspace.add(drawing)
 	return redirect("#")
 
 @socketio.on('connect')
