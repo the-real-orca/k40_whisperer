@@ -122,11 +122,9 @@ class Drawing:
 		svgLines = []
 		for line in self.polylines:
 			# custom path creation
-			points = line.getPoints()
-			linedata = "M{} {} ".format(*points[0])
-			linedata += " ".join(map(lambda x: "L{} {}".format(*x), points[1:]))
-			# TODO <polyline fill="none" stroke="black" points="20,100 40,60 70,80 100,20"/>
-			linedata = etree.Element(sg.SVG+"path", {"d": linedata,
+			points = " ".join(map(lambda x: "{},{}".format(*x), line.getPoints()))
+			linedata = etree.Element(sg.SVG+"polyline", {
+								   "points": points,
 								   "stroke-width": str(strokeWidth),
 								   "stroke-linecap": "square",
 								   "stroke": line.color,
