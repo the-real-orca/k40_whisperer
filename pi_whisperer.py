@@ -71,7 +71,7 @@ def laser_thread():
 filemanager = FileManager()
 
 # init workspace
-workspace = Workspace()
+workspace = Workspace(originOffset=[10, 40])
 
 # init task manager
 taskmanager = TaskManager(laser, workspace)
@@ -202,7 +202,9 @@ def handleData(data):
 				"home": laser.home,
 				"unlock": laser.unlock,
 				"stop": laser.stop,
-				"run": taskmanager.run
+				"workspace.clear": workspace.clear,
+				"workspace.remove": workspace.remove,
+				"task.run": taskmanager.run
 			}
 			try:
 				# execute command
@@ -214,7 +216,7 @@ def handleData(data):
 				else:
 					commands[cmdName](params)
 			except Exception as e:
-				print(e)
+				print("Exception", e)
 	finally:
 		# send status
 		sendStatus()

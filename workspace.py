@@ -4,7 +4,7 @@ class Workspace:
 		self.drawings = dict()
 		self.size = [width, height]
 		self.originOffset = originOffset
-		self.drawingsOrigin = originOffset
+		self.drawingsOrigin = originOffset[:]
 
 	def update(self):
 		print("workspace has been updated -> reload")
@@ -16,5 +16,12 @@ class Workspace:
 
 	def remove(self, id):
 		del self.drawings[id]
+		if len(self.drawings):
+			self.drawingsOrigin = self.originOffset[:]
+		self.update()
+
+	def clear(self):
+		self.drawings.clear()
+		self.drawingsOrigin = self.originOffset[:]
 		self.update()
 

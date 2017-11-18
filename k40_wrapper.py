@@ -156,10 +156,14 @@ class LASER_CLASS:
 		# convert polylines to ecoords
 		ecoords=[]
 		for loop, line in enumerate(polylines, start=1):
-			x = np.zeros((len(line.points), 3))
-			x[:,0:2] = line.getVertices()
+			points = line.getPoints()
+			x = np.zeros((len(points), 3))
+			x[:,0:2] = points
+			x[:,1] = -x[:,1]
 			x[:,2] = loop
 			ecoords.extend(x.tolist())
+
+		print("ecoords", ecoords, "#####################################################")
 
 		# generate data for K40 controller board
 		data=[]

@@ -32,41 +32,127 @@ function fxSlideUpRemove(elem) {
 }
 
 
-var socket = undefined
-
 // laser functions
 function move(dx, dy) {
-	if ( !socket || viewModel.instable ) return
-	socket.send({move: {dx: parseFloat(dx), dy: parseFloat(dy)}, seqNr: viewModel.seqNr})
+	send({move: {dx: parseFloat(dx), dy: parseFloat(dy)}}) // TODO
 }
 function moveTo(x, y) {
-	if ( !socket || viewModel.instable ) return
-	socket.send({moveTo: {x: parseFloat(x), y: parseFloat(y)}, seqNr: viewModel.seqNr})
+	send({moveTo: {x: parseFloat(x), y: parseFloat(y)}}) // TODO
 }
 function initLaser() {
-	if ( !socket ) return
-	socket.send({cmd: 'init', seqNr: viewModel.seqNr})
+	send('init')
 }
 function releaseLaser() {
-	if ( !socket ) return
-	socket.send({cmd: 'release', seqNr: viewModel.seqNr})
+	send('release')
 }
 function home() {
-	if ( !socket ) return
-	socket.send({cmd: 'home', seqNr: viewModel.seqNr})
+	send('home')
 }
 function stop() {
-	if ( !socket ) return
-	socket.send({cmd: 'stop', seqNr: viewModel.seqNr})
+	send('stop')
 }
 function unlock() {
-	if ( !socket || viewModel.instable ) return
-	socket.send({cmd: 'unlock', seqNr: viewModel.seqNr})
+	send('unlock')
 }
-function runTasks() {
-	if ( !socket || viewModel.instable ) return
-	socket.send({cmd: 'run', params: {task: []}, seqNr: viewModel.seqNr})
+function taskRunAll() {
+	send('task.run')
 }
+function taskRun(id) {
+	send('task.run', id)
+}
+function workspaceClear() {
+	send('workspace.clear')
+}
+function workspaceRemoveDrawing(id) {
+	send('workspace.remove', id)
+}
+
+// communication
+var socket = undefined
+function send(cmd, params) {
+	if ( !socket || viewModel.instable ) return
+	data = {cmd: cmd}
+	if ( params !== undefined )
+		data.params = params
+	data.seqNr = viewModel.seqNr
+	console.log("sending ...", data)
+	socket.send(data)
+}
+function handleMessage(data) {
+	console.log('Received message', data)
+	viewModel.instable = true
+
+	// update status
+	if ( typeof data.status == "object" ) {
+		for ( var key in data.status )
+			viewModel.status[key]( data.status[key] )
+	}
+	if ( typeof data.alert == "object" ) {
+		for ( var key in data.alert )
+			viewModel.alert[key]( data.alert[key] )
+	}
+
+	// update position
+	if ( typeof data.pos == "object" ) {
+		var x = parseFloat(data.pos.x), y = parseFloat(data.pos.y)
+		if ( isNaN(x) || isNaN(y) ) {
+			viewModel.pos.valid(false)
+		} else {
+			viewModel.pos.valid(true)
+			viewModel.pos.x(x)
+			viewModel.pos.y(y)
+		}
+	}
+
+	// update anchor
+	if ( typeof data.anchor == "string" ) {
+		viewModel.anchor( data.anchor )
+	}
+
+	// update workspace
+	if ( typeof data.workspace == "object" ) {
+		if ( "width" in data.workspace )
+			viewModel.workspace.width( data.workspace["width"] )
+		if ( "height" in data.workspace )
+			viewModel.workspace.width( data.workspace["height"] )
+		if ( "originOffset" in data.workspace ) {
+			viewModel.workspace.originOffset.x( data.workspace["originOffset"][0] )
+			viewModel.workspace.originOffset.y( data.workspace["originOffset"][1] )
+		}
+		if ( "drawingsOrigin" in data.workspace ) {
+			viewModel.workspace.drawingsOrigin.x( data.workspace["drawingsOrigin"][0] )
+			viewModel.workspace.drawingsOrigin.y( data.workspace["drawingsOrigin"][1] )
+		}
+		if ( data.workspace.drawings instanceof Array ) {
+			viewModel.workspace.drawings.removeAll()
+			for ( var i = 0; i < data.workspace.drawings.length; i++ ) {
+				var json = data.workspace.drawings[i]
+				var draw = {}
+				for ( var key in json )
+					draw[key] = ko.observable(json[key])
+				viewModel.workspace.drawings.push(draw)
+			}
+		}
+	}
+
+	// update tasks
+	if ( data.tasks instanceof Array ) {
+		viewModel.tasks.removeAll()
+		for ( var i = 0; i < data.tasks.length; i++ ) {
+			var json = data.tasks[i]
+			var task = {}
+			for ( var key in json )
+				task[key] = ko.observable(json[key])
+			viewModel.tasks.push(task)
+		}
+	}
+	
+	// update sequence as final step to avoid data races
+	// -> intermediate requests will be ignored due-to sequence error
+	viewModel.seqNr = data.seqNr
+	viewModel.instable = false
+}
+
 
 // view model data
 var viewModel = {
@@ -109,20 +195,20 @@ var viewModel = {
 		x: ko.observable(0),
 		y: ko.observable(0)
 	},
-	anchor: ko.observable('upperLeft')
-
+	anchor: ko.observable('upperLeft'),
+	tasks: ko.observableArray()
 };
 // view model functions
 viewModel.status.networkIcon = ko.pureComputed(function() {
 	return this.status.network() ? "icon-lan-connect" : "icon-lan-disconnect";
 }, viewModel);
 viewModel.anchor.subscribe(function (val) {
-		if ( viewModel.instable ) return
-		socket.send({anchor: val, seqNr: viewModel.seqNr})
+		send('anchor', val)
     }, this)
 viewModel.pos.x.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
 viewModel.pos.y.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
 viewModel.workspace.drawings.extend({ rateLimit: 100 });
+viewModel.tasks.extend({ rateLimit: 100 });
 
 function init() {
 
@@ -195,69 +281,7 @@ function init() {
 	})
 
 	// handle incomming message
-	socket.on('message', function(data) {
-		console.log('Received message', data)
-		viewModel.instable = true
-
-		// update status
-		if ( typeof data.status == "object" ) {
-			for ( var key in data.status )
-				viewModel.status[key]( data.status[key] )
-		}
-		if ( typeof data.alert == "object" ) {
-			for ( var key in data.alert )
-				viewModel.alert[key]( data.alert[key] )
-		}
-
-		// update position
-		if ( typeof data.pos == "object" ) {
-			var x = parseFloat(data.pos.x), y = parseFloat(data.pos.y)
-			if ( isNaN(x) || isNaN(y) ) {
-				viewModel.pos.valid(false)
-			} else {
-				viewModel.pos.valid(true)
-				viewModel.pos.x(x)
-				viewModel.pos.y(y)
-			}
-		}
-
-		// update anchor
-		if ( typeof data.anchor == "string" ) {
-			viewModel.anchor( data.anchor )
-		}
-
-		// update workspace
-		if ( typeof data.workspace == "object" ) {
-			if ( "width" in data.workspace )
-				viewModel.workspace.width( data.workspace["width"] )
-			if ( "height" in data.workspace )
-				viewModel.workspace.width( data.workspace["height"] )
-			if ( "originOffset" in data.workspace ) {
-				viewModel.workspace.originOffset.x( data.workspace["originOffset"][0] )
-				viewModel.workspace.originOffset.y( data.workspace["originOffset"][1] )
-			}
-			if ( "drawingsOrigin" in data.workspace ) {
-				viewModel.workspace.drawingsOrigin.x( data.workspace["drawingsOrigin"][0] )
-				viewModel.workspace.drawingsOrigin.y( data.workspace["drawingsOrigin"][1] )
-			}
-			if ( data.workspace.drawings instanceof Array ) {
-				viewModel.workspace.drawings.removeAll()
-				for ( var i = 0; i < data.workspace.drawings.length; i++ ) {
-					var json = data.workspace.drawings[i]
-					var draw = {}
-					for ( var key in json )
-						draw[key] = ko.observable(json[key])
-					viewModel.workspace.drawings.push(draw)
-				}
-			}
-		}
-
-		// update sequence as final step to avoid data races
-		// -> intermediate requests will be ignored due-to sequence error
-		viewModel.seqNr = data.seqNr
-		viewModel.instable = false
-	})
-
+	socket.on('message', handleMessage)
 
 
 }

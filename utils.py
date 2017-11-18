@@ -34,6 +34,9 @@ class Polyline:
 	def getPoints(self):
 		return self._points
 
+	def applyOffset(self, off):
+		return Polyline(self._points + np.array(off), self.color)
+
 	def encode(self):
 		return {
 			"color": self.color,
@@ -52,21 +55,24 @@ class Polyline:
 			self._points = np.concatenate((self._points, points[s:]), axis=0)
 		else:
 			self._points = np.array(points)
+		return self
 
 	def appendPoint(self, p):
 		if len(self._points)>0:
 			self._points = np.concatenate((self._points,[p]), axis=0)
 		else:
 			self._points = np.array([p])
+		return self
 
 	def append(self, p):
 		if isinstance(p, Polyline):
-			self.appendPolyline(p)
+			return self.appendPolyline(p)
 		else:
-			self.appendPoint(p)
+			return self.appendPoint(p)
 
 	def reverse(self):
 		self._points = self._points[::-1]
+		return self
 
 	def contains(self, polyline):
 		if len(self._points)==0 or not(isinstance(polyline, Polyline)) or len(polyline.getPoints())==0:
@@ -90,6 +96,7 @@ class Drawing:
 	def update(self):
 		viewBox, strokeWidth = self.getViewBox(0)
 		self.size = viewBox[2:4]
+		return self
 
 	def getViewBox(self, strokeWidth = None):
 		if strokeWidth is None: strokeWidth = self._strokeWidth
@@ -107,7 +114,7 @@ class Drawing:
 		yMin = min(yMin); yMax = max(yMax)
 		width = xMax - xMin +strokeWidth
 		height = yMax - yMin +strokeWidth
-		return [xMin, yMin, width, height], strokeWidth
+		return [xMin -strokeWidth/2, yMin -strokeWidth/2, width, height], strokeWidth
 
 	def saveSVG(self, filePath):
 		# compute canvas size
@@ -135,10 +142,12 @@ class Drawing:
 
 		# save generated SVG files
 		svg.save(filePath)
+		return self
 
 	def optimize(self, ignoreColor=False):
 		self.combineLines(ignoreColor)
 		self.reorderInnerToOuter()
+		return self
 
 	def combineLines(self, ignoreColor=False):
 		# combine polyline segments
@@ -170,9 +179,7 @@ class Drawing:
 				else:
 					j += 1
 			i += 1
-
-		# reorder: inner -> outer regions
-		return self.reorderInnerToOuter()
+		return self
 
 
 	def reorderInnerToOuter(self):
@@ -252,7 +259,7 @@ class Drawing:
 		print("optimized polylines")
 		for p in polylines: print(p)
 		self.polylines = polylines
-		return polylines
+		return self
 
 
 def equal(a, b, tol=0.001, dim=False):

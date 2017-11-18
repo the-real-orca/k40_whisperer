@@ -75,17 +75,16 @@
 				 <fieldset class="panel">
 					<legend>Workspace</legend>
 					<svg class="workspace" data-bind="style: {width: workspace.width()+'mm', height: workspace.height()+'mm'}" viewBox="0 0 100 100">
-						<use href="images/origin.svg#origin" data-bind="attr: {x: workspace.drawingsOrigin.x, y: workspace.drawingsOrigin.x}"></use>
+						<use href="images/origin.svg#origin" data-bind="attr: {x: workspace.drawingsOrigin.x, y: workspace.drawingsOrigin.y}"></use>
 						<g data-bind="foreach: workspace.drawings">
 							<use data-bind="attr: {href: url()+'#root', x: x, y: y}"></use>
 						</g>
 					</svg>
 					<table class="center" data-bind="foreach: workspace.drawings">
 						<tr>
-							<td><span data-bind="text: name"></span>
-							<span data-bind="text: url"></span></td>
-							<td><button class="inline icon-cog"></button></td>
-							<td><button class="inline">x</button></td>
+							<td><span data-bind="text: name"></span></td>
+							<td><button class="TODO inline icon-cog"></button></td>
+							<td><button class="inline" data-bind="click: ()=>{workspaceRemoveDrawing($data.id())}">x</button></td>
 						</tr>
 					</table>
 					<form method="post" enctype="multipart/form-data" action="upload">
@@ -94,6 +93,7 @@
 						</label>
 						<input id="uploadSubmit" type="submit"></input>
 					</form>
+					<button data-bind="click: workspaceClear">Clear</button>
 				</fieldset>
 			</div>
 		</div>
@@ -133,7 +133,7 @@
 							<tr>
 								<td>
 									<!-- upper left corner -->
-									<label class="">
+									<label class="TODO">
 										<input type="radio" value="upperLeft" name="anchorPos" data-bind="checked: anchor">
 										<div class="anchorPos button flat"><div class="upperLeft"/></div>
 									</label>
@@ -146,7 +146,7 @@
 								</td>
 								<td>
 									<!-- upper right corner -->
-									<label class="">
+									<label class="TODO">
 										<input type="radio" value="upperRight" name="anchorPos" data-bind="checked: anchor">
 										<div class="anchorPos button flat"><div class="upperRight"/></div>
 									</label>
@@ -160,7 +160,7 @@
 								</td>
 								<td>
 									<!-- center -->
-									<label class="">
+									<label class="TODO">
 										<input type="radio" value="center" name="anchorPos" data-bind="checked: anchor">
 										<div class="anchorPos button flat"><b class="center">&#9587;</b></div>
 									</label>
@@ -173,7 +173,7 @@
 							<tr>
 								<td>
 									<!-- lower left corner -->
-									<label class="">
+									<label class="TODO">
 										<input type="radio" value="lowerLeft" name="anchorPos" data-bind="checked: anchor">
 										<div class="anchorPos button flat"><div class="lowerLeft"/></div>
 									</label>
@@ -186,7 +186,7 @@
 								</td>
 								<td>
 									<!-- lower right corner -->
-									<label class="">
+									<label class="TODO">
 										<input type="radio" value="lowerRight" name="anchorPos"  data-bind="checked: anchor">
 										<div class="anchorPos button flat"><div class="lowerRight"/></div>
 									</label>
@@ -216,7 +216,7 @@
 			<div class="center">
 				<fieldset class="">
 					<legend>Tasks</legend>
-					<table class="">
+					<table class="" data-bind="foreach: tasks">
 						<tr class="task">
 							<td>
 								<label>
@@ -224,47 +224,20 @@
 								</label>
 							</td>
 							<td>
-								<button class="flat"><span>raster</span> <i class="icon-sliders"></i></button>
+								<button class="flat"><span data-bind="text: name"></span> <i class="TODO icon-sliders"></i></button>
 							</td>
 							<td>
-								<button class="flat right"><i class="icon-play"></i></button>
+								<button class="flat right" data-bind="click: ()=>{taskRun($data.id())}"><i class="icon-play"></i></button>
 							</td>
 						</tr>
-						<tr class="task">
-							<td>
-								<label>
-									<input type="checkbox" checked><span class="checkable"></span>
-								</label>
-							</td>
-							<td>
-								<button class="flat"><span>engrave</span> <i class="icon-sliders"></i></button>
-							</td>
-							<td>
-								<button class="flat right"><i class="icon-play"></i></button>
-							</td>
-						</tr>
-						<tr class="task">
-							<td>
-								<label>
-									<input type="checkbox" checked><span class="checkable"></span>
-								</label>
-							</td>
-							<td>
-								<button class="flat"><span>cut</span> <i class="icon-sliders"></i></button>
-							</td>
-							<td>
-								<button class="flat right"><i class="icon-play"></i></button>
-							</td>
-						</tr>
-
 					</table>
 				</fieldset>
-				<button class="right"  data-bind="click: runTasks"><i class="icon-play"></i></button>
+				<button class="right" data-bind="click: taskRunAll"><i class="icon-play"></i></button>
 			</div>
 		</div>
 
 	</div>
-
+<!--
 	<div class="modal">
 		<input id="dialog_taskSettings" type="checkbox"  />
 		<label for="dialog_taskSettings" class="overlay"></label>
@@ -340,10 +313,8 @@
 			</footer>
 		</article>
 	</div>
-
-<!-- DEBUG -->
-<label for="dialog_taskSettings" class="button">Show modal</label>
-<div>sequence: <span data-bind="text: seqNr"/><span></div>
+	<label for="dialog_taskSettings" class="button">Show modal</label>
+-->
 
 	<script type='text/javascript'>
 		init();

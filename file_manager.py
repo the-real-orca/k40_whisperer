@@ -13,11 +13,9 @@ class FileManager:
 			fd.close()
 		except StandardError as e:
 			print("DXF Load Failed:", e)
-			traceback.format_exc()
 			return False
 		except:
 			print("Unable To open Drawing Exchange File (DXF) file.")
-			traceback.format_exc()
 			return False
 
 		dxf_lines=dxf_import.DXF_COORDS_GET(new_origin=False)

@@ -23,6 +23,11 @@ body {
 	color: #444;
 }
 
+.TODO {
+	box-shadow: 0 0 1ex red, 0 0 1ex red inset;
+//	visibility: hidden;
+}
+
 .flex  {
     margin-left: initial;
 }
