@@ -156,6 +156,7 @@ class LASER_CLASS:
 		# convert polylines to ecoords
 		ecoords=[]
 		for loop, line in enumerate(polylines, start=1):
+			if not(line): continue
 			points = line.getPoints()
 			x = np.zeros((len(points), 3))
 			x[:,0:2] = points
@@ -164,12 +165,13 @@ class LASER_CLASS:
 			ecoords.extend(x.tolist())
 
 		print("ecoords", ecoords, "#####################################################")
+		if len(ecoords)==0: return
 
 		# generate data for K40 controller board
 		data=[]
 		egv_inst = egv(target=lambda s:data.append(s))
 		egv_inst.make_egv_data(
-			ecoords,									\
+			ecoords,								\
 			startX = -originX,					\
 			startY = -originY,					\
 			units = 'mm',							\

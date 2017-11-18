@@ -34,37 +34,53 @@ function fxSlideUpRemove(elem) {
 
 // laser functions
 function move(dx, dy) {
-	send({move: {dx: parseFloat(dx), dy: parseFloat(dy)}}) // TODO
+	send('move', {dx: parseFloat(dx), dy: parseFloat(dy)})
+	return true
 }
 function moveTo(x, y) {
-	send({moveTo: {x: parseFloat(x), y: parseFloat(y)}}) // TODO
+	send('moveTo', {x: parseFloat(x), y: parseFloat(y)})
+	return true
 }
 function initLaser() {
 	send('init')
+	return true
 }
 function releaseLaser() {
 	send('release')
+	return true
 }
 function home() {
 	send('home')
+	return true
 }
 function stop() {
 	send('stop')
+	return true
 }
 function unlock() {
 	send('unlock')
+	return true
 }
 function taskRunAll() {
 	send('task.run')
+	return true
 }
 function taskRun(id) {
 	send('task.run', id)
+	return true
+}
+function taskSaveParams() {
+	var params = ko.mapping.toJS(viewModel.selectedTask);
+	send('task.set', params)
+	return true
 }
 function workspaceClear() {
 	send('workspace.clear')
+	return true
 }
 function workspaceRemoveDrawing(id) {
 	send('workspace.remove', id)
+	return true
 }
 
 // communication
@@ -140,9 +156,7 @@ function handleMessage(data) {
 		viewModel.tasks.removeAll()
 		for ( var i = 0; i < data.tasks.length; i++ ) {
 			var json = data.tasks[i]
-			var task = {}
-			for ( var key in json )
-				task[key] = ko.observable(json[key])
+			var task = ko.mapping.fromJS(json);
 			viewModel.tasks.push(task)
 		}
 	}
@@ -196,7 +210,8 @@ var viewModel = {
 		y: ko.observable(0)
 	},
 	anchor: ko.observable('upperLeft'),
-	tasks: ko.observableArray()
+	tasks: ko.observableArray(),
+	selectedTask: ko.observable()
 };
 // view model functions
 viewModel.status.networkIcon = ko.pureComputed(function() {

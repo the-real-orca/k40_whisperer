@@ -6,25 +6,66 @@ class Task:
 	VECTOR = "vector"
 	RASTER = "raster"
 
-	def __init__(self, id, colors=[utils.BLACK], speed=100, intensity=1, type=VECTOR):
+	def __init__(self, id, name=None, colors=[utils.BLACK], speed=100, intensity=0, type=VECTOR, repeat=1):
 		self.id = id
-		self.name = id
+		if name:
+			self.name = name
+		else:
+			self.name = id
 		self.colors = colors
 		self.speed = speed
 		self.intensity = intensity
 		self.type = type
+		self.repeat = repeat
 
 
 class TaskManager:
 	def __init__(self, laser, workspace):
 		self.laser = laser
 		self.workspace = workspace
-		self.tasks = [ Task("cut", [utils.BLACK, utils.RED], 50, 10) ]
+		self.tasks = []
 
-	def run(self, params = None):
-		# TODO
+	def setParams(self, params):
+		id = params.get('id', None)
+		if not(id): return
 
-		self.runVectorTask(self.tasks[0])
+		# find task by id
+		for task in self.tasks:
+			if task.id == id:
+				break
+		else:
+			# create new task
+			task = Task(id)
+			self.tasks.append(task)
+
+		# set task params
+		task.id = params.get('id')
+		task.name = params.get('name', task.id)
+		task.colors = params.get('colors', [utils.BLACK])
+		task.speed = float(params.get('speed', 100))
+		task.intensity = float(params.get('intensity', 0))
+		task.type = params.get('type', Task.VECTOR)
+		task.repeat = int(params.get('repeat', 0))
+
+	def run(self, id = None):
+		if id is None:
+			# process all tasks
+			tasks = self.tasks
+		else:
+			# find task by id
+			for task in self.tasks:
+				if task.id == id:
+					tasks = [task]
+					break
+			else:
+				# id not found
+				return
+		for task in tasks:
+			for i in range(task.repeat):
+				if task.type == Task.VECTOR:
+					self.runVectorTask(task)
+				else:
+					self.runRasterTask(task)
 
 	def runVectorTask(self, task):
 		# get polylines from all drawings in workspace and translate to laser coordinates
@@ -42,7 +83,6 @@ class TaskManager:
 		draw.saveSVG("HTML/uploads/cut.svg")
 
 		# send polylines to laser
-		if self.laser:
-			self.laser.processVector(draw.polylines, feedRate=task.speed) #TODO intensity
+		self.laser.processVector(draw.polylines, feedRate=task.speed) #TODO intensity
 
 

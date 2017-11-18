@@ -5,10 +5,11 @@ import sys
 import os
 import time
 import thread
+import utils
 
 # import laser communication
 import k40_wrapper
-from task_manager import TaskManager
+from task_manager import TaskManager, Task
 from file_manager import FileManager
 from workspace import Workspace
 
@@ -71,11 +72,12 @@ def laser_thread():
 filemanager = FileManager()
 
 # init workspace
-workspace = Workspace(originOffset=[10, 40])
+workspace = Workspace(originOffset=[0, 0])	# TODO
 
 # init task manager
 taskmanager = TaskManager(laser, workspace)
-
+taskmanager.tasks.append( Task("engrave", colors=[utils.BLUE], speed=100) )
+taskmanager.tasks.append( Task("cut", colors=[utils.BLACK, utils.RED], speed=75) )
 
 # send laser status
 def sendStatus(broadcast = True):
@@ -127,10 +129,9 @@ def sendStatus(broadcast = True):
 			"colors": task.colors,
 			"speed": task.speed,
 			"intensity": task.intensity,
-			"type": task.type
+			"type": task.type,
+			"repeat": task.repeat
 		})
-
-
 	send(payload, json=True, broadcast=broadcast)
 
 
@@ -169,10 +170,8 @@ def handleConnect():
 
 @socketio.on('message')
 def handleData(data):
-	global seqNr
-	print("sequence:" + str(seqNr)); print(data)
-
 	try:
+		global seqNr
 		# check request sequence
 		if data.get("seqNr", False) != seqNr:
 			# sqeuence error -> ignore request and resend status
@@ -183,17 +182,6 @@ def handleData(data):
 		# increment sequence
 		seqNr += 1
 
-		# move laser
-		if "move" in data:
-			laser.move( float(data["move"]["dx"]), float(data["move"]["dy"]) );
-		if "moveTo" in data:
-			laser.moveTo( float(data["moveTo"]["x"]), float(data["moveTo"]["y"]) );
-
-		# change anchor position
-		if "anchor" in data:
-			print("setAnchor: " + data["anchor"])
-			# TODO handle anchor change
-
 		# handle command
 		if "cmd" in data:
 			commands = {
@@ -202,13 +190,16 @@ def handleData(data):
 				"home": laser.home,
 				"unlock": laser.unlock,
 				"stop": laser.stop,
+				"move": lambda params: laser.move( float(params.get("dx",0)), float(params.get("dy",0)) ),
+				"moveTo": lambda params: laser.moveTo( float(params.get("dx",0)), float(params.get("dy",0)) ),
 				"workspace.clear": workspace.clear,
 				"workspace.remove": workspace.remove,
+				"task.set": taskmanager.setParams,
 				"task.run": taskmanager.run
 			}
 			try:
 				# execute command
-				cmdName = str(data["cmd"]).lower()
+				cmdName = str(data.get("cmd")).lower()
 				params = data.get("params", None)
 				print(cmdName, params)
 				if params is None:
@@ -220,7 +211,6 @@ def handleData(data):
 	finally:
 		# send status
 		sendStatus()
-		print("status", data)
 
 
 print("start webserver")

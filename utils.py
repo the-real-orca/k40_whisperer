@@ -100,18 +100,16 @@ class Drawing:
 
 	def getViewBox(self, strokeWidth = None):
 		if strokeWidth is None: strokeWidth = self._strokeWidth
-		xMin=[]; xMax=[]
-		yMin=[]; yMax=[]
+		xMin=1e12; xMax=-1e12
+		yMin=1e12; yMax=-1e12
 		for line in self.polylines:
 			points = line.getPoints()
 			if len(points)==0:
 				continue
-			xMin.append( min(points[:,0]) )
-			xMax.append( max(points[:,0]) )
-			yMin.append( min(points[:,1]) )
-			yMax.append( max(points[:,1]) )
-		xMin = min(xMin); xMax = max(xMax)
-		yMin = min(yMin); yMax = max(yMax)
+			xMin = min( np.append(points[:,0], xMin) )
+			xMax = max( np.append(points[:,0], xMax) )
+			yMin = min( np.append(points[:,1], yMin) )
+			yMax = max( np.append(points[:,1], yMax) )
 		width = xMax - xMin +strokeWidth
 		height = yMax - yMin +strokeWidth
 		return [xMin -strokeWidth/2, yMin -strokeWidth/2, width, height], strokeWidth

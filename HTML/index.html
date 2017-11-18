@@ -18,6 +18,7 @@
 
 	<!-- Knockout.js MVVM -->
 	<script type='text/javascript' src='libs/js/knockout-3.4.2.js'></script>
+	<script type='text/javascript' src='libs/js/knockout.mapping-2.4.1.js'></script>
 
 	<!-- Tabs -->
 	<link rel="stylesheet" href="tabs.css">
@@ -219,12 +220,14 @@
 					<table class="" data-bind="foreach: tasks">
 						<tr class="task">
 							<td>
+							<!--
 								<label>
 									<input type="checkbox" checked><span class="checkable"></span>
 								</label>
+							-->
 							</td>
 							<td>
-								<button class="flat"><span data-bind="text: name"></span> <i class="TODO icon-sliders"></i></button>
+								<label for="dialog_taskSettings" class="flat button" data-bind="click: ()=>{$root.selectedTask($data);return true}"><span data-bind="text: name"></span> <i class="icon-sliders"></i></label>
 							</td>
 							<td>
 								<button class="flat right" data-bind="click: ()=>{taskRun($data.id())}"><i class="icon-play"></i></button>
@@ -237,41 +240,48 @@
 		</div>
 
 	</div>
-<!--
+
 	<div class="modal">
-		<input id="dialog_taskSettings" type="checkbox"  />
+		<input id="dialog_taskSettings" type="checkbox" />
 		<label for="dialog_taskSettings" class="overlay"></label>
 		<article>
 			<header>
 				<h3>Task Settings</h3>
 				<label for="dialog_taskSettings" class="close">&times;</label>
 			</header>
-			<section class="content">
-				<form>
-					<input input="text" placeholder="Task Name" />
-
+			<section class="content" data-bind="">
+				<form data-bind="with: selectedTask()">
+					<input input="text" placeholder="Task Name" data-bind="value: name" />
 					<table>
 						<tr>
 							<td class="name">color</td>
 							<td>
 								<label class="colorSelect" style="color: #222">
-									<input type="checkbox" />
+									<input type="checkbox" value="black" data-bind="checked: colors" />
 									<span class="checkable"><i class="icon-brush large"></i></span>
 								</label>
 								<label class="colorSelect" style="color: red">
-									<input type="checkbox" />
+									<input type="checkbox" value="red" data-bind="checked: colors" />
 									<span class="checkable"><i class="icon-brush large"></i></span>
 								</label>
 								<label class="colorSelect" style="color: green">
-									<input type="checkbox" />
+									<input type="checkbox" value="green" data-bind="checked: colors" />
 									<span class="checkable"><i class="icon-brush large"></i></span>
 								</label>
 								<label class="colorSelect" style="color: blue">
-									<input type="checkbox" />
+									<input type="checkbox" value="blue" data-bind="checked: colors" />
 									<span class="checkable"><i class="icon-brush large"></i></span>
 								</label>
-								<label class="colorSelect" style="color: orange">
-									<input type="checkbox" />
+								<label class="colorSelect" style="color: #DA0">
+									<input type="checkbox" value="yellow" data-bind="checked: colors" />
+									<span class="checkable"><i class="icon-brush large"></i></span>
+								</label>
+								<label class="colorSelect" style="color: #0DA">
+									<input type="checkbox" value="cyan" data-bind="checked: colors" />
+									<span class="checkable"><i class="icon-brush large"></i></span>
+								</label>
+								<label class="colorSelect" style="color: #D0A">
+									<input type="checkbox" value="magenta" data-bind="checked: colors" />
 									<span class="checkable"><i class="icon-brush large"></i></span>
 								</label>
 							</td>
@@ -280,11 +290,11 @@
 							<td class="name">type</td>
 							<td>
 								<label class="typeSelect" >
-									<input name="typeSelect" type="radio" checked />
+									<input name="typeSelect" type="radio" value="vector"  data-bind="checked: type"/>
 									<span class="checkable"><i class="icon-lines large"></i></span>
 								</label>
 								<label class="typeSelect" >
-									<input name="typeSelect" type="radio" />
+									<input name="typeSelect" type="radio" value="raster" data-bind="checked: type"/>
 									<span class="checkable"><i class="icon-dots large"></i></span>
 								</label>
 							</td>
@@ -292,29 +302,29 @@
 
 						<tr>
 							<td class="name">speed</td>
-							<td><input type="number" placeholder="10" min="0"></input> <span class="unit">mm/s</span></td>
+							<td><input type="number" placeholder="10" min="0" data-bind="value: speed"></input> <span class="unit">mm/s</span></td>
 						</tr>
 
 						<tr>
 							<td class="name">repeat</td>
-							<td><input type="number" placeholder="1" min="1"></input> <i class="icon-retweet large"></i></td>
+							<td><input type="number" placeholder="1" min="1" data-bind="value: repeat"></input> <i class="icon-retweet large"></i></td>
 						</tr>
 					</table>
-
+<!--
 					<label>
 						<input type="checkbox" checked /><span class="checkable">message before task</span>
 					</label>
 					<textarea class="" placeholder="Task Message ..."></textarea>
+-->					
 				</form>
 			</section>
 			<footer class="right">
 				<label for="dialog_taskSettings" class="button dangerous">Cancel</label>
-				<label for="dialog_taskSettings" class="button success">OK</label>
+				<label for="dialog_taskSettings" class="button success" data-bind="click: taskSaveParams">OK</label>
 			</footer>
 		</article>
 	</div>
-	<label for="dialog_taskSettings" class="button">Show modal</label>
--->
+
 
 	<script type='text/javascript'>
 		init();
