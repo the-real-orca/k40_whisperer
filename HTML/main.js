@@ -127,10 +127,10 @@ function handleMessage(data) {
 
 	// update workspace
 	if ( typeof data.workspace == "object" ) {
-		if ( "width" in data.workspace )
-			viewModel.workspace.width( data.workspace["width"] )
-		if ( "height" in data.workspace )
-			viewModel.workspace.width( data.workspace["height"] )
+		if ( "size" in data.workspace ) {
+			viewModel.workspace.width( data.workspace["size"][0] )
+			viewModel.workspace.height( data.workspace["size"][1] )
+		}
 		if ( "originOffset" in data.workspace ) {
 			viewModel.workspace.originOffset.x( data.workspace["originOffset"][0] )
 			viewModel.workspace.originOffset.y( data.workspace["originOffset"][1] )

@@ -75,7 +75,7 @@
 			<div class="full">
 				 <fieldset class="panel">
 					<legend>Workspace</legend>
-					<svg class="workspace" data-bind="style: {width: workspace.width()+'mm', height: workspace.height()+'mm'}" viewBox="0 0 100 100">
+					<svg class="workspace" data-bind="style: {width: workspace.width()+'mm', height: workspace.height()+'mm'}, attr: {viewBox: '0 0 '+workspace.width()+' '+workspace.height()}" >
 						<use href="images/origin.svg#origin" data-bind="attr: {x: workspace.drawingsOrigin.x, y: workspace.drawingsOrigin.y}"></use>
 						<g data-bind="foreach: workspace.drawings">
 							<use data-bind="attr: {href: url()+'#root', x: x, y: y}"></use>

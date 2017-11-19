@@ -1,6 +1,6 @@
 import os
 from dxf import DXF_CLASS
-import utils
+import design_utils as design
 
 
 class FileManager:
@@ -41,11 +41,12 @@ class FileManager:
 			print("DXF Import: unknown unit '%s'", dxf_units)
 			return False
 
-		polylines = utils.makePolylines(dxf_lines, scale=dxf_scale, color=utils.RED)
+		polylines = design.makePolylines(dxf_lines, scale=dxf_scale, color=design.RED)
 
 		# create drawings object
 		name = os.path.basename(path).replace("_", " ")
-		drawing = utils.Drawing(name, polylines)
+		drawing = design.Drawing(name, polylines)
+		drawing.flipY()	# DXF import is mirrored around the x-axis -> invert Y coordinates
 		drawing.combineLines()
 
 		# create SVG image for displaying

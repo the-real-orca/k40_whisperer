@@ -80,6 +80,16 @@ class Polyline:
 		p = path.Path(self._points, closed=True)
 		return all(p.contains_points(polyline.getPoints()))
 
+	def flipX(self):
+		if len(self._points)>0:
+			self._points[:,0] = -self._points[:,0]
+		return self
+
+	def flipY(self):
+		if len(self._points)>0:
+			self._points[:,1] = -self._points[:,1]
+		return self
+
 
 class Drawing:
 	def __init__(self, id, polylines):
@@ -113,6 +123,16 @@ class Drawing:
 		width = xMax - xMin +strokeWidth
 		height = yMax - yMin +strokeWidth
 		return [xMin -strokeWidth/2, yMin -strokeWidth/2, width, height], strokeWidth
+
+	def flipX(self):
+		for line in self.polylines:
+			line.flipX()
+		return self
+
+	def flipY(self):
+		for line in self.polylines:
+			line.flipY()
+		return self
 
 	def saveSVG(self, filePath):
 		# compute canvas size

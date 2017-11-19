@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-import utils
+import design_utils as design
 
 class Task:
 	VECTOR = "vector"
 	RASTER = "raster"
 
-	def __init__(self, id, name=None, colors=[utils.BLACK], speed=100, intensity=0, type=VECTOR, repeat=1):
+	def __init__(self, id, name=None, colors=[design.BLACK], speed=100, intensity=0, type=VECTOR, repeat=1):
 		self.id = id
 		if name:
 			self.name = name
@@ -41,7 +41,7 @@ class TaskManager:
 		# set task params
 		task.id = params.get('id')
 		task.name = params.get('name', task.id)
-		task.colors = params.get('colors', [utils.BLACK])
+		task.colors = params.get('colors', [design.BLACK])
 		task.speed = float(params.get('speed', 100))
 		task.intensity = float(params.get('intensity', 0))
 		task.type = params.get('type', Task.VECTOR)
@@ -78,7 +78,7 @@ class TaskManager:
 		polylines = list(filter(lambda p: p.color in task.colors, drawingPolylines))
 
 		# connect segmented polylines and reorder from inner to outer
-		draw = utils.Drawing(task.id, polylines)
+		draw = design.Drawing(task.id, polylines)
 		draw.optimize(ignoreColor=True)
 		draw.saveSVG("HTML/uploads/cut.svg")
 

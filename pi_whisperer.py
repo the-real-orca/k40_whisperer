@@ -5,15 +5,16 @@ import sys
 import os
 import time
 import thread
-import utils
 
 # import laser communication
 import k40_wrapper
+
+# import application tools
+from config_manager import *
+import design_utils as design
 from task_manager import TaskManager, Task
 from file_manager import FileManager
 from workspace import Workspace
-
-# import file tools
 from svg_reader import SVG_READER
 
 # import web framework
@@ -21,12 +22,11 @@ from flask import g, Flask, request, redirect, url_for
 from flask_socketio import SocketIO, send, emit
 from werkzeug.utils import secure_filename
 
-# configuration
+# web server configuration
 HTML_FOLDER = 'HTML'
 UPLOAD_FOLDER = HTML_FOLDER + '/uploads'
-ALLOWED_EXTENSIONS = set(['svg', 'dxf', 'png', 'jpg', 'jpeg'])
+ALLOWED_EXTENSIONS = set(['dxf']) # TODO set(['svg', 'dxf', 'png', 'jpg', 'jpeg'])
 MAX_CONTENT_LENGTH = 64 * 1024 * 1024
-workspaceImg = ""
 
 # application
 print("init application")
@@ -72,12 +72,12 @@ def laser_thread():
 filemanager = FileManager()
 
 # init workspace
-workspace = Workspace(originOffset=[0, 0])	# TODO
+workspace = Workspace()
+configWorkspace(workspace)
 
 # init task manager
 taskmanager = TaskManager(laser, workspace)
-taskmanager.tasks.append( Task("engrave", colors=[utils.BLUE], speed=100) )
-taskmanager.tasks.append( Task("cut", colors=[utils.BLACK, utils.RED], speed=75) )
+configTasks(taskmanager)
 
 # send laser status
 def sendStatus(broadcast = True):
@@ -102,8 +102,7 @@ def sendStatus(broadcast = True):
 			"y": laser.y
 		},
 		"workspace": {
-			"width": workspace.size[0],
-			"height": workspace.size[1],
+			"size": workspace.size,
 			"originOffset": workspace.originOffset,
 			"drawingsOrigin": workspace.drawingsOrigin,
 			"drawings": []

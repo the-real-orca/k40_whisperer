@@ -167,6 +167,8 @@ class LASER_CLASS:
 		print("ecoords", ecoords, "#####################################################")
 		if len(ecoords)==0: return
 
+# TODO check movement area
+
 		# generate data for K40 controller board
 		data=[]
 		egv_inst = egv(target=lambda s:data.append(s))
