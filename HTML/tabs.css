@@ -41,7 +41,7 @@
 }
 
 .tabs > .content > * {
-	margin: 1em;
+	margin: 0.5em auto;
 }
 
 .tabs.side-right {
