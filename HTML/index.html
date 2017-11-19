@@ -37,7 +37,10 @@
 
 	<!-- header -->
 	<div class="flex two header">
-		<div class="title"><img class="logo" src="" alt="Logo"/><h1>Laser Whisperer</h1></div>
+		<div class="title">
+			<!-- <img class="TODO logo" src="" alt="Logo"/> -->
+			<h1>Laser Whisperer</h1>
+		</div>
 		<div class="status ">
 			<span class="dangerous" data-bind="css: { ok: status.laser, error: alert.laser }"><i class="icon-laser"></i></span>
 			<span data-bind="css: { ok: status.airassist, error: alert.airassist }"><i class="icon-fan"></i> <span data-bind="text: status.airassist" class="unit percent"></span></span>
@@ -68,34 +71,35 @@
 	<!-- main content -->
 	<div class="tabs side-right">
 
-		<!-- Upload -->
-		<input id="Upload" name="mainTabsGroup" type="radio" checked />
-		<label class="title" for="Upload"><i class="icon-picture"></i></label>
-		<div class="content" >
+		<!-- Workspace -->
+		<input id="Workspace" name="mainTabsGroup" type="radio" checked />
+		<label class="title" for="Workspace"><i class="icon-picture"></i></label>
+		<div class="content center" >
 			<div class="full">
-				 <fieldset class="panel">
-					<legend>Workspace</legend>
-					<svg class="workspace" data-bind="style: {width: workspace.width()+'mm', height: workspace.height()+'mm'}, attr: {viewBox: '0 0 '+workspace.width()+' '+workspace.height()}" >
-						<use href="images/origin.svg#origin" data-bind="attr: {x: workspace.drawingsOrigin.x, y: workspace.drawingsOrigin.y}"></use>
-						<g data-bind="foreach: workspace.drawings">
-							<use data-bind="attr: {href: url()+'#root', x: x, y: y}"></use>
-						</g>
-					</svg>
-					<table class="center" data-bind="foreach: workspace.drawings">
-						<tr>
-							<td><span data-bind="text: name"></span></td>
-							<td><button class="TODO inline icon-cog"></button></td>
-							<td><button class="inline" data-bind="click: ()=>{workspaceRemoveDrawing($data.id())}">x</button></td>
-						</tr>
-					</table>
-					<form method="post" enctype="multipart/form-data" action="upload">
-						<label class="upload button" ><i class="icon-folder-open"></i> Open
-							<input id="uploadFile" title="drop file or click me" name="file" type="file" ></input>
-						</label>
-						<input id="uploadSubmit" type="submit"></input>
-					</form>
+				<svg class="workspace" data-bind="style: {width: workspace.width()+'mm', height: workspace.height()+'mm'}, attr: {viewBox: '0 0 '+workspace.width()+' '+workspace.height()}" >
+					<use href="images/origin.svg#origin" data-bind="attr: {x: workspace.drawingsOrigin.x, y: workspace.drawingsOrigin.y}"></use>
+					<g data-bind="foreach: workspace.drawings">
+						<use data-bind="attr: {href: url()+'#root', x: x, y: y}"></use>
+					</g>
+				</svg>
+				<table class="center" data-bind="foreach: workspace.drawings">
+					<tr>
+						<td><span data-bind="text: name"></span></td>
+						<td><button class="TODO inline icon-cog"></button></td>
+						<td><button class="inline" data-bind="click: ()=>{workspaceRemoveDrawing($data.id())}">x</button></td>
+					</tr>
+				</table>
+			</div>
+			<div class="flex two">
+				<div>
 					<button data-bind="click: workspaceClear">Clear</button>
-				</fieldset>
+				</div>
+				<form method="post" enctype="multipart/form-data" action="upload">
+					<label class="upload button" ><i class="icon-folder-open"></i> Open
+						<input id="uploadFile" title="drop file or click me" name="file" type="file" ></input>
+					</label>
+					<input id="uploadSubmit" type="submit"></input>
+				</form>
 			</div>
 		</div>
 
@@ -103,109 +107,89 @@
 		<!-- Position -->
 		<input id="Position" name="mainTabsGroup" type="radio"/>
 		<label class="title" for="Position"><i class="icon-move"></i></label>
-		<div class="content">
-			<div class="center panel">
-				<fieldset>
-					<legend>Move</legend>
-					<div class="flex center four-500">
-						<div >
-							<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off"></i> Init</button>
-							<button data-bind="click: releaseLaser, visible: status.usb"><i class="icon-off"></i> Release</button>
-						</div>
-						<div >
-							<button data-bind="css: {success: !pos.valid()}, click: home, enable: status.usb"><i class="icon-crosshairs-gps"></i> Home</button>
-						</div>
-						<div >
-							<button data-bind="click: unlock, enable: status.usb"><i class="icon-eject"></i> Unlock</button>
-						</div>
-						<div >
-							<button data-bind="click: stop, enable: status.usb" class="error"><i class="icon-close-octagon"></i> Stop</button>
-						</div>
-						<div >
-							<b>X:</b> <input type="number" data-bind="numericValue: pos.x, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
-						</div>
-						<div >
-							<b>Y:</b> <input type="number" data-bind="numericValue: pos.y, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
-						</div>
-					</div>
-					<hr  style="margin: 2em 0em">
-					<div class="panel center">
-						<table class="move">
-							<tr>
-								<td>
-									<!-- upper left corner -->
-									<label class="TODO">
-										<input type="radio" value="upperLeft" name="anchorPos" data-bind="checked: anchor">
-										<div class="anchorPos button flat"><div class="upperLeft"/></div>
-									</label>
-								</td>
-								<td>
-									<!-- up -->
-									<button class="move" data-bind="click: move.bind($data, 0, $root.config.stepSize()*10 )">&#9650;<br>&#9650;<br>&#9650;</button><br>
-									<button class="move" data-bind="click: move.bind($data, 0, $root.config.stepSize() )">&#9650;<br>&#9650;</button><br>
-									<button class="move" data-bind="click: move.bind($data, 0, $root.config.stepSize()/10 )">&#9650;</button><br>
-								</td>
-								<td>
-									<!-- upper right corner -->
-									<label class="TODO">
-										<input type="radio" value="upperRight" name="anchorPos" data-bind="checked: anchor">
-										<div class="anchorPos button flat"><div class="upperRight"/></div>
-									</label>
-								</td>
-							</tr>
-
-							<tr>
-								<td>
-									<!-- left -->
-									<button class="move" data-bind="click: move.bind($data, -$root.config.stepSize()*10, 0)"><b>&#9668; &#9668; &#9668;</b></button><button class="move" data-bind="click: move.bind($data, -$root.config.stepSize(), 0)">&#9668; &#9668;</button><button class="move" data-bind="click: move.bind($data, -$root.config.stepSize()/10, 0)">&#9668;</button>
-								</td>
-								<td>
-									<!-- center -->
-									<label class="TODO">
-										<input type="radio" value="center" name="anchorPos" data-bind="checked: anchor">
-										<div class="anchorPos button flat"><b class="center">&#9587;</b></div>
-									</label>
-								</td>
-								<td>
-									<!-- right -->
-									<button class="move" data-bind="click: move.bind($data, $root.config.stepSize()/10, 0)">&#9658;</button><button class="move" data-bind="click: move.bind($data, $root.config.stepSize(), 0)">&#9658; &#9658;</button><button class="move" data-bind="click: move.bind($data, $root.config.stepSize()*10, 0)">&#9658; &#9658; &#9658;</button>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<!-- lower left corner -->
-									<label class="TODO">
-										<input type="radio" value="lowerLeft" name="anchorPos" data-bind="checked: anchor">
-										<div class="anchorPos button flat"><div class="lowerLeft"/></div>
-									</label>
-								</td>
-								<td>
-									<!-- down -->
-									<button class="move" data-bind="click: move.bind($data, 0, -$root.config.stepSize()/10 )">&#9660;</button><br>
-									<button class="move" data-bind="click: move.bind($data, 0, -$root.config.stepSize() )">&#9660;<br>&#9660;</button><br>
-									<button class="move" data-bind="click: move.bind($data, 0, -$root.config.stepSize()*10 )">&#9660;<br>&#9660;<br>&#9660;</button><br>
-								</td>
-								<td>
-									<!-- lower right corner -->
-									<label class="TODO">
-										<input type="radio" value="lowerRight" name="anchorPos"  data-bind="checked: anchor">
-										<div class="anchorPos button flat"><div class="lowerRight"/></div>
-									</label>
-								</td>
-							</tr>
-
-
-						</table>
-					</div>
-				</fieldset>
+		<div class="content center">
+			<div class="flex center four-500">
+				<div >
+					<b>X:</b> <input type="number" data-bind="numericValue: pos.x, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
+				</div>
+				<div >
+					<b>Y:</b> <input type="number" data-bind="numericValue: pos.y, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
+				</div>
 			</div>
+			<hr>
+			<table class="move">
+				<tr>
+					<td>
+						<!-- upper left corner -->
+						<label class="TODO">
+							<input type="radio" value="upperLeft" name="anchorPos" data-bind="checked: anchor">
+							<div class="anchorPos button flat"><div class="upperLeft"/></div>
+						</label>
+					</td>
+					<td>
+						<!-- up -->
+						<button class="move" data-bind="click: move.bind($data, 0, $root.config.stepSize()*10 )">&#9650;<br>&#9650;<br>&#9650;</button><br>
+						<button class="move" data-bind="click: move.bind($data, 0, $root.config.stepSize() )">&#9650;<br>&#9650;</button><br>
+						<button class="move" data-bind="click: move.bind($data, 0, $root.config.stepSize()/10 )">&#9650;</button><br>
+					</td>
+					<td>
+						<!-- upper right corner -->
+						<label class="TODO">
+							<input type="radio" value="upperRight" name="anchorPos" data-bind="checked: anchor">
+							<div class="anchorPos button flat"><div class="upperRight"/></div>
+						</label>
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						<!-- left -->
+						<button class="move" data-bind="click: move.bind($data, -$root.config.stepSize()*10, 0)"><b>&#9668; &#9668; &#9668;</b></button><button class="move" data-bind="click: move.bind($data, -$root.config.stepSize(), 0)">&#9668; &#9668;</button><button class="move" data-bind="click: move.bind($data, -$root.config.stepSize()/10, 0)">&#9668;</button>
+					</td>
+					<td>
+						<!-- center -->
+						<label class="TODO">
+							<input type="radio" value="center" name="anchorPos" data-bind="checked: anchor">
+							<div class="anchorPos button flat"><b class="center">&#9587;</b></div>
+						</label>
+					</td>
+					<td>
+						<!-- right -->
+						<button class="move" data-bind="click: move.bind($data, $root.config.stepSize()/10, 0)">&#9658;</button><button class="move" data-bind="click: move.bind($data, $root.config.stepSize(), 0)">&#9658; &#9658;</button><button class="move" data-bind="click: move.bind($data, $root.config.stepSize()*10, 0)">&#9658; &#9658; &#9658;</button>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<!-- lower left corner -->
+						<label class="TODO">
+							<input type="radio" value="lowerLeft" name="anchorPos" data-bind="checked: anchor">
+							<div class="anchorPos button flat"><div class="lowerLeft"/></div>
+						</label>
+					</td>
+					<td>
+						<!-- down -->
+						<button class="move" data-bind="click: move.bind($data, 0, -$root.config.stepSize()/10 )">&#9660;</button><br>
+						<button class="move" data-bind="click: move.bind($data, 0, -$root.config.stepSize() )">&#9660;<br>&#9660;</button><br>
+						<button class="move" data-bind="click: move.bind($data, 0, -$root.config.stepSize()*10 )">&#9660;<br>&#9660;<br>&#9660;</button><br>
+					</td>
+					<td>
+						<!-- lower right corner -->
+						<label class="TODO">
+							<input type="radio" value="lowerRight" name="anchorPos"  data-bind="checked: anchor">
+							<div class="anchorPos button flat"><div class="lowerRight"/></div>
+						</label>
+					</td>
+				</tr>
+
+
+			</table>
 		</div>
 
 
 		<!-- Print -->
 		<input id="Print" name="mainTabsGroup" type="radio" />
 		<label class="title" for="Print"><i class="icon-laser"></i></label>
-		<div class="content">
+		<div class="content center">
 <!--
 			<div class="full two-third-800 panel">
 				 <fieldset class="panel">
@@ -214,9 +198,24 @@
 				</fieldset>
 			</div>
 -->
-			<div class="center">
-				<fieldset class="">
-					<legend>Tasks</legend>
+			<div class="flex center four-500">
+				<div >
+					<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off"></i> Init</button>
+					<button data-bind="click: releaseLaser, visible: status.usb"><i class="icon-off"></i> Release</button>
+				</div>
+				<div >
+					<button data-bind="css: {success: !pos.valid()}, click: home, enable: status.usb"><i class="icon-crosshairs-gps"></i> Home</button>
+				</div>
+				<div >
+					<button data-bind="click: unlock, enable: status.usb"><i class="icon-eject"></i> Unlock</button>
+				</div>
+				<div >
+					<button data-bind="click: stop, enable: status.usb" class="error"><i class="icon-close-octagon"></i> Stop</button>
+				</div>
+			</div>
+			<hr>
+			<div class="flex two">
+				<div>
 					<table class="" data-bind="foreach: tasks">
 						<tr class="task">
 							<td>
@@ -234,11 +233,12 @@
 							</td>
 						</tr>
 					</table>
-				</fieldset>
-				<button class="right" data-bind="click: taskRunAll"><i class="icon-play"></i></button>
+				</div>
+				<div>
+					<button class="right" data-bind="click: taskRunAll"><i class="icon-play"></i></button>
+				</div>
 			</div>
 		</div>
-
 	</div>
 
 	<div class="modal">

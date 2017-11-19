@@ -63,19 +63,25 @@ form > * {
 	margin-top: 0.3em;
 	margin-bottom: 0.3em;
 }
-
 form table {
 	border-collapse: separate;
 	border-spacing: 0 0.6em;
 }
-
 form tr {
 	background: none !important;
 }
-
 form .name:after {
 	content: ":";
 	padding-right: 0.5em;
+}
+
+hr {
+	margin: 2em 0em;
+}
+
+.footer {
+	position: absolute;
+	bottom: 0;
 }
 
 @media print {
@@ -251,11 +257,6 @@ form .name:after {
 	align-self: right;
 }
 
-.panel {
-	padding-bottom: 1.5em;
-	text-align: center;
-}
-
 button, .button {
 	margin-right: 1em;
 	padding: 0.6em 1em;
@@ -295,19 +296,20 @@ button.active, .button.active, button:active, .button:active {
 }
 
 .header .title {
-	background: url("images/LaserLine.png") no-repeat;
-    background-size: 100% 0.25em;
-    background-position: 5.5em 3.2em;
+//	background: url("images/LaserLine.png") no-repeat;
+//    background-size: 100% 0.25em;
+//    background-position: 5.5em 3.2em;
 }
 .header .logo {
-	height: 5em;
+//	height: 5em;
     margin: 0 1em;
 }
 
 .header .title h1 {
     display: inline-block;
-    margin: -0.3em 0;
-    color: #85144b;
+    margin: -0.3em 0 0 0;
+	padding: 0;
+    color: darkred;
 	text-align: center;
 	text-shadow: 2px 2px 3px darkgray;
 	vertical-align: top;
