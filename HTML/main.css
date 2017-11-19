@@ -19,13 +19,14 @@ legend {
 body {
 	max-width: 1024px;
 	margin: auto;
-	padding: 1em;
+	padding: 0.2em;
 	color: #444;
+	position: relative;
 }
 
 .TODO {
 	box-shadow: 0 0 1ex red, 0 0 1ex red inset;
-//	visibility: hidden;
+	visibility: hidden;
 }
 
 .flex  {
@@ -76,7 +77,7 @@ form .name:after {
 }
 
 hr {
-	margin: 2em 0em;
+	margin: 1em;
 }
 
 .footer {
@@ -258,7 +259,6 @@ hr {
 }
 
 button, .button {
-	margin-right: 1em;
 	padding: 0.6em 1em;
 	min-width: 2.5em;
 	transition: none;
@@ -295,10 +295,9 @@ button.active, .button.active, button:active, .button:active {
     background: #85144b;
 }
 
-.header .title {
-//	background: url("images/LaserLine.png") no-repeat;
-//    background-size: 100% 0.25em;
-//    background-position: 5.5em 3.2em;
+.header > div {
+	display: inline-block;
+	width: auto
 }
 .header .logo {
 //	height: 5em;
@@ -313,8 +312,13 @@ button.active, .button.active, button:active, .button:active {
 	text-align: center;
 	text-shadow: 2px 2px 3px darkgray;
 	vertical-align: top;
+	font-size: 30px;
 }
 
+.status {
+	right: 0;
+    position: absolute;
+}
 
 .status > * {
 	margin: 0 0.4em;
@@ -403,11 +407,18 @@ button.active, .button.active, button:active, .button:active {
 }
 
 .workspace {
-    border: 1px solid gray;
     padding: 0;
-	margin: auto;
+	margin: 1em;
+}
+
+.canvas {
+    border: 1px solid gray;
     background: white;
 	text-align: left;
+}
+
+.files button, .files .button {
+	width: 70%
 }
 
 .small {
@@ -423,26 +434,33 @@ button.active, .button.active, button:active, .button:active {
 	width: auto;
 }
 
+.position {
+	margin: 1em auto;
+}
+
+.position > button {
+	width: 70%;
+}
 
 table.move {
-	font-size: 110%;
+	font-size: 120%;
 	text-align: center;
-	margin: auto;
+	margin: 0.1em auto;
 }
 
 table.move  tr, td {
 	padding: 0;
 	margin: 0;
 	background: none;
-	width: 2.8em;
-	height: 2.8em;
+	width: 2.85em;
+	height: 2.85em;
 }
 
 button.move, .button.move  {
 	margin: 0;
 	padding: 0;
-	width: 90%;
-	height: 110%;
+	width: 95%;
+	height: 150%;
 }
 
 .toUp {
@@ -522,3 +540,14 @@ button.move, .button.move  {
 .spacing {
 	margin: 0 1em;
 }
+
+#menu {
+	margin: 0;
+	padding: 0.5em;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	text-align: right;
+	width: auto;
+}
+	

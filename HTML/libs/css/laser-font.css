@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'laser-font';
-  src: url('../font/laser-font.eot?79180308');
-  src: url('../font/laser-font.eot?79180308#iefix') format('embedded-opentype'),
-       url('../font/laser-font.woff2?79180308') format('woff2'),
-       url('../font/laser-font.woff?79180308') format('woff'),
-       url('../font/laser-font.ttf?79180308') format('truetype'),
-       url('../font/laser-font.svg?79180308#laser-font') format('svg');
+  src: url('../font/laser-font.eot?46304780');
+  src: url('../font/laser-font.eot?46304780#iefix') format('embedded-opentype'),
+       url('../font/laser-font.woff2?46304780') format('woff2'),
+       url('../font/laser-font.woff?46304780') format('woff'),
+       url('../font/laser-font.ttf?46304780') format('truetype'),
+       url('../font/laser-font.svg?46304780#laser-font') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -15,7 +15,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'laser-font';
-    src: url('../font/laser-font.svg?79180308#laser-font') format('svg');
+    src: url('../font/laser-font.svg?46304780#laser-font') format('svg');
   }
 }
 */
@@ -104,6 +104,8 @@
 .icon-move_std:before { content: '\e82e'; } /* '' */
 .icon-move_slow:before { content: '\e82f'; } /* '' */
 .icon-spin3:before { content: '\e832'; } /* '' */
+.icon-resize-full:before { content: '\e833'; } /* '' */
+.icon-resize-small:before { content: '\e834'; } /* '' */
 .icon-move:before { content: '\f047'; } /* '' */
 .icon-gamepad:before { content: '\f11b'; } /* '' */
 .icon-lock-open-alt:before { content: '\f13e'; } /* '' */

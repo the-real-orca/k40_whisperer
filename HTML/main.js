@@ -226,7 +226,12 @@ viewModel.workspace.drawings.extend({ rateLimit: 100 });
 viewModel.tasks.extend({ rateLimit: 100 });
 
 function init() {
-
+	
+/*	
+	$(".title").on('click', function() {
+		enterFullscreen()
+	})
+*/
 	// add pressed / released events for buttons
 	var eventPressed = null
 	$('button, .button').on('touchstart', function(e) {
@@ -301,3 +306,17 @@ function init() {
 
 }
 
+function fullscreen() {
+	fullscreenElement(document.documentElement)
+}
+function fullscreenElement(element) {
+	if(element.requestFullscreen) {
+		element.requestFullscreen()
+	} else if(element.mozRequestFullScreen) {
+		element.mozRequestFullScreen()
+	} else if(element.msRequestFullscreen) {
+		element.msRequestFullscreen()
+	} else if(element.webkitRequestFullscreen) {
+		element.webkitRequestFullscreen()
+	}
+}

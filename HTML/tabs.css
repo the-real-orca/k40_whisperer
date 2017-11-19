@@ -35,18 +35,18 @@
 	margin: 0;
 	padding: 0;
 	position: relative;	
-	width: 85%;
+	width: 90%;
 	height: auto;
 	flex: 1 99%;	
 }
 
 .tabs > .content > * {
-	margin: 0.5em auto;
+//	margin: 0;
 }
 
 .tabs.side-right {
 	flex-flow: column wrap-reverse;
-	height: 90%;
+	height: 92%;
 	align-content: center;
 }
 
