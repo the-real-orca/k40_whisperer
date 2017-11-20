@@ -409,8 +409,8 @@ button.active, .button.active, button:active, .button:active {
 
 .workspace {
     padding: 1em;
-	width: 100%;
-	height: 75vh;
+	width: calc(100% - 7em);
+	height: 90vh;
 }
 
 svg #canvasRect {
@@ -426,8 +426,8 @@ svg #canvasRect {
 }
 
 .elements td{
-	border: 1px solid black;
-	margin: 1em;
+//	border: 1px solid black;
+	width: 1em;
 	padding: 1em;
 }
 
@@ -437,8 +437,14 @@ svg #canvasRect {
 	font-weight: bold;
 }
 
-.files button, .files .button {
-	width: 70%
+.workspaceControl {
+	padding: 1em;
+	padding-left: 0;
+	width: 7em;
+}
+
+.workspaceControl > *:not(:first-child) {
+    margin-top: 4em;
 }
 
 .small {

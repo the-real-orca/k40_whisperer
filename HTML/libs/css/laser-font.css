@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'laser-font';
-  src: url('../font/laser-font.eot?46304780');
-  src: url('../font/laser-font.eot?46304780#iefix') format('embedded-opentype'),
-       url('../font/laser-font.woff2?46304780') format('woff2'),
-       url('../font/laser-font.woff?46304780') format('woff'),
-       url('../font/laser-font.ttf?46304780') format('truetype'),
-       url('../font/laser-font.svg?46304780#laser-font') format('svg');
+  src: url('../font/laser-font.eot?7983278');
+  src: url('../font/laser-font.eot?7983278#iefix') format('embedded-opentype'),
+       url('../font/laser-font.woff2?7983278') format('woff2'),
+       url('../font/laser-font.woff?7983278') format('woff'),
+       url('../font/laser-font.ttf?7983278') format('truetype'),
+       url('../font/laser-font.svg?7983278#laser-font') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -15,7 +15,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'laser-font';
-    src: url('../font/laser-font.svg?46304780#laser-font') format('svg');
+    src: url('../font/laser-font.svg?7983278#laser-font') format('svg');
   }
 }
 */
@@ -103,16 +103,27 @@
 .icon-move_fast:before { content: '\e82d'; } /* '' */
 .icon-move_std:before { content: '\e82e'; } /* '' */
 .icon-move_slow:before { content: '\e82f'; } /* '' */
+.icon-doc:before { content: '\e830'; } /* '' */
+.icon-tags:before { content: '\e831'; } /* '' */
 .icon-spin3:before { content: '\e832'; } /* '' */
 .icon-resize-full:before { content: '\e833'; } /* '' */
 .icon-resize-small:before { content: '\e834'; } /* '' */
+.icon-download:before { content: '\e835'; } /* '' */
+.icon-forward:before { content: '\e836'; } /* '' */
+.icon-upload:before { content: '\e837'; } /* '' */
+.icon-login:before { content: '\e838'; } /* '' */
+.icon-logout:before { content: '\e839'; } /* '' */
 .icon-move:before { content: '\f047'; } /* '' */
+.icon-reply:before { content: '\f112'; } /* '' */
 .icon-gamepad:before { content: '\f11b'; } /* '' */
 .icon-lock-open-alt:before { content: '\f13e'; } /* '' */
+.icon-doc-inv:before { content: '\f15b'; } /* '' */
 .icon-cube:before { content: '\f1b2'; } /* '' */
 .icon-cubes:before { content: '\f1b3'; } /* '' */
+.icon-file-code:before { content: '\f1c9'; } /* '' */
 .icon-sliders:before { content: '\f1de'; } /* '' */
 .icon-plug:before { content: '\f1e6'; } /* '' */
+.icon-trash:before { content: '\f1f8'; } /* '' */
 .icon-brush:before { content: '\f1fc'; } /* '' */
 .icon-toggle-off:before { content: '\f204'; } /* '' */
 .icon-toggle-on:before { content: '\f205'; } /* '' */
