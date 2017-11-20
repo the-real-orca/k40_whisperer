@@ -82,22 +82,13 @@
 						<use data-bind="attr: {href: url()+'#root', x: x, y: y}"></use>
 					</g>
 				</svg>
-<!--				
-				<table class="center" data-bind="foreach: workspace.drawings">
-					<tr>
-						<td><span data-bind="text: name"></span></td>
-						<td><button class="TODO inline icon-cog"></button></td>
-						<td><button class="inline" data-bind="click: ()=>{workspaceRemoveDrawing($data.id())}">x</button></td>
-					</tr>
-				</table>
--->				
 			</div>
 			<div class="files flex three">
 				<div>
 					<button data-bind="click: workspaceClear">Clear</button>
 				</div>
-				<div class="TODO">
-					<button data-bind=""><i class="icon-layers"></i> Elements</button>
+				<div class="">
+					<label for="dialog_element" class="button"><i class="icon-layers"></i> Elements</label>
 				</div>
 				<form method="post" enctype="multipart/form-data" action="upload">
 					<label class="upload button" ><i class="icon-folder-open"></i> Open
@@ -113,70 +104,70 @@
 		<input id="Position" name="mainTabsGroup" type="radio"/>
 		<label class="title" for="Position"><i class="icon-move"></i></label>
 		<div class="content center">
-		<div class="flex four">
-			<div class="position">
-				<div>
-					<b>X:</b> <input type="number" data-bind="numericValue: pos.x, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
+			<div class="flex four">
+				<div class="position">
+					<div>
+						<b>X:</b> <input type="number" data-bind="numericValue: pos.x, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
+					</div>
+					<div>
+						<b>Y:</b> <input type="number" data-bind="numericValue: pos.y, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
+					</div>
+					<hr>
+					<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off"></i> Init</button>
+					<button data-bind="click: releaseLaser, visible: status.usb()"><i class="icon-off"></i> Release</button>
+					<button data-bind="css: {success: !pos.valid()}, click: home, enable: status.usb"><i class="icon-home"></i> Home</button>
+					<button data-bind="click: unlock, enable: status.usb"><i class="icon-eject"></i> Unlock</button>
+					<button data-bind="click: stop, enable: status.usb" class="error"><i class="icon-close-octagon"></i> Stop</button>
 				</div>
-				<div>
-					<b>Y:</b> <input type="number" data-bind="numericValue: pos.y, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
+				<div class="three-fourth">
+					<table class="move">
+						<tr>
+							<td></td><td></td><td></td>
+							<td><button class="move toUp icon-move_fast" data-bind="click: move.bind($data, 0, $root.config.stepSize()*10 ), enable: status.usb"></button></td>
+							<td></td><td></td><td></td>
+						</tr>
+						<tr>
+							<td></td><td></td><td></td>
+							<td><button class="move toUp icon-move_std" data-bind="click: move.bind($data, 0, $root.config.stepSize() ), enable: status.usb"></button></td>
+							<td></td><td></td><td></td>
+						</tr>
+						<tr>
+							<td></td><td></td><td></td>
+							<td><button class="move toUp icon-move_slow" data-bind="click: move.bind($data, 0, $root.config.stepSize()/10 ), enable: status.usb"></button></td>
+							<td></td><td></td><td></td>
+						</tr>
+						<tr>
+							<td><button class="move toLeft icon-move_fast" data-bind="click: move.bind($data, -$root.config.stepSize()*10, 0), enable: status.usb"></button></td>
+							<td><button class="move toLeft icon-move_std" data-bind="click: move.bind($data, -$root.config.stepSize(), 0), enable: status.usb"></button></td>
+							<td><button class="move toLeft icon-move_slow" data-bind="click: move.bind($data, -$root.config.stepSize()/10, 0), enable: status.usb"></button></td>
+							<td>
+								<label class="TODO anchorPos flat"><!-- center -->
+									<b>&#9587;</b>
+									<input type="radio" value="center" name="anchorPos" data-bind="checked: anchor"></input>
+								</label>
+							</td>
+							<td><button class="move toRight icon-move_slow" data-bind="click: move.bind($data, $root.config.stepSize()/10, 0), enable: status.usb"></button></td>
+							<td><button class="move toRight icon-move_std" data-bind="click: move.bind($data, $root.config.stepSize(), 0), enable: status.usb"></button></td>
+							<td><button class="move toRight icon-move_fast" data-bind="click: move.bind($data, $root.config.stepSize()*10, 0), enable: status.usb"></button></td>
+						</tr>
+						<tr>
+							<td></td><td></td><td></td>
+							<td><button class="move toDown icon-move_slow" data-bind="click: move.bind($data, 0, -$root.config.stepSize()/10 ), enable: status.usb"></button></td>
+							<td></td><td></td><td></td>
+						</tr>
+						<tr>
+							<td></td><td></td><td></td>
+							<td><button class="move toDown icon-move_std" data-bind="click: move.bind($data, 0, -$root.config.stepSize() ), enable: status.usb"></button></td>
+							<td></td><td></td><td></td>
+						</tr>
+						<tr>
+							<td></td><td></td><td></td>
+							<td><button class="move toDown icon-move_fast" data-bind="click: move.bind($data, 0, -$root.config.stepSize()*10 ), enable: status.usb"></button></td>
+							<td></td><td></td><td></td>
+						</tr>
+					</table>
 				</div>
-				<hr>
-				<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off"></i> Init</button>
-				<button data-bind="click: releaseLaser, visible: status.usb()"><i class="icon-off"></i> Release</button>
-				<button data-bind="css: {success: !pos.valid()}, click: home, enable: status.usb"><i class="icon-home"></i> Home</button>
-				<button data-bind="click: unlock, enable: status.usb"><i class="icon-eject"></i> Unlock</button>
-				<button data-bind="click: stop, enable: status.usb" class="error"><i class="icon-close-octagon"></i> Stop</button>
 			</div>
-			<div class="three-fourth">
-				<table class="move">
-					<tr>
-						<td></td><td></td><td></td>
-						<td><button class="move toUp icon-move_fast" data-bind="click: move.bind($data, 0, $root.config.stepSize()*10 )"></button></td>
-						<td></td><td></td><td></td>
-					</tr>
-					<tr>
-						<td></td><td></td><td></td>
-						<td><button class="move toUp icon-move_std" data-bind="click: move.bind($data, 0, $root.config.stepSize() )"></button></td>
-						<td></td><td></td><td></td>
-					</tr>
-					<tr>
-						<td></td><td></td><td></td>
-						<td><button class="move toUp icon-move_slow" data-bind="click: move.bind($data, 0, $root.config.stepSize()/10 )"></button></td>
-						<td></td><td></td><td></td>
-					</tr>
-					<tr>
-						<td><button class="move toLeft icon-move_fast" data-bind="click: move.bind($data, -$root.config.stepSize()*10, 0)"></button></td>
-						<td><button class="move toLeft icon-move_std" data-bind="click: move.bind($data, -$root.config.stepSize(), 0)"></button></td>
-						<td><button class="move toLeft icon-move_slow" data-bind="click: move.bind($data, -$root.config.stepSize()/10, 0)"></button></td>
-						<td>
-							<label class="TODO anchorPos flat"><!-- center -->
-								<b>&#9587;</b>
-								<input type="radio" value="center" name="anchorPos" data-bind="checked: anchor"></input>
-							</label>
-						</td>
-						<td><button class="move toRight icon-move_slow" data-bind="click: move.bind($data, $root.config.stepSize()/10, 0)"></button></td>
-						<td><button class="move toRight icon-move_std" data-bind="click: move.bind($data, $root.config.stepSize(), 0)"></button></td>
-						<td><button class="move toRight icon-move_fast" data-bind="click: move.bind($data, $root.config.stepSize()*10, 0)"></button></td>
-					</tr>
-					<tr>
-						<td></td><td></td><td></td>
-						<td><button class="move toDown icon-move_slow" data-bind="click: move.bind($data, 0, -$root.config.stepSize()/10 )"></button></td>
-						<td></td><td></td><td></td>
-					</tr>
-					<tr>
-						<td></td><td></td><td></td>
-						<td><button class="move toDown icon-move_std" data-bind="click: move.bind($data, 0, -$root.config.stepSize() )"></button></td>
-						<td></td><td></td><td></td>
-					</tr>
-					<tr>
-						<td></td><td></td><td></td>
-						<td><button class="move toDown icon-move_fast" data-bind="click: move.bind($data, 0, -$root.config.stepSize()*10 )"></button></td>
-						<td></td><td></td><td></td>
-					</tr>
-				</table>
-			</div>
-		</div>
 		</div>
 
 		<!-- Process -->
@@ -234,24 +225,73 @@
 		</div>
 	</div>
 
+	<!--
 	<div id="menu">
-		<button class="flat inline icon-resize-full" data-bind="click: fullscreen"></button>
+		<button class="flat gray icon-resize-full" data-bind="click: fullscreen"></button>
 	</div>
+	-->
 	
+	<!-- ------------------------------------------------------------------------------ -->
+	
+	<!-- fullscreen dialog -->
+	<div class="modal">
+		<input id="dialog_fullscreen" type="checkbox" data-bind="checked: dialog.fullscreen" />
+		<label for="dialog_fullscreen" class="overlay"></label>
+		<article>
+			<header>
+				<h3>small display detected</h3>
+				<label for="dialog_fullscreen" class="close">&times;</label>
+			</header>
+			<section class="center">
+				<br>
+				<label for="dialog_fullscreen" class="button success large" data-bind="click: ()=>{fullscreen(); return true}">Full Screen Mode</label><br>
+				<br>
+				<label for="dialog_fullscreen" class="button">Browser Mode</label><br>
+				<br>
+			</section>
+		</article>
+	</div>
+
+	<!-- element dialog -->
+	<div class="modal">
+		<input id="dialog_element" type="checkbox" />
+		<label for="dialog_element" class="overlay"></label>
+		<article class="elements">
+			<header>
+				<h3><i class="icon-layers"></i> Elements</h3>
+				<label for="dialog_element" class="close">&times;</label>
+			</header>
+			<section class="content">
+				<table class="" data-bind="foreach: workspace.drawings">
+					<tr>
+						<td class="name"><span data-bind="text: name"></span></td>
+						<td class=""><span >xxx</span></td>
+						<td class=""><span >yyy</span></td>
+						<td class=""><span >anchor</span></td>
+						<td class="color">
+						</td>
+						<td class="settings"><button class="gray icon-sliders"></button></td>
+						<td class="remove"><button class="dangerous icon-cancel" data-bind="click: ()=>{workspaceRemoveDrawing($data.id())}"></button></td>
+					</tr>
+				</table>
+			</section>
+			<footer class="right">
+				<label for="dialog_element" class="button" >Close</label>
+			</footer>
+		</article>
+	</div>
+
+	<!-- task dialog -->
 	<div class="modal">
 		<input id="dialog_taskSettings" type="checkbox" />
 		<label for="dialog_taskSettings" class="overlay"></label>
-		<article>
-			<header>
-				<h3>Task Settings</h3>
-				<label for="dialog_taskSettings" class="close">&times;</label>
-			</header>
-			<section class="content" data-bind="">
-				<form data-bind="with: selectedTask()">
-					<input input="text" placeholder="Task Name" data-bind="value: name" />
+		<article class="taskSettings">
+			<section class="content">
+				<form data-bind="with: selectedTask">
+					<input class="name" input="text" placeholder="Task Name" data-bind="value: name" />
 					<table>
 						<tr>
-							<td class="name">color</td>
+							<td class="parameter">color</td>
 							<td>
 								<label class="colorSelect" style="color: #222">
 									<input type="checkbox" value="black" data-bind="checked: colors" />
@@ -284,7 +324,7 @@
 							</td>
 						</tr>
 						<tr>
-							<td class="name">type</td>
+							<td class="parameter">type</td>
 							<td>
 								<label class="typeSelect" >
 									<input name="typeSelect" type="radio" value="vector"  data-bind="checked: type"/>
@@ -298,30 +338,35 @@
 						</tr>
 
 						<tr>
-							<td class="name">speed</td>
+							<td class="parameter">speed</td>
 							<td><input type="number" placeholder="10" min="0" data-bind="value: speed"></input> <span class="unit">mm/s</span></td>
 						</tr>
 
 						<tr>
-							<td class="name">repeat</td>
+							<td class="parameter">repeat</td>
 							<td><input type="number" placeholder="1" min="1" data-bind="value: repeat"></input> <i class="icon-retweet large"></i></td>
 						</tr>
 					</table>
 <!--
 					<label>
-						<input type="checkbox" checked /><span class="checkable">message before task</span>
+						<input type="checkbox" checked /><span class="checkable parameter">message before task</span>
 					</label>
 					<textarea class="" placeholder="Task Message ..."></textarea>
 -->					
 				</form>
 			</section>
-			<footer class="right">
-				<label for="dialog_taskSettings" class="button dangerous">Cancel</label>
-				<label for="dialog_taskSettings" class="button success" data-bind="click: taskSaveParams">OK</label>
+			<footer>
+				<div class="flex two">
+					<div>
+						<label for="dialog_taskSettings" class="button">Cancel</label>
+					</div>
+					<div class="right">
+						<label for="dialog_taskSettings" class="button success" data-bind="click: taskSaveParams">OK</label>
+					</div>
+				</div>
 			</footer>
 		</article>
 	</div>
-
 
 	<script type='text/javascript'>
 		init();

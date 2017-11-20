@@ -26,11 +26,12 @@ body {
 
 .TODO {
 	box-shadow: 0 0 1ex red, 0 0 1ex red inset;
-	visibility: hidden;
+//	visibility: hidden;
 }
 
 .flex  {
     margin-left: initial;
+	width: initial;
 }
 
 .flex > * {
@@ -52,7 +53,7 @@ input {
 }
 
 input[type="number"] {
-	width: 5em;
+	width: 5.5em;
 	text-align: right;
 }
 
@@ -65,13 +66,17 @@ form > * {
 	margin-bottom: 0.3em;
 }
 form table {
+	width: 100%;
 	border-collapse: separate;
 	border-spacing: 0 0.6em;
 }
 form tr {
 	background: none !important;
 }
-form .name:after {
+form td.parameter {
+	width: auto
+}
+form .parameter:after {
 	content: ":";
 	padding-right: 0.5em;
 }
@@ -270,11 +275,9 @@ button.flat, .button.flat {
 	border: .1em rgba(100, 100, 100, 0.2) solid;
 }
 
-button.inline, .button.inline {
+button.gray, .button.gray {
 	background: rgba(100, 100, 100, 0.1);
 	color: inherit;
-	padding: 0.2em;
-	margin: 0;
 }
 
 button:focus {
@@ -284,6 +287,10 @@ button:focus {
 
 button.active, .button.active, button:active, .button:active {
 	box-shadow: -.1em -.1em .1em rgba(255, 255, 255, 0.5) inset, .1em .1em .3em rgba(0, 0, 0, 0.5) inset, inset 0 0 0 99em rgba(20,20,20,0.1);
+}
+
+.modal>input:checked ~ .overlay ~ * {
+    max-height: 95%;
 }
 
 :checked+.group {
@@ -417,6 +424,25 @@ button.active, .button.active, button:active, .button:active {
 	text-align: left;
 }
 
+.elements {
+}
+
+.elements table{
+	width: 100%
+}
+
+.elements td{
+	border: 1px solid black;
+	margin: 1em;
+	padding: 1em;
+}
+
+.elements .name {
+	width: auto;
+	font-size: 110%;
+	font-weight: bold;
+}
+
 .files button, .files .button {
 	width: 70%
 }
@@ -445,10 +471,10 @@ button.active, .button.active, button:active, .button:active {
 table.move {
 	font-size: 120%;
 	text-align: center;
-	margin: 0.1em auto;
+	margin: 0.25em auto;
 }
 
-table.move  tr, td {
+table.move  tr, table.move td {
 	padding: 0;
 	margin: 0;
 	background: none;
@@ -509,12 +535,26 @@ button.move, .button.move  {
 	border: none;
 }
 
-.colorSelect {
+.taskSettings {
+	font-size: 105%;
+}
+
+.taskSettings .name {
+	width: 95%;
+	font-size: 110%;
+	font-weight: bold;
+}
+
+.taskSettings .colorSelect {
 	margin-right: 1em;
 }
 
-.typeSelect {
+.taskSettings .typeSelect {
 	margin-right: 1.5em;
+}
+
+.taskSettings footer {
+	margin: 1em;
 }
 
 .tabs > * {
@@ -539,6 +579,11 @@ button.move, .button.move  {
 
 .spacing {
 	margin: 0 1em;
+}
+
+#dialog_fullscreen ~ article {
+	min-width: 60%;
+	background: #EEE;
 }
 
 #menu {

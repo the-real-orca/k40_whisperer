@@ -171,6 +171,7 @@ function handleMessage(data) {
 // view model data
 var viewModel = {
 	instable: false,
+	touchMode: ko.observable(false),
 	seqNr: 0,
 	status: {
 		laser: ko.observable(0),
@@ -211,7 +212,10 @@ var viewModel = {
 	},
 	anchor: ko.observable('upperLeft'),
 	tasks: ko.observableArray(),
-	selectedTask: ko.observable()
+	selectedTask: ko.observable(),
+	dialog: {
+		fullscreen: ko.observable(false)
+	}
 };
 // view model functions
 viewModel.status.networkIcon = ko.pureComputed(function() {
@@ -304,10 +308,14 @@ function init() {
 	socket.on('message', handleMessage)
 
 
+	// determine to switch to fullscreen mode
+	viewModel.touchMode('ontouchstart' in window || navigator.msMaxTouchPoints || window.screen.width <= 1024)
+	if ( viewModel.touchMode() )
+		viewModel.dialog.fullscreen(true)
 }
 
 function fullscreen() {
-	fullscreenElement(document.documentElement)
+	return fullscreenElement(document.documentElement)
 }
 function fullscreenElement(element) {
 	if(element.requestFullscreen) {
@@ -319,4 +327,5 @@ function fullscreenElement(element) {
 	} else if(element.webkitRequestFullscreen) {
 		element.webkitRequestFullscreen()
 	}
+	return true
 }
