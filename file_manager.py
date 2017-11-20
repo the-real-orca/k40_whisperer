@@ -41,7 +41,8 @@ class FileManager:
 			print("DXF Import: unknown unit '%s'", dxf_units)
 			return False
 
-		polylines = design.makePolylines(dxf_lines, scale=dxf_scale, color=design.RED)
+		color=design.RED
+		polylines = design.makePolylines(dxf_lines, scale=dxf_scale, color=color)
 
 		# create drawings object
 		name = os.path.basename(path).replace("_", " ")

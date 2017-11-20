@@ -76,9 +76,19 @@
 		<label class="title" for="Workspace"><i class="icon-picture"></i></label>
 		<div class="content center" >
 			<div class="workspace">
-				<svg class="canvas" data-bind="style: {width: workspace.width()+'mm', height: workspace.height()+'mm'}, attr: {viewBox: '0 0 '+workspace.width()+' '+workspace.height()}" >
+<!--
+				<svg viewBox="0 0 320 200" width="100%" height="100%">
+					<path stroke="black" fill="cyan" d="M 0,0 L 320,0 L 320,200 L 0,200 z"/>
+					<path fill="red"  d="M 0,0 L 320,0 L 160,200 z"/>
+					<path stroke="black" fill="none" d="M 160,0 L 260,100 L 160,200 L 60,100 z"/>
+				</svg>
+-->				
+				<svg data-bind="attr: {viewBox: '0 0 '+workspace.width()+' '+workspace.height()}"  width="100%" height="100%">
+					<rect data-bind="attr: {width: workspace.width(), height: workspace.height()}" id="canvasRect" />
+					<defs><clipPath id="clip"><use xlink:href="#canvasRect"/></clipPath></defs>
+	
 					<use href="images/origin.svg#origin" data-bind="attr: {x: workspace.drawingsOrigin.x, y: workspace.drawingsOrigin.y}"></use>
-					<g data-bind="foreach: workspace.drawings">
+					<g data-bind="foreach: workspace.drawings"  clip-path="url(#clip)">
 						<use data-bind="attr: {href: url()+'#root', x: x, y: y}"></use>
 					</g>
 				</svg>

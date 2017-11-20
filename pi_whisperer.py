@@ -119,6 +119,7 @@ def sendStatus(broadcast = True):
 			"y": draw.position[1],
 			"width": draw.size[0],
 			"height": draw.size[1],
+			"color": "red",
 			"url": draw.param.get("url", "")
 		})
 	for task in taskmanager.tasks:

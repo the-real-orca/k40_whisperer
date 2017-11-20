@@ -4,7 +4,7 @@ import design_utils as design
 config = {
 		'workspace': {
 					'originOffset': [0,0],
-					'size': [100, 75]
+					'size': [320, 210]
 				},
 		'tasks': [
 					{'id': "engrave", "colors": [design.BLUE], "speed": 100, "type": Task.VECTOR},

@@ -17,11 +17,12 @@ legend {
 }
 
 body {
-	max-width: 1024px;
+	max-width: 1500px;
 	margin: auto;
 	padding: 0.2em;
 	color: #444;
 	position: relative;
+	height: 100%;
 }
 
 .TODO {
@@ -370,13 +371,6 @@ button.active, .button.active, button:active, .button:active {
 	content: "l/min";
 }
 
-.canvas {
-	margin: 0.5em auto;
-	max-width: 512px;
-	max-height: 512px;
-	position: relative;
-}
-
 .upload {
     position: relative;
 }
@@ -414,14 +408,14 @@ button.active, .button.active, button:active, .button:active {
 }
 
 .workspace {
-    padding: 0;
-	margin: 1em;
+    padding: 1em;
+	width: 100%;
+	height: 75vh;
 }
 
-.canvas {
-    border: 1px solid gray;
-    background: white;
-	text-align: left;
+svg #canvasRect {
+	fill: white;
+	stroke: #444;
 }
 
 .elements {
