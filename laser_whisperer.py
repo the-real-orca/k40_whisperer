@@ -5,6 +5,7 @@ import sys
 import os
 import time
 import thread
+from distutils.dir_util import mkpath
 
 # import laser communication
 import k40_wrapper
@@ -34,6 +35,7 @@ app = Flask(__name__, static_url_path='', static_folder=HTML_FOLDER)
 app.app_context()
 app.config['HTML_FOLDER'] = HTML_FOLDER
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+mkpath(UPLOAD_FOLDER)
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 socketio = SocketIO(app)
 seqNr = 1
