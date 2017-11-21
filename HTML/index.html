@@ -96,8 +96,8 @@
 				</div>
 				<div class="workspaceControl">
 					<form method="post" enctype="multipart/form-data" action="upload">
-						<label class="upload button icon-folder-open large">
-							<input id="uploadFile" title="drop file or click me" name="file" type="file" ></input>
+						<label class="upload button icon-folder-open large" for="uploadFile">
+							<input id="uploadFile" name="file" type="file" ></input>
 						</label>
 						<input id="uploadSubmit" type="submit"></input>
 					</form>
@@ -173,9 +173,9 @@
 						<b>Y:</b> <input type="number" data-bind="numericValue: pos.y, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
 					</div>
 					<hr>
-					<button data-bind="click: releaseLaser, visible: status.usb()"><i class="icon-off"></i> Release</button>
 					<button data-bind="css: {success: !pos.valid()}, click: home, enable: status.usb"><i class="icon-home"></i> Home</button>
 					<button data-bind="click: unlock, enable: status.usb"><i class="icon-eject"></i> Unlock</button>
+					<button data-bind="click: releaseLaser, visible: status.usb()"><i class="icon-off"></i> Release</button>
 					<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off"></i> Init</button>
 				</div>
 			</div>
@@ -211,7 +211,7 @@
 			<hr>
 			<div class="flex two">
 				<div>
-					<table class="" data-bind="foreach: tasks">
+					<table class=""><tbody data-bind="foreach: tasks">
 						<tr class="task">
 							<td>
 							<!--
@@ -227,7 +227,7 @@
 								<button class="flat right" data-bind="click: ()=>{taskRun($data.id())}"><i class="icon-play"></i></button>
 							</td>
 						</tr>
-					</table>
+					</tbody></table>
 				</div>
 				<div>
 					<button class="right" data-bind="click: taskRunAll"><i class="icon-play"></i></button>
@@ -269,21 +269,24 @@
 		<label for="dialog_element" class="overlay"></label>
 		<article class="elements">
 			<section class="content">
-				<table class="" data-bind="foreach: workspace.drawings">
+				<table class=""><tbody data-bind="foreach: workspace.drawings">
 					<tr>
-						<td class=""><span data-bind="text: $index()+1"></span></td>
-						<td class="name"><span data-bind="text: name"></span></td>
-						<td class=""><span >xxx</span></td>
-						<td class=""><span >yyy</span></td>
-						<td class=""><span >anchor</span></td>
-						<td class="color">color</td>
+						<td class="index right"><span data-bind="text: $index()+1"></span></td>
+						<td class="name"><div data-bind="text: name"></div></td>
 						<td class="settings"><button class="gray icon-sliders"></button></td>
 						<td class="remove"><button class="error icon-trash" data-bind="click: ()=>{workspaceRemoveDrawing($data.id())}"></button></td>
 					</tr>
-				</table>
+				</tbody></table>
 			</section>
-			<footer class="right">
-				<label for="dialog_element" class="button" >Close</label>
+			<footer>
+				<div class="flex two">
+					<div>
+						<label for="uploadFile" class="button icon-folder-open"> Open</label>
+					</div>
+					<div class="right">
+						<label for="dialog_element" class="button">Close</label>
+					</div>
+				</div>			
 			</footer>
 		</article>
 	</div>

@@ -422,20 +422,30 @@ svg #canvasRect {
 .elements {
 }
 
-.elements table{
-	width: 100%
+.elements table {
+	width: 100%;
+	margin: auto;
 }
 
-.elements td{
+.elements td {
 //	border: 1px solid black;
-	width: 1em;
-	padding: 1em;
+	padding: 0.75em;
+	width: 2em;
+}
+
+.elements td > button {
+	margin: 0 0.5em;
 }
 
 .elements .name {
 	width: auto;
 	font-size: 110%;
 	font-weight: bold;
+	cursor: pointer;
+}
+
+.elements footer .button {
+	margin: 0 1em 0.5em 1em;
 }
 
 .workspaceControl {
@@ -479,10 +489,6 @@ svg #canvasRect {
 
 .positionControl > button {
 	width: 7em;
-}
-
-.positionControl > *(:last-child) {
-    margin-bottom: 0;
 }
 
 table.move {
