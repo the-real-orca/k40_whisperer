@@ -84,6 +84,7 @@ form .parameter:after {
 
 hr {
 	margin: 1em;
+	width: 80%
 }
 
 .footer {
@@ -460,33 +461,53 @@ svg #canvasRect {
 	width: auto;
 }
 
-.position {
-	margin: 1em auto;
+.moveControl {
+	margin: 0;
+    padding: 0;
+	width: calc(100% - 12em);
+	height: 90vh;
 }
 
-.position > button {
-	width: 70%;
+.positionControl {
+	margin: 1 auto;
+	width: 12em;
+}
+
+.positionControl > * {
+    margin: 1em auto;
+}
+
+.positionControl > button {
+	width: 7em;
+}
+
+.positionControl > *(:last-child) {
+    margin-bottom: 0;
 }
 
 table.move {
+	margin: 1vh auto;
 	font-size: 120%;
 	text-align: center;
-	margin: 0.25em auto;
+	
 }
 
 table.move  tr, table.move td {
 	padding: 0;
 	margin: 0;
 	background: none;
-	width: 2.85em;
-	height: 2.85em;
+}
+
+table.move td {
+	width: 12.6vh;
+	height: 12.6vh;
 }
 
 button.move, .button.move  {
 	margin: 0;
 	padding: 0;
 	width: 95%;
-	height: 150%;
+	height: 100%;
 }
 
 .toUp {

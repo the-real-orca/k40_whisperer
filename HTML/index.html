@@ -116,22 +116,8 @@
 		<input id="Position" name="mainTabsGroup" type="radio"/>
 		<label class="title" for="Position"><i class="icon-move"></i></label>
 		<div class="content center">
-			<div class="flex four">
-				<div class="position">
-					<div>
-						<b>X:</b> <input type="number" data-bind="numericValue: pos.x, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
-					</div>
-					<div>
-						<b>Y:</b> <input type="number" data-bind="numericValue: pos.y, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
-					</div>
-					<hr>
-					<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off"></i> Init</button>
-					<button data-bind="click: releaseLaser, visible: status.usb()"><i class="icon-off"></i> Release</button>
-					<button data-bind="css: {success: !pos.valid()}, click: home, enable: status.usb"><i class="icon-home"></i> Home</button>
-					<button data-bind="click: unlock, enable: status.usb"><i class="icon-eject"></i> Unlock</button>
-					<button data-bind="click: stop, enable: status.usb" class="error"><i class="icon-close-octagon"></i> Stop</button>
-				</div>
-				<div class="three-fourth">
+			<div class="flex">
+				<div class="moveControl">
 					<table class="move">
 						<tr>
 							<td></td><td></td><td></td>
@@ -178,6 +164,19 @@
 							<td></td><td></td><td></td>
 						</tr>
 					</table>
+				</div>
+				<div class="positionControl">
+					<div>
+						<b>X:</b> <input type="number" data-bind="numericValue: pos.x, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
+					</div>
+					<div>
+						<b>Y:</b> <input type="number" data-bind="numericValue: pos.y, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
+					</div>
+					<hr>
+					<button data-bind="click: releaseLaser, visible: status.usb()"><i class="icon-off"></i> Release</button>
+					<button data-bind="css: {success: !pos.valid()}, click: home, enable: status.usb"><i class="icon-home"></i> Home</button>
+					<button data-bind="click: unlock, enable: status.usb"><i class="icon-eject"></i> Unlock</button>
+					<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off"></i> Init</button>
 				</div>
 			</div>
 		</div>
