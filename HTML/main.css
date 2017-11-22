@@ -83,7 +83,8 @@ form tr {
 	background: none !important;
 }
 form td.parameter {
-	width: auto
+	width: auto;
+	padding: 0.5em 1em;
 }
 form .parameter:after {
 	content: ":";
@@ -360,24 +361,9 @@ button.active, .button.active, button:active, .button:active {
 	content: "\e80e";
 }
 
-.unit:after {
+.unit {
 	font-size: 90%;
     padding-left: 0.1em;
-}
-.unit.percent:after {
-	content: "%";
-}
-.unit.temp:after {
-	content: "°C";
-}
-.unit.pos:after {
-	content: "mm";
-}
-.unit.speed:after {
-	content: "mm/s";
-}
-.unit.flowrate:after {
-	content: "l/min";
 }
 
 .upload {
@@ -427,32 +413,32 @@ svg #canvasRect {
 	stroke: #444;
 }
 
-.elements {
+.itemsList {
 }
 
-.elements table {
+.itemsList table {
 	width: 100%;
 	margin: auto;
 }
 
-.elements td {
+.itemsList td {
 //	border: 1px solid black;
 	padding: 0.75em;
 	width: 2em;
 }
 
-.elements td > button {
+.itemsList td > button {
 	margin: 0 0.5em;
 }
 
-.elements .name {
+.itemsList .name {
 	width: auto;
 	font-size: 110%;
 	font-weight: bold;
 	cursor: pointer;
 }
 
-.elements footer .button {
+.itemsList footer .button {
 	margin: 0 1em 0.5em 1em;
 }
 
@@ -559,45 +545,39 @@ button.move, .button.move  {
 	font-size: 125%;
 }
 
+.task table {
+	padding: auto 1em;
+}
+
 .task td  {
 	padding: 0.2em
 }
-.task td:first-child {
-	padding-left: 1em;
-}
-.task td:last-child {
-	padding-right: 1em;
-}
 
-.task button, .task .button  {
-	padding: 0.5em;
-	margin: 0;
-	min-width: 0;
-	background: none;
-	color: inherit;
-	border: none;
-}
-
-.taskSettings {
+.settings {
 	font-size: 105%;
 }
 
-.taskSettings .name {
+.settings section {
+	margin: 0.5em;
+}
+
+.settings .name {
+	margin: 0.5em 1em;
 	width: 95%;
 	font-size: 110%;
 	font-weight: bold;
 }
 
-.taskSettings .colorSelect {
+.settings .colorSelect {
 	margin-right: 1em;
 }
 
-.taskSettings .typeSelect {
+.settings .typeSelect {
 	margin-right: 1.5em;
 }
 
-.taskSettings footer {
-	margin: 1em;
+.settings footer {
+	margin: 0.3em 1em !important;
 }
 
 .tabs > * {

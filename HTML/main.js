@@ -64,6 +64,11 @@ function unlock() {
 	send('unlock')
 	return true
 }
+function itemSaveParams() {
+	var params = ko.mapping.toJS(viewModel.selectedItem);
+	send('item.set', params)
+	return true
+}
 function taskRunAll() {
 	send('task.run')
 	return true
@@ -81,7 +86,7 @@ function workspaceClear() {
 	send('workspace.clear')
 	return true
 }
-function workspaceRemoveDrawing(id) {
+function workspaceRemoveItem(id) {
 	send('workspace.remove', id)
 	return true
 }
@@ -142,14 +147,14 @@ function handleMessage(data) {
 			viewModel.workspace.drawingsOrigin.x( data.workspace["drawingsOrigin"][0] )
 			viewModel.workspace.drawingsOrigin.y( data.workspace["drawingsOrigin"][1] )
 		}
-		if ( data.workspace.drawings instanceof Array ) {
-			viewModel.workspace.drawings.removeAll()
-			for ( var i = 0; i < data.workspace.drawings.length; i++ ) {
-				var json = data.workspace.drawings[i]
-				var draw = {}
+		if ( data.workspace.items instanceof Array ) {
+			viewModel.workspace.items.removeAll()
+			for ( var i = 0; i < data.workspace.items.length; i++ ) {
+				var json = data.workspace.items[i]
+				var item = {}
 				for ( var key in json )
-					draw[key] = ko.observable(json[key])
-				viewModel.workspace.drawings.push(draw)
+					item[key] = ko.observable(json[key])
+				viewModel.workspace.items.push(item)
 			}
 		}
 	}
@@ -228,6 +233,12 @@ var viewModel = {
 		waterFlow: ko.observable(false),
 		network: ko.observable(false)
 	},
+	unit: {
+		pos: ko.observable("mm"),
+		speed: ko.observable("mm/s"),
+		temp: ko.observable("°C"),
+		flow: ko.observable("l/min")
+	},
 	config: {
 		stepSize: ko.observable(2)
 	},
@@ -242,7 +253,7 @@ var viewModel = {
 			x: ko.observable(0),
 			y: ko.observable(0)
 		},
-		drawings: ko.observableArray()
+		items: ko.observableArray()
 	},
 	pos: {
 		valid: ko.observable(false),
@@ -252,6 +263,7 @@ var viewModel = {
 	anchor: ko.observable('upperLeft'),
 	tasks: ko.observableArray(),
 	selectedTask: ko.observable(),
+	selectedItem: ko.observable(),
 	dialog: {
 		fullscreen: ko.observable(false)
 	},
@@ -270,7 +282,7 @@ viewModel.anchor.subscribe(function (val) {
     }, this)
 viewModel.pos.x.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
 viewModel.pos.y.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
-viewModel.workspace.drawings.extend({ rateLimit: 100 });
+viewModel.workspace.items.extend({ rateLimit: 100 });
 viewModel.tasks.extend({ rateLimit: 100 });
 
 function init() {

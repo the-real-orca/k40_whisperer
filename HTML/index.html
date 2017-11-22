@@ -90,7 +90,7 @@
 						<defs><clipPath id="clip"><use xlink:href="#canvasRect"/></clipPath></defs>
 		
 						<use href="images/origin.svg#origin" data-bind="attr: {x: workspace.drawingsOrigin.x, y: workspace.drawingsOrigin.y}"></use>
-						<g data-bind="foreach: workspace.drawings"  clip-path="url(#clip)">
+						<g data-bind="foreach: workspace.items"  clip-path="url(#clip)">
 							<use data-bind="attr: {href: url()+'#root', x: x, y: y}"></use>
 						</g>
 					</svg>
@@ -101,7 +101,7 @@
 						<button class="icon-folder-open large" data-bind="click: uploadFile"></button>
 					</div>
 					<div>
-						<label for="dialog_element" class="button icon-layers large"></label>
+						<label for="dialog_itemsList" class="button icon-layers large"></label>
 					</div>
 					<div>
 						<button class="error icon-trash large" data-bind="click: workspaceClear"></button>
@@ -166,10 +166,10 @@
 				</div>
 				<div class="positionControl">
 					<div>
-						<b>X:</b> <input type="number" data-bind="numericValue: pos.x, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
+						<b>X:</b> <input type="number" data-bind="numericValue: pos.x, precision: 2, enable: pos.valid"></input><span class="unit" data-bind="text: unit.pos"></span>
 					</div>
 					<div>
-						<b>Y:</b> <input type="number" data-bind="numericValue: pos.y, precision: 2, enable: pos.valid"></input><span class="unit pos"></span>
+						<b>Y:</b> <input type="number" data-bind="numericValue: pos.y, precision: 2, enable: pos.valid"></input><span class="unit" data-bind="text: unit.pos"></span>
 					</div>
 					<hr>
 					<button data-bind="css: {success: !pos.valid()}, click: home, enable: status.usb"><i class="icon-home"></i> Home</button>
@@ -220,10 +220,10 @@
 							-->
 							</td>
 							<td>
-								<label for="dialog_taskSettings" class="flat button" data-bind="click: ()=>{$root.selectedTask($data);return true}"><span data-bind="text: name"></span> <i class="icon-sliders"></i></label>
+								<label for="dialog_taskSettings" class="flat gray button" data-bind="click: ()=>{$root.selectedTask($data);return true}"><span data-bind="text: name"></span> <i class="icon-sliders"></i></label>
 							</td>
 							<td>
-								<button class="flat right" data-bind="click: ()=>{taskRun($data.id())}"><i class="icon-play"></i></button>
+								<button class="gray" data-bind="click: ()=>{taskRun($data.id())}"><i class="icon-play"></i></button>
 							</td>
 						</tr>
 					</tbody></table>
@@ -262,18 +262,22 @@
 		</article>
 	</div>
 
-	<!-- element dialog -->
+	<!-- item dialog -->
 	<div class="modal">
-		<input id="dialog_element" type="checkbox" />
-		<label for="dialog_element" class="overlay"></label>
-		<article class="elements">
+		<input id="dialog_itemsList" type="checkbox" />
+		<label for="dialog_itemsList" class="overlay"></label>
+		<article class="itemsList">
 			<section class="content">
-				<table class=""><tbody data-bind="foreach: workspace.drawings">
+				<table class=""><tbody data-bind="foreach: workspace.items">
 					<tr>
 						<td class="index right"><span data-bind="text: $index()+1"></span></td>
-						<td class="name"><div data-bind="text: name"></div></td>
-						<td class="settings"><button class="gray icon-sliders" ></button></td>
-						<td class="remove"><button class="error icon-trash" data-bind="click: ()=>{workspaceRemoveDrawing($data.id())}"></button></td>
+						<td class="name">
+							<label for="dialog_itemSettings" data-bind="text: name, click: ()=>{$root.selectedItem($data);return true}"></label>
+						</td>
+						<td>
+							<label for="dialog_itemSettings" class="gray button icon-sliders" data-bind="click: ()=>{$root.selectedItem($data);return true}"></label>
+						</td>
+						<td class="remove"><button class="error icon-trash" data-bind="click: ()=>{workspaceRemoveItem($data.id())}"></button></td>
 					</tr>
 				</tbody></table>
 			</section>
@@ -283,18 +287,87 @@
 						<button class="icon-folder-open" data-bind="click: uploadFile"> Open</button>
 					</div>
 					<div class="right">
-						<label for="dialog_element" class="button">Close</label>
+						<label for="dialog_itemsList" class="button">Close</label>
 					</div>
 				</div>			
 			</footer>
 		</article>
 	</div>
-
+	<div class="modal">
+		<input id="dialog_itemSettings" type="checkbox" />
+		<label for="dialog_itemSettings" class="overlay"></label>
+		<article class="item settings">
+			<section class="content">
+				<form data-bind="with: selectedItem">
+					<span class="name" data-bind="text: name" ></span>
+					<table>
+						<tr>
+							<td class="parameter">x</td>
+							<td><input type="number" data-bind="value: x"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
+							<td class="parameter">y</td>
+							<td><input type="number" data-bind="value: y"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
+						</tr>
+						
+						<tr>
+							<td class="parameter">color</td>
+							<td colspan="3">
+								<label class="colorSelect" style="color: #222">
+									<input name="color" type="radio" value="black" data-bind="checked: color" />
+									<span class="checkable"><i class="icon-brush large"></i></span>
+								</label>
+								<label class="colorSelect" style="color: red">
+									<input name="color" type="radio" value="red" data-bind="checked: color" />
+									<span class="checkable"><i class="icon-brush large"></i></span>
+								</label>
+								<label class="colorSelect" style="color: green">
+									<input name="color" type="radio" value="green" data-bind="checked: color" />
+									<span class="checkable"><i class="icon-brush large"></i></span>
+								</label>
+								<label class="colorSelect" style="color: blue">
+									<input name="color" type="radio" value="blue" data-bind="checked: color" />
+									<span class="checkable"><i class="icon-brush large"></i></span>
+								</label>
+								<label class="colorSelect" style="color: #DA0">
+									<input name="color" type="radio" value="yellow" data-bind="checked: color" />
+									<span class="checkable"><i class="icon-brush large"></i></span>
+								</label>
+								<label class="colorSelect" style="color: #0DA">
+									<input name="color" type="radio" value="cyan" data-bind="checked: color" />
+									<span class="checkable"><i class="icon-brush large"></i></span>
+								</label>
+								<label class="colorSelect" style="color: #D0A">
+									<input name="color" type="radio" value="magenta" data-bind="checked: color" />
+									<span class="checkable"><i class="icon-brush large"></i></span>
+								</label>
+							</td>
+						</tr>
+					</table>
+<!--
+					<label>
+						<input type="checkbox" checked /><span class="checkable parameter">message before task</span>
+					</label>
+					<textarea class="" placeholder="Task Message ..."></textarea>
+-->					
+				</form>
+			</section>
+			<footer>
+				<div class="flex two">
+					<div>
+						<label for="dialog_itemSettings" class="button error">Cancel</label>
+					</div>
+					<div class="right">
+						<label for="dialog_itemSettings" class="button success" data-bind="click: itemSaveParams">OK</label>
+					</div>
+				</div>
+			</footer>
+		</article>
+	</div>
+	
 	<!-- task dialog -->
 	<div class="modal">
 		<input id="dialog_taskSettings" type="checkbox" />
 		<label for="dialog_taskSettings" class="overlay"></label>
-		<article class="taskSettings">
+		<article class="task settings">
 			<section class="content">
 				<form data-bind="with: selectedTask">
 					<input class="name" input="text" placeholder="Task Name" data-bind="value: name" />
@@ -348,7 +421,7 @@
 
 						<tr>
 							<td class="parameter">speed</td>
-							<td><input type="number" placeholder="10" min="0" data-bind="value: speed"></input> <span class="unit">mm/s</span></td>
+							<td><input type="number" placeholder="10" min="0" data-bind="value: speed"></input> <span class="unit" data-bind="text: $root.unit.speed"></span></td>
 						</tr>
 
 						<tr>

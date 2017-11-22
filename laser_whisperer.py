@@ -110,14 +110,14 @@ def sendStatus(broadcast = True):
 			"size": workspace.size,
 			"originOffset": workspace.originOffset,
 			"drawingsOrigin": workspace.drawingsOrigin,
-			"drawings": []
+			"items": []
 
 		},
 		"tasks": []
 	}
 	for k in workspace.drawings:
 		draw = workspace.drawings[k]
-		payload["workspace"]["drawings"].append({
+		payload["workspace"]["items"].append({
 			"id": draw.id,
 			"name": draw.id,
 			"x": draw.position[0],
@@ -200,6 +200,7 @@ def handleData(data):
 				"moveTo": lambda params: laser.moveTo( float(params.get("dx",0)), float(params.get("dy",0)) ),
 				"workspace.clear": workspace.clear,
 				"workspace.remove": workspace.remove,
+				"item.set": workspace.setParams,
 				"task.set": taskmanager.setParams,
 				"task.run": taskmanager.run
 			}

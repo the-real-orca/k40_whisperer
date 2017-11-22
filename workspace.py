@@ -25,3 +25,14 @@ class Workspace:
 		self.drawingsOrigin = self.originOffset[:]
 		self.update()
 
+	def setParams(self, params):
+		id = params.get('id', None)
+		if not(id): return
+
+		# find task by id
+		drawing = self.drawings.get(id, None)
+		if not(drawing): return
+
+		# set drawing params
+#TODO		drawing.color = params.get('color', design.BLACK)
+		drawing.position = [float(params.get('x', 0)), float(params.get('y', 0))]
