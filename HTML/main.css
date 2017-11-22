@@ -58,8 +58,16 @@ input[type="number"] {
 	text-align: right;
 }
 
+input[type="file"] {
+	display: none;
+}
+
 .card .dangerous, .modal .overlay ~ * .dangerous {
 	float: inherit;
+}
+
+.modal .overlay {
+	z-index: 1000000;
 }
 
 form > * {
@@ -462,8 +470,16 @@ svg #canvasRect {
 	font-size: 75%;
 }
 
+.x-small {
+	font-size: 50%;
+}
+
 .large {
 	font-size: 125%;
+}
+
+.x-large {
+	font-size: 200%;
 }
 
 .inline {
@@ -596,6 +612,14 @@ button.move, .button.move  {
 .tabs.side-right > .title {
 	padding: 1em;
 	margin-left: -1px;
+}
+
+.wait {
+	width: auto !important;
+	font-size: 200% !important;
+	text-align: center !important;
+	background: transparent !important;
+	color: whitesmoke !important;
 }
 
 .center {

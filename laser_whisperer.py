@@ -29,6 +29,9 @@ UPLOAD_FOLDER = HTML_FOLDER + '/uploads'
 ALLOWED_EXTENSIONS = set(['dxf']) # TODO set(['svg', 'dxf', 'png', 'jpg', 'jpeg'])
 MAX_CONTENT_LENGTH = 64 * 1024 * 1024
 
+def NullFunc():
+	return
+	
 # application
 print("init application")
 app = Flask(__name__, static_url_path='', static_folder=HTML_FOLDER)
@@ -164,7 +167,7 @@ def upload_file():
 		drawing.position = list(workspace.drawingsOrigin)
 		drawing.param["url"] = pathToURL(path)
 		workspace.add(drawing)
-	return redirect("#")
+	return ""
 
 @socketio.on('connect')
 def handleConnect():
@@ -187,6 +190,7 @@ def handleData(data):
 		# handle command
 		if "cmd" in data:
 			commands = {
+				"status": NullFunc,
 				"init": laser.init,
 				"release": laser.release,
 				"home": laser.home,

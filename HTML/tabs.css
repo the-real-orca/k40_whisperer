@@ -24,7 +24,7 @@
 
 .tabs > input[type=radio]:checked + .title {
 	box-shadow: none;
-	z-index: 100;	
+	z-index: 1;	
 }
 
 .tabs > input[type=radio]:checked + .title + .content {

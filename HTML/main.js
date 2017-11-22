@@ -31,8 +31,11 @@ function fxSlideUpRemove(elem) {
 	}
 }
 
-
 // laser functions
+function getStatus() {
+	send('status')
+	return true
+}
 function move(dx, dy) {
 	send('move', {dx: parseFloat(dx), dy: parseFloat(dy)})
 	return true
@@ -166,6 +169,42 @@ function handleMessage(data) {
 	viewModel.seqNr = data.seqNr
 	viewModel.instable = false
 }
+function uploadFile() {
+	$("#uploadFile").first().val("").click()
+}
+function sendFile() {
+	var file = $("#uploadFile")[0].files[0]
+	
+	// check that file ia an image
+	if (!file)
+		return;
+
+	// indicate uploading
+	viewModel.wait("<i class='icon-upload x-large'></i><br>" + file.name);
+
+	// build form data object
+	var fd = new FormData();
+	fd.append('file', file); // append the file
+    $.ajax({
+        url: '/upload',
+        type: 'POST',
+        success: function() {
+			console.log("upload ok")
+			viewModel.continue()
+			getStatus()
+        },
+        error: function() {
+			viewModel.continue()
+			console.error("cannot uploade: " + file.name)
+			add_msg('error', "upload error", "cannot uploade: " + file.name)
+			getStatus()
+        },
+        data: fd,
+        contentType: false,
+        processData: false,
+        cache: false
+    });
+}
 
 
 // view model data
@@ -215,9 +254,14 @@ var viewModel = {
 	selectedTask: ko.observable(),
 	dialog: {
 		fullscreen: ko.observable(false)
-	}
+	},
+	wait: ko.observable(false)
+	
 };
 // view model functions
+viewModel.continue = function() {
+	viewModel.wait(false)
+}
 viewModel.status.networkIcon = ko.pureComputed(function() {
 	return this.status.network() ? "icon-lan-connect" : "icon-lan-disconnect";
 }, viewModel);

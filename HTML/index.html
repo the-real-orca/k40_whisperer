@@ -9,6 +9,7 @@
 
     <!-- Icons -->
 	<link rel="stylesheet" href="libs/css/laser-font.css">
+	<link rel="stylesheet" href="libs/css/animation.css">
 
 	<!-- Zepto -->
 	<script type='text/javascript' src='libs/js/zepto.min.js'></script>
@@ -95,12 +96,10 @@
 					</svg>
 				</div>
 				<div class="workspaceControl">
-					<form method="post" enctype="multipart/form-data" action="upload">
-						<label class="upload button icon-folder-open large" for="uploadFile">
-							<input id="uploadFile" name="file" type="file" ></input>
-						</label>
-						<input id="uploadSubmit" type="submit"></input>
-					</form>
+					<div>
+						<input id="uploadFile" name="file" type="file" onchange="change: sendFile()"></input>
+						<button class="icon-folder-open large" data-bind="click: uploadFile"></button>
+					</div>
 					<div>
 						<label for="dialog_element" class="button icon-layers large"></label>
 					</div>
@@ -243,7 +242,7 @@
 	-->
 	
 	<!-- ------------------------------------------------------------------------------ -->
-	
+
 	<!-- fullscreen dialog -->
 	<div class="modal">
 		<input id="dialog_fullscreen" type="checkbox" data-bind="checked: dialog.fullscreen" />
@@ -273,7 +272,7 @@
 					<tr>
 						<td class="index right"><span data-bind="text: $index()+1"></span></td>
 						<td class="name"><div data-bind="text: name"></div></td>
-						<td class="settings"><button class="gray icon-sliders"></button></td>
+						<td class="settings"><button class="gray icon-sliders" ></button></td>
 						<td class="remove"><button class="error icon-trash" data-bind="click: ()=>{workspaceRemoveDrawing($data.id())}"></button></td>
 					</tr>
 				</tbody></table>
@@ -281,7 +280,7 @@
 			<footer>
 				<div class="flex two">
 					<div>
-						<label for="uploadFile" class="button icon-folder-open"> Open</label>
+						<button class="icon-folder-open" data-bind="click: uploadFile"> Open</button>
 					</div>
 					<div class="right">
 						<label for="dialog_element" class="button">Close</label>
@@ -378,6 +377,18 @@
 		</article>
 	</div>
 
+
+	<!-- wait overlay -->
+	<div class="modal">
+		<input id="wait_overlay" type="checkbox" data-bind="checked: wait" />
+		<div class="overlay"></div>
+		<div class="wait">
+			<div>
+				<i class="icon-spin3 animate-spin" data-bind="visible: wait()===true"></i>
+			</div>
+			<div data-bind="html: wait, visible: wait()!==true"></div>
+		</div>
+	</div>
 	<script type='text/javascript'>
 		init();
 	</script>
