@@ -166,72 +166,55 @@
 						</tr>
 					</table>
 				</div>
-				<div class="positionControl">
-					<div>
-						<b>X:</b> <input type="number" data-bind="numericValue: pos.x, precision: 2, enable: pos.valid"></input><span class="unit" data-bind="text: unit.pos"></span>
-					</div>
-					<div>
-						<b>Y:</b> <input type="number" data-bind="numericValue: pos.y, precision: 2, enable: pos.valid"></input><span class="unit" data-bind="text: unit.pos"></span>
+				<div class="moveSidePanel">
+					<div class="positionDisplay">
+						<div>
+							<b>X:</b> <input type="number" data-bind="numericValue: pos.x, precision: 2, enable: pos.valid"></input><span class="unit" data-bind="text: unit.pos"></span>
+						</div>
+						<div>
+							<b>Y:</b> <input type="number" data-bind="numericValue: pos.y, precision: 2, enable: pos.valid"></input><span class="unit" data-bind="text: unit.pos"></span>
+						</div>
 					</div>
 					<hr>
-					<button data-bind="css: {success: !pos.valid()}, click: home, enable: status.usb"><i class="icon-home"></i> Home</button>
-					<button data-bind="click: unlock, enable: status.usb"><i class="icon-eject"></i> Unlock</button>
-					<button data-bind="click: releaseLaser, visible: status.usb()"><i class="icon-off"></i> Release</button>
-					<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off"></i> Init</button>
+					<div class="laserControl">
+						<button data-bind="css: {success: !pos.valid()}, click: home, enable: status.usb"><i class="icon-home"></i> Home</button>
+						<button data-bind="click: unlock, enable: status.usb"><i class="icon-eject"></i> Unlock</button>
+						<button data-bind="click: releaseLaser, visible: status.usb()"><i class="icon-off"></i> Release</button>
+						<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off"></i> Init</button>
+					</div>
 				</div>
 			</div>
 		</div>
 
 		<!-- Process -->
 		<input id="Process" name="mainTabsGroup" type="radio" />
-		<label class="title" for="Process"><i class="icon-fire"></i></label>
+		<label class="title" for="Process"><i class="icon-flash"></i></label>
 		<div class="content center">
-<!--
-			<div class="full two-third-800 panel">
-				 <fieldset class="panel">
-					<legend>live image</legend>
-					<img class="liveImage" label="Live image from laser encraver" >
-				</fieldset>
-			</div>
--->
-			<div class="flex center four-500">
-				<div >
-					<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off"></i> Init</button>
-					<button data-bind="click: releaseLaser, visible: status.usb"><i class="icon-off"></i> Release</button>
-				</div>
-				<div >
-					<button data-bind="css: {success: !pos.valid()}, click: home, enable: status.usb"><i class="icon-crosshairs-gps"></i> Home</button>
-				</div>
-				<div >
-					<button data-bind="click: unlock, enable: status.usb"><i class="icon-eject"></i> Unlock</button>
-				</div>
-				<div >
-					<button data-bind="click: stop, enable: status.usb" class="error"><i class="icon-close-octagon"></i> Stop</button>
-				</div>
+			<div class="center laserControl">
+				<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off"></i> Init</button>
+				<button data-bind="click: releaseLaser, visible: status.usb"><i class="icon-off"></i> Release</button>
+				<button data-bind="css: {success: !pos.valid()}, click: home, enable: status.usb"><i class="icon-home"></i> Home</button>
+				<button data-bind="click: unlock, enable: status.usb"><i class="icon-eject"></i> Unlock</button>
+				<button data-bind="click: stop, enable: status.usb" class="error"><i class="icon-close-octagon"></i> Stop</button>
 			</div>
 			<hr>
-			<div class="flex two">
-				<div>
+			<div class="flex">
+				<div class="taskList">
 					<table class=""><tbody data-bind="foreach: tasks">
-						<tr class="task">
-							<td>
-							<!--
-								<label>
-									<input type="checkbox" checked><span class="checkable"></span>
-								</label>
-							-->
+						<tr>
+							<td class="index right"><span data-bind="text: $index()+1"></span></td>
+							<td class="name">
+								<label for="dialog_taskSettings" data-bind="text: name, click: ()=>{$root.selectedTask($data);return true}"></label>
 							</td>
 							<td>
-								<label for="dialog_taskSettings" class="flat gray button" data-bind="click: ()=>{$root.selectedTask($data);return true}"><span data-bind="text: name"></span> <i class="icon-sliders"></i></label>
+								<label for="dialog_taskSettings" class="gray button icon-sliders" data-bind="click: ()=>{$root.selectedTask($data);return true}"></label>
 							</td>
-							<td>
-								<button class="gray" data-bind="click: ()=>{taskRun($data.id())}"><i class="icon-play"></i></button>
-							</td>
+							<td class="remove"><button class="gray icon-play" data-bind="click: ()=>{taskRun($data.id())}, enable: status.usb"></button></td>
 						</tr>
 					</tbody></table>
 				</div>
-				<div>
-					<button class="right" data-bind="click: taskRunAll"><i class="icon-play"></i></button>
+				<div class="taskSidePanel">
+					<button class="success icon-play" data-bind="click: taskRunAll, enable: status.usb"></button>
 				</div>
 			</div>
 		</div>
@@ -376,7 +359,7 @@
 					<table>
 						<tr>
 							<td class="parameter">color</td>
-							<td>
+							<td colspan="3">
 								<label class="colorSelect" style="color: #222">
 									<input type="checkbox" value="black" data-bind="checked: colors" />
 									<span class="checkable"><i class="icon-brush large"></i></span>
@@ -424,9 +407,6 @@
 						<tr>
 							<td class="parameter">speed</td>
 							<td><input type="number" placeholder="10" min="0" data-bind="value: speed"></input> <span class="unit" data-bind="text: $root.unit.speed"></span></td>
-						</tr>
-
-						<tr>
 							<td class="parameter">repeat</td>
 							<td><input type="number" placeholder="1" min="1" data-bind="value: repeat"></input> <i class="icon-retweet large"></i></td>
 						</tr>

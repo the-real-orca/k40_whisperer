@@ -92,7 +92,6 @@ form .parameter:after {
 }
 
 hr {
-	margin: 1em;
 	width: 80%
 }
 
@@ -485,16 +484,23 @@ svg #canvasRect {
 	height: 90vh;
 }
 
-.positionControl {
-	margin: 1 auto;
+.moveSidePanel {
+	margin: 0 auto;
 	width: 12em;
 }
 
-.positionControl > * {
+.positionDisplay {
+}
+
+.positionDisplay > * {
 	margin: 1em auto;
 }
 
-.positionControl > button {
+.laserControl {
+}
+
+.laserControl > * {
+	margin: 1em;
 	width: 7em;
 }
 
@@ -546,17 +552,52 @@ button.move, .button.move  {
 	color: #F11 !important;
 }
 
-.task {
-	font-size: 125%;
+.taskList {
+	margin: 0;
+	padding: 0 0 0 1em;
+	width: calc(100% - 8em);
 }
 
-.task table {
-	padding: auto 1em;
+.taskSidePanel {
+	margin: 1em auto;
+	width: 8em;
 }
 
-.task td  {
-	padding: 0.2em
+.taskList table {
+	width: 100%;
+	margin: auto;
 }
+
+.taskList td {
+	padding: 0.5em;
+	width: 2em;
+}
+
+.taskList td > label {
+	width: 100%;
+	display: inline-block;;
+}
+
+.taskList td > button {
+	margin: 0 0.5em;
+}
+
+.taskList .name {
+	width: auto;
+	font-size: 110%;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.taskSidePanel > button {
+	margin: 1em auto;
+	padding: 0.5em;
+	width: 2.5em;
+	font-size: 175%;
+    height: 7em;
+}
+}
+
 
 .settings {
 	font-size: 105%;
