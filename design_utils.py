@@ -1,3 +1,4 @@
+import time
 import numpy as np
 import matplotlib.path as path
 import svgutils.transform as sg
@@ -9,10 +10,10 @@ WHITE = "white"      #(255, 255, 255)
 RED = "red"          #(255, 0, 0)
 GREEN = "green"      #(0, 255, 0)
 BLUE = "blue"        #(0, 0, 255)
-YELLOW = "yellow"    #(255, 255, 0)
-CYAN = "cyan"        #(0, 255, 255)
+ORANGE = "orange"    #(255, 165, 0)	~ yellow
+CYAN = "darkcyan"    #(0, 140, 140) ~ cyan
 MAGENTA = "magenta"  #(255, 0, 255)
-
+COLOR_MIXED = "mix"
 
 class Polyline:
 	def __init__(self, points = [], color = BLACK):
@@ -31,6 +32,9 @@ class Polyline:
 	def __bool__(self):
 		return len(self._points) > 0
 
+	def update(self):
+		pass
+		
 	def getPoints(self):
 		return self._points
 
@@ -92,15 +96,15 @@ class Polyline:
 
 
 class Drawing:
-	def __init__(self, id, polylines):
-		self.id = id
+	def __init__(self, polylines, name=None, position=[0,0]):
+		self.id = int(time.time()*10)
+		self.name = name
 		for line in polylines:
 			if not(isinstance(line, Polyline)):
 				raise Exception('polylines: type error')
 		self.polylines = polylines
-		self.position = [0,0]
-		self.param = {}
-		self._strokeWidth = 0.2
+		self.position = position
+		self._strokeWidth = 0.4
 		self.update()
 
 	def update(self):
@@ -136,9 +140,6 @@ class Drawing:
 
 	def saveSVG(self, filePath):
 		# compute canvas size
-
-		print("saveSVG")
-		for line in self.polylines: print(line)
 		[xMin, yMin, width, height], strokeWidth = self.getViewBox()
 
 		# create SVG

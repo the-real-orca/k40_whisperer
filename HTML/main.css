@@ -31,12 +31,12 @@ body {
 }
 
 .flex  {
-    margin-left: initial;
+	margin-left: initial;
 	width: initial;
 }
 
 .flex > * {
-    padding: 0;
+	padding: 0;
 }
 
 [disabled], .disabled {
@@ -246,8 +246,8 @@ hr {
 	border-radius: 0.5em;
 	box-shadow: 0 .1em .3em rgba(0, 0, 0, 0.25) inset;
 	display: block;
-    padding: 0;
-    margin: 1em auto;
+	padding: 0;
+	margin: 1em auto;
 	height: 1.8em;
 }
 
@@ -256,7 +256,7 @@ hr {
 	border-radius: inherit;
 	box-shadow: .05em .1em .5em rgba(255, 255, 255, 0.75) inset, -.05em -.1em .5em .1em rgba(0, 0, 0, 0.75) inset;
 	text-align: center;
-    text-shadow: .1em .1em .1em black;
+	text-shadow: .1em .1em .1em black;
 	color: white;
 	height: 100%;
 	padding-top: 0.1em;
@@ -264,13 +264,13 @@ hr {
 
 .left {
 	left: 0;
-    text-align: left;
+	text-align: left;
 	align-self: left;
 }
 
 .right {
 	right: 0;
-    text-align: right;
+	text-align: right;
 	align-self: right;
 }
 
@@ -301,7 +301,7 @@ button.active, .button.active, button:active, .button:active {
 }
 
 .modal>input:checked ~ .overlay ~ * {
-    max-height: 95%;
+	max-height: 95%;
 }
 
 :checked+.group {
@@ -310,7 +310,7 @@ button.active, .button.active, button:active, .button:active {
 }
 
 .powerButton {
-    background: #85144b;
+	background: #85144b;
 }
 
 .header > div {
@@ -319,14 +319,14 @@ button.active, .button.active, button:active, .button:active {
 }
 .header .logo {
 //	height: 5em;
-    margin: 0 1em;
+	margin: 0 1em;
 }
 
 .header .title h1 {
-    display: inline-block;
-    margin: -0.3em 0 0 0;
+	display: inline-block;
+	margin: -0.3em 0 0 0;
 	padding: 0;
-    color: darkred;
+	color: darkred;
 	text-align: center;
 	text-shadow: 2px 2px 3px darkgray;
 	vertical-align: top;
@@ -335,7 +335,7 @@ button.active, .button.active, button:active, .button:active {
 
 .status {
 	right: 0;
-    position: absolute;
+	position: absolute;
 }
 
 .status > * {
@@ -363,38 +363,38 @@ button.active, .button.active, button:active, .button:active {
 
 .unit {
 	font-size: 90%;
-    padding-left: 0.1em;
+	padding-left: 0.1em;
 }
 
 .upload {
-    position: relative;
+	position: relative;
 }
 
 .upload input {
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: 0;
-    margin: 0;
-    padding: 0;
-    opacity: 0;
-    cursor: pointer;
-    position: absolute;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+	margin: 0;
+	padding: 0;
+	opacity: 0;
+	cursor: pointer;
+	position: absolute;
 }
 .upload ~ input[type="submit"] {
-    display: none;
+	display: none;
 }
 
 .overlay {
-    background: gray;
-    height: 100%;
-    width: 100%;
-    display: inline-block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 10;
-    opacity: 0.75;
+	background: gray;
+	height: 100%;
+	width: 100%;
+	display: inline-block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 10;
+	opacity: 0.75;
 }
 
 
@@ -403,7 +403,7 @@ button.active, .button.active, button:active, .button:active {
 }
 
 .workspace {
-    padding: 1em;
+	padding: 1em;
 	width: calc(100% - 7em);
 	height: 90vh;
 }
@@ -425,6 +425,11 @@ svg #canvasRect {
 //	border: 1px solid black;
 	padding: 0.75em;
 	width: 2em;
+}
+
+.itemsList td > label {
+	width: 100%;
+	display: inline-block;;
 }
 
 .itemsList td > button {
@@ -449,7 +454,7 @@ svg #canvasRect {
 }
 
 .workspaceControl > *:not(:first-child) {
-    margin-top: 4em;
+	margin-top: 4em;
 }
 
 .small {
@@ -475,7 +480,7 @@ svg #canvasRect {
 
 .moveControl {
 	margin: 0;
-    padding: 0;
+	padding: 0;
 	width: calc(100% - 12em);
 	height: 90vh;
 }
@@ -486,7 +491,7 @@ svg #canvasRect {
 }
 
 .positionControl > * {
-    margin: 1em auto;
+	margin: 1em auto;
 }
 
 .positionControl > button {
@@ -565,11 +570,14 @@ button.move, .button.move  {
 	margin: 0.5em 1em;
 	width: 95%;
 	font-size: 110%;
+
 	font-weight: bold;
 }
 
 .settings .colorSelect {
 	margin-right: 1em;
+	margin-top: 0.6em;
+	display: inline-block;
 }
 
 .settings .typeSelect {
@@ -591,7 +599,7 @@ button.move, .button.move  {
 
 .tabs.side-right > .title {
 	padding: 1em;
-	margin-left: -1px;
+	margin-left: -2px;
 }
 
 .wait {

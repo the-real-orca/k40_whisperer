@@ -43,9 +43,6 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 socketio = SocketIO(app)
 seqNr = 1
 
-def pathToURL(path):
-	return os.path.relpath(path, HTML_FOLDER)
-
 # init laser
 laser = k40_wrapper.LASER_CLASS()
 
@@ -74,10 +71,10 @@ def laser_thread():
 
 
 # init file manager
-filemanager = FileManager()
+filemanager = FileManager(rootPath = UPLOAD_FOLDER, webRootPath = HTML_FOLDER)
 
 # init workspace
-workspace = Workspace()
+workspace = Workspace(filemanager = filemanager)
 configWorkspace(workspace)
 
 # init task manager
@@ -106,27 +103,9 @@ def sendStatus(broadcast = True):
 			"x": laser.x,
 			"y": laser.y
 		},
-		"workspace": {
-			"size": workspace.size,
-			"originOffset": workspace.originOffset,
-			"drawingsOrigin": workspace.drawingsOrigin,
-			"items": []
-
-		},
+		"workspace": workspace.toJson(),
 		"tasks": []
 	}
-	for k in workspace.drawings:
-		draw = workspace.drawings[k]
-		payload["workspace"]["items"].append({
-			"id": draw.id,
-			"name": draw.id,
-			"x": draw.position[0],
-			"y": draw.position[1],
-			"width": draw.size[0],
-			"height": draw.size[1],
-			"color": "red",
-			"url": draw.param.get("url", "")
-		})
 	for task in taskmanager.tasks:
 		payload["tasks"].append({
 			"id": task.id,
@@ -159,13 +138,6 @@ def upload_file():
 	file.save(path)
 	drawing, path = filemanager.open(path)
 	if drawing:
-		if len(workspace.drawings)==0:
-			# set drawings origin for first drawing to fit to workspace
-			viewBox, strokeWidth = drawing.getViewBox(strokeWidth=0)
-			workspace.drawingsOrigin[0] = workspace.originOffset[0] - min(viewBox[0],0)
-			workspace.drawingsOrigin[1] = workspace.originOffset[1] - min(viewBox[1],0)
-		drawing.position = list(workspace.drawingsOrigin)
-		drawing.param["url"] = pathToURL(path)
 		workspace.add(drawing)
 	return ""
 

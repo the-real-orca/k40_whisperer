@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Picnic CSS -->
+	<!-- Picnic CSS -->
 	<link rel="stylesheet" href="libs/css/picnic.min.css">
 
-    <!-- Icons -->
+	<!-- Icons -->
 	<link rel="stylesheet" href="libs/css/laser-font.css">
 	<link rel="stylesheet" href="libs/css/animation.css">
 
@@ -89,9 +89,11 @@
 						<rect data-bind="attr: {width: workspace.width(), height: workspace.height()}" id="canvasRect" />
 						<defs><clipPath id="clip"><use xlink:href="#canvasRect"/></clipPath></defs>
 		
-						<use href="images/origin.svg#origin" data-bind="attr: {x: workspace.drawingsOrigin.x, y: workspace.drawingsOrigin.y}"></use>
-						<g data-bind="foreach: workspace.items"  clip-path="url(#clip)">
-							<use data-bind="attr: {href: url()+'#root', x: x, y: y}"></use>
+						<g clip-path="url(#clip)">
+							<use href="images/origin.svg#origin" data-bind="attr: {x: workspace.workspaceOrigin.x, y: workspace.workspaceOrigin.y}"></use>
+							<g data-bind="foreach: workspace.items">
+								<use data-bind="attr: {href: url()+'#root', x: $root.workspace.workspaceOrigin.x() + x(), y: $root.workspace.workspaceOrigin.y() - y()}"></use>
+							</g>
 						</g>
 					</svg>
 				</div>
@@ -101,10 +103,10 @@
 						<button class="icon-folder-open large" data-bind="click: uploadFile"></button>
 					</div>
 					<div>
-						<label for="dialog_itemsList" class="button icon-layers large"></label>
+						<button class="icon-layers large" data-bind="click: ()=>{$('#dialog_itemsList').click()}, enable: workspace.items().length > 0"></button>
 					</div>
 					<div>
-						<button class="error icon-trash large" data-bind="click: workspaceClear"></button>
+						<button class="error icon-trash large" data-bind="click: workspaceClear, enable: workspace.items().length > 0"></button>
 					</div>
 				</div>
 			</div>
@@ -303,9 +305,9 @@
 					<table>
 						<tr>
 							<td class="parameter">x</td>
-							<td><input type="number" data-bind="value: x"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
+							<td><input type="number" data-bind="numericValue: x"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
 							<td class="parameter">y</td>
-							<td><input type="number" data-bind="value: y"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
+							<td><input type="number" data-bind="numericValue: y"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
 						</tr>
 						
 						<tr>
@@ -327,15 +329,15 @@
 									<input name="color" type="radio" value="blue" data-bind="checked: color" />
 									<span class="checkable"><i class="icon-brush large"></i></span>
 								</label>
-								<label class="colorSelect" style="color: #DA0">
-									<input name="color" type="radio" value="yellow" data-bind="checked: color" />
+								<label class="colorSelect" style="color: orange">
+									<input name="color" type="radio" value="orange" data-bind="checked: color" />
 									<span class="checkable"><i class="icon-brush large"></i></span>
 								</label>
-								<label class="colorSelect" style="color: #0DA">
-									<input name="color" type="radio" value="cyan" data-bind="checked: color" />
+								<label class="colorSelect" style="color: darkcyan">
+									<input name="color" type="radio" value="darkcyan" data-bind="checked: color" />
 									<span class="checkable"><i class="icon-brush large"></i></span>
 								</label>
-								<label class="colorSelect" style="color: #D0A">
+								<label class="colorSelect" style="color: magenta">
 									<input name="color" type="radio" value="magenta" data-bind="checked: color" />
 									<span class="checkable"><i class="icon-brush large"></i></span>
 								</label>
@@ -391,15 +393,15 @@
 									<input type="checkbox" value="blue" data-bind="checked: colors" />
 									<span class="checkable"><i class="icon-brush large"></i></span>
 								</label>
-								<label class="colorSelect" style="color: #DA0">
-									<input type="checkbox" value="yellow" data-bind="checked: colors" />
+								<label class="colorSelect" style="color: orange">
+									<input type="checkbox" value="orange" data-bind="checked: colors" />
 									<span class="checkable"><i class="icon-brush large"></i></span>
 								</label>
-								<label class="colorSelect" style="color: #0DA">
-									<input type="checkbox" value="cyan" data-bind="checked: colors" />
+								<label class="colorSelect" style="color: darkcyan">
+									<input type="checkbox" value="darkcyan" data-bind="checked: colors" />
 									<span class="checkable"><i class="icon-brush large"></i></span>
 								</label>
-								<label class="colorSelect" style="color: #D0A">
+								<label class="colorSelect" style="color: magenta">
 									<input type="checkbox" value="magenta" data-bind="checked: colors" />
 									<span class="checkable"><i class="icon-brush large"></i></span>
 								</label>

@@ -24,5 +24,6 @@ def configWorkspace(workspace):
 	try:
 		workspace.originOffset = config['workspace']['originOffset']
 		workspace.size = config['workspace']['size']
+		workspace.update()
 	except:
 		print("workspace config error")

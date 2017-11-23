@@ -1,10 +1,17 @@
 import os
+import re
 from dxf import DXF_CLASS
 import design_utils as design
 
 
 class FileManager:
+	def __init__(self, rootPath = ".", webRootPath = "."):
+		self.rootPath = rootPath
+		self.webRootPath = webRootPath
 
+	def pathToURL(self, path):
+		return os.path.relpath(path, self.webRootPath)		
+		
 	def openDXF(self, path):
 		dxf_import=DXF_CLASS()
 		try:
@@ -46,13 +53,9 @@ class FileManager:
 
 		# create drawings object
 		name = os.path.basename(path).replace("_", " ")
-		drawing = design.Drawing(name, polylines)
+		drawing = design.Drawing(polylines, name=name)
 		drawing.flipY()	# DXF import is mirrored around the x-axis -> invert Y coordinates
 		drawing.combineLines()
-
-		# create SVG image for displaying
-		path += ".svg";
-		drawing.saveSVG(path)
 
 		return drawing, path
 
@@ -64,3 +67,11 @@ class FileManager:
 			return self.openDXF(path)
 		else:
 			return False
+
+	def saveSVG(self, drawing, filename, path = None):
+		if not(path): path = self.rootPath
+		
+		filename = re.sub(r"[^(a-zA-Z0-9\-_)]+", "_", filename)+".svg"	# make sure that only safe characters are used for filename
+		drawing.path = os.path.join(path, filename)
+		drawing.url = self.pathToURL(drawing.path)
+		drawing.saveSVG(drawing.path)

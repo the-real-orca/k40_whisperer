@@ -143,9 +143,9 @@ function handleMessage(data) {
 			viewModel.workspace.originOffset.x( data.workspace["originOffset"][0] )
 			viewModel.workspace.originOffset.y( data.workspace["originOffset"][1] )
 		}
-		if ( "drawingsOrigin" in data.workspace ) {
-			viewModel.workspace.drawingsOrigin.x( data.workspace["drawingsOrigin"][0] )
-			viewModel.workspace.drawingsOrigin.y( data.workspace["drawingsOrigin"][1] )
+		if ( "workspaceOrigin" in data.workspace ) {
+			viewModel.workspace.workspaceOrigin.x( data.workspace["workspaceOrigin"][0] )
+			viewModel.workspace.workspaceOrigin.y( data.workspace["workspaceOrigin"][1] )
 		}
 		if ( data.workspace.items instanceof Array ) {
 			viewModel.workspace.items.removeAll()
@@ -249,7 +249,7 @@ var viewModel = {
 			x: ko.observable(0),
 			y: ko.observable(0)
 		},
-		drawingsOrigin: {
+		workspaceOrigin: {
 			x: ko.observable(0),
 			y: ko.observable(0)
 		},
@@ -337,10 +337,20 @@ function init() {
 		deferUpdates: true
 	}
 	ko.applyBindings(viewModel)
-	$("#uploadFile").on("change", (el)=>{
+	$("#uploadFile").on("change", ()=>{
 		$("#uploadSubmit").click()
 	})
-
+	$("#dialog_itemsList").on("change", (event)=>{
+		if ( event.target.checked ) {
+			if ( viewModel.workspace.items().length == 1 ) {
+				// skip items list, if we have only one item
+				viewModel.selectedItem( viewModel.workspace.items()[0] )
+				$("#dialog_itemSettings").prop("checked", true);
+				$("#dialog_itemsList").prop("checked", false);
+			}
+		}
+	})
+	
 	// init Web Sockets
 	socket = io.connect()
 

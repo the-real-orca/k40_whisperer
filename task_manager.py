@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import design_utils as design
 
 class Task:
