@@ -59,28 +59,36 @@ class TaskManager:
 				# id not found
 				return
 		for task in tasks:
-			for i in range(task.repeat):
-				if task.type == Task.VECTOR:
-					self.runVectorTask(task)
-				else:
-					self.runRasterTask(task)
+			if task.type == Task.VECTOR:
+				self.runVectorTask(task)
+			else:
+				self.runRasterTask(task)
 
 	def runVectorTask(self, task):
-		# get polylines from all drawings in workspace and translate to laser coordinates
-		drawings = self.workspace.drawings
-		drawingPolylines = [ polyline.applyOffset(drawings[k].position) for k in drawings for polyline in drawings[k].polylines]
-		print("drawingPolylines", drawingPolylines)
+		# get polylines from all drawings in workspace and apply offset to drawing
+		drawings = self.workspace.getItems()
+		polylines = [ polyline.applyOffset(drawings[k].position) for k in drawings for polyline in drawings[k].polylines]
+		print("drawingPolylines", polylines)
 
 		# filter polylines by task color
 		print("task.colors",task.colors)
-		polylines = list(filter(lambda p: p.color in task.colors, drawingPolylines))
+		polylines = list(filter(lambda p: p.color in task.colors, polylines))
+		if len(polylines) == 0:
+			return
 
 		# connect segmented polylines and reorder from inner to outer
-		draw = design.Drawing(task.id, polylines)
+		print("optimize polylines", polylines)
+		draw = design.Drawing(polylines, name=task.name)
 		draw.optimize(ignoreColor=True)
-		draw.saveSVG("HTML/uploads/cut.svg")
 
-		# send polylines to laser
-		self.laser.processVector(draw.polylines, feedRate=task.speed) #TODO intensity
-
+		# to laser
+		for i in range(task.repeat):
+			print("home")
+			self.laser.home()
+			print("send to laser")
+			self.laser.processVector(draw.polylines, 
+				originX=-self.workspace.homePos[0],
+				originY=-self.workspace.homePos[1],
+				feedRate=task.speed) #TODO intensity
+	
 

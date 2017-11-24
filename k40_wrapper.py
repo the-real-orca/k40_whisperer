@@ -42,6 +42,8 @@ class LASER_CLASS:
 		self.x = False
 		self.y = False
 		self.nano = K40_CLASS()
+		self.nano.n_timeouts = 10
+		self.nano.timeout = 1000   # Time in milliseconds
 		self.board_name = board_name
 		self._stop_flag = [True]
 
@@ -152,6 +154,8 @@ class LASER_CLASS:
 
 	def processVector(self, polylines, feedRate, originX = 0, originY = 0, repeat = 1):
 		if not( self.isInit() ): return
+		print("processVector")
+		print(polylines)
 
 		# convert polylines to ecoords
 		ecoords=[]
@@ -160,7 +164,6 @@ class LASER_CLASS:
 			points = line.getPoints()
 			x = np.zeros((len(points), 3))
 			x[:,0:2] = points
-			x[:,1] = -x[:,1]
 			x[:,2] = loop
 			ecoords.extend(x.tolist())
 

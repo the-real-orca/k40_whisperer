@@ -3,8 +3,8 @@ import design_utils as design
 
 config = {
 		'workspace': {
-					'homePos': [-160,105],
-					'size': [320, 210]
+					'homePos': [-150,100],
+					'size': [300, 200]
 				},
 		'tasks': [
 					{'id': "engrave", "colors": [design.BLUE], "speed": 100, "type": Task.VECTOR},

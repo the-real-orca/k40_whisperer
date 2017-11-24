@@ -40,6 +40,9 @@ class Workspace:
 		del self._drawings[id]
 		self.update()
 
+	def getItems(self):
+		return self._drawings
+
 	def clear(self):
 		self._drawings.clear()
 		self.update()

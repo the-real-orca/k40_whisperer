@@ -98,9 +98,11 @@ class Drawing:
 	def __init__(self, polylines, name=None, position=[0,0]):
 		self.id = int(time.time()*10)
 		self.name = name
-		for line in polylines:
-			if not(isinstance(line, Polyline)):
-				raise Exception('polylines: type error')
+		if len(polylines) > 0:
+			for line in polylines:
+				print("line", line)
+				if not(isinstance(line, Polyline)):
+					raise Exception("TYPE ERROR should be: Polyline, is: " + line.__class__.__name__)
 		self.polylines = polylines
 		self.position = position
 		self._strokeWidth = 0.4
