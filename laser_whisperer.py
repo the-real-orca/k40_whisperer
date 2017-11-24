@@ -23,6 +23,7 @@ from werkzeug.utils import secure_filename
 # web server configuration
 HTML_FOLDER = 'HTML'
 UPLOAD_FOLDER = HTML_FOLDER + '/uploads'
+COMPUTED_FOLDER = HTML_FOLDER + '/computed'
 ALLOWED_EXTENSIONS = set(['dxf']) # TODO set(['svg', 'dxf', 'png', 'jpg', 'jpeg'])
 MAX_CONTENT_LENGTH = 64 * 1024 * 1024
 
@@ -68,7 +69,7 @@ def laser_thread():
 
 
 # init file manager
-filemanager = FileManager(rootPath = UPLOAD_FOLDER, webRootPath = HTML_FOLDER)
+filemanager = FileManager(rootPath = COMPUTED_FOLDER, webRootPath = HTML_FOLDER)
 
 # init workspace
 workspace = Workspace(filemanager = filemanager)

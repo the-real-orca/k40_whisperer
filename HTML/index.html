@@ -39,8 +39,7 @@
 	<!-- header -->
 	<div class="header">
 		<div class="title">
-			<!-- <img class="TODO logo" src="" alt="Logo"/> -->
-			<h1>Laser Whisperer</h1>
+			<h1><i class="icon-hazard-laser"></i> Laser Whisperer</h1>
 		</div>
 		<div class="status">
 			<span class="dangerous" data-bind="css: { ok: status.laser, error: alert.laser }"><i class="icon-laser"></i></span>
@@ -122,46 +121,46 @@
 					<table class="move">
 						<tr>
 							<td></td><td></td><td></td>
-							<td><button class="move toUp icon-move_fast" data-bind="click: move.bind($data, 0, $root.config.stepSize()*10 ), enable: status.usb"></button></td>
+							<td><button class="move" data-bind="click: move.bind($data, 0, $root.config.stepSize()*10 ), enable: status.usb"><i class="toUp icon-move_fast"></i></button></td>
 							<td></td><td></td><td></td>
 						</tr>
 						<tr>
 							<td></td><td></td><td></td>
-							<td><button class="move toUp icon-move_std" data-bind="click: move.bind($data, 0, $root.config.stepSize() ), enable: status.usb"></button></td>
+							<td><button class="move" data-bind="click: move.bind($data, 0, $root.config.stepSize() ), enable: status.usb"><i class="toUp icon-move_std"></i></button></td>
 							<td></td><td></td><td></td>
 						</tr>
 						<tr>
 							<td></td><td></td><td></td>
-							<td><button class="move toUp icon-move_slow" data-bind="click: move.bind($data, 0, $root.config.stepSize()/10 ), enable: status.usb"></button></td>
+							<td><button class="move" data-bind="click: move.bind($data, 0, $root.config.stepSize()/10 ), enable: status.usb"><i class="toUp icon-move_slow"></i></button></td>
 							<td></td><td></td><td></td>
 						</tr>
 						<tr>
-							<td><button class="move toLeft icon-move_fast" data-bind="click: move.bind($data, -$root.config.stepSize()*10, 0), enable: status.usb"></button></td>
-							<td><button class="move toLeft icon-move_std" data-bind="click: move.bind($data, -$root.config.stepSize(), 0), enable: status.usb"></button></td>
-							<td><button class="move toLeft icon-move_slow" data-bind="click: move.bind($data, -$root.config.stepSize()/10, 0), enable: status.usb"></button></td>
+							<td><button class="move" data-bind="click: move.bind($data, -$root.config.stepSize()*10, 0), enable: status.usb"><i class="toLeft icon-move_fast"></i></button></td>
+							<td><button class="move" data-bind="click: move.bind($data, -$root.config.stepSize(), 0), enable: status.usb"><i class="toLeft icon-move_std"></i></button></td>
+							<td><button class="move" data-bind="click: move.bind($data, -$root.config.stepSize()/10, 0), enable: status.usb"><i class="toLeft icon-move_slow"></i></button></td>
 							<td>
 								<label class="TODO anchorPos flat"><!-- center -->
 									<b>&#9587;</b>
 									<input type="radio" value="center" name="anchorPos" data-bind="checked: anchor"></input>
 								</label>
 							</td>
-							<td><button class="move toRight icon-move_slow" data-bind="click: move.bind($data, $root.config.stepSize()/10, 0), enable: status.usb"></button></td>
-							<td><button class="move toRight icon-move_std" data-bind="click: move.bind($data, $root.config.stepSize(), 0), enable: status.usb"></button></td>
-							<td><button class="move toRight icon-move_fast" data-bind="click: move.bind($data, $root.config.stepSize()*10, 0), enable: status.usb"></button></td>
+							<td><button class="move" data-bind="click: move.bind($data, $root.config.stepSize()/10, 0), enable: status.usb"><i class="toRight icon-move_slow"></i></button></td>
+							<td><button class="move" data-bind="click: move.bind($data, $root.config.stepSize(), 0), enable: status.usb"><i class="toRight icon-move_std"></i></button></td>
+							<td><button class="move" data-bind="click: move.bind($data, $root.config.stepSize()*10, 0), enable: status.usb"><i class="toRight icon-move_fast"></i></button></td>
 						</tr>
 						<tr>
 							<td></td><td></td><td></td>
-							<td><button class="move toDown icon-move_slow" data-bind="click: move.bind($data, 0, -$root.config.stepSize()/10 ), enable: status.usb"></button></td>
-							<td></td><td></td><td></td>
-						</tr>
-						<tr>
-							<td></td><td></td><td></td>
-							<td><button class="move toDown icon-move_std" data-bind="click: move.bind($data, 0, -$root.config.stepSize() ), enable: status.usb"></button></td>
+							<td><button class="move" data-bind="click: move.bind($data, 0, -$root.config.stepSize()/10 ), enable: status.usb"><i class="toDown icon-move_slow"></i></button></td>
 							<td></td><td></td><td></td>
 						</tr>
 						<tr>
 							<td></td><td></td><td></td>
-							<td><button class="move toDown icon-move_fast" data-bind="click: move.bind($data, 0, -$root.config.stepSize()*10 ), enable: status.usb"></button></td>
+							<td><button class="move" data-bind="click: move.bind($data, 0, -$root.config.stepSize() ), enable: status.usb"><i class="toDown icon-move_std"></i></button></td>
+							<td></td><td></td><td></td>
+						</tr>
+						<tr>
+							<td></td><td></td><td></td>
+							<td><button class="move" data-bind="click: move.bind($data, 0, -$root.config.stepSize()*10 ), enable: status.usb"><i class="toDown icon-move_fast"></i></button></td>
 							<td></td><td></td><td></td>
 						</tr>
 					</table>
@@ -209,7 +208,7 @@
 							<td>
 								<label for="dialog_taskSettings" class="gray button icon-sliders" data-bind="click: ()=>{$root.selectedTask($data);return true}"></label>
 							</td>
-							<td class="remove"><button class="gray icon-play" data-bind="click: ()=>{taskRun($data.id())}, enable: status.usb"></button></td>
+							<td class="remove"><button class="gray icon-play" data-bind="click: ()=>{taskRun($data.id())}, enable: $root.status.usb"></button></td>
 						</tr>
 					</tbody></table>
 				</div>

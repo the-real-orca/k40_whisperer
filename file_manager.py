@@ -1,4 +1,5 @@
 import os
+from distutils.dir_util import mkpath
 import re
 from dxf import DXF_CLASS
 import svgutils.transform as sg
@@ -94,6 +95,7 @@ class FileManager:
 
 		# save generated SVG files
 		filename = re.sub(r"[^(a-zA-Z0-9\-_)]+", "_", filename)+".svg"	# make sure that only safe characters are used for filename
+		mkpath(path)
 		drawing.path = os.path.join(path, filename)
 		drawing.url = self.pathToURL(drawing.path)
 		svg.save(drawing.path)

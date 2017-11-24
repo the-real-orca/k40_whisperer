@@ -99,14 +99,12 @@ class Workspace:
 		# color
 		color = params.get('color', None)
 		if color and color != design.COLOR_MIXED:
-			for id in self._drawings:
-				item = self._drawings[id]
-				for line in item.polylines:
-					if line.color != color:
-						line.color = color
-						line.update()
-						changed = True
-				item.update()
+			for line in drawing.polylines:
+				if line.color != color:
+					line.color = color
+					line.update()
+					changed = True
+			drawing.update()
 				
 		# update drawing and workspace
 		if changed:
