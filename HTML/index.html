@@ -90,9 +90,9 @@
 						<defs><clipPath id="clip"><use xlink:href="#canvasRect"/></clipPath></defs>
 		
 						<g clip-path="url(#clip)">
-							<use href="images/origin.svg#origin" data-bind="attr: {x: workspace.workspaceOrigin.x, y: workspace.workspaceOrigin.y}"></use>
+							<use href="images/origin.svg#origin" data-bind="attr: {x: toX( workspace.workspaceOrigin.x ), y: toY( workspace.workspaceOrigin.y )}"></use>
 							<g data-bind="foreach: workspace.items">
-								<use data-bind="attr: {href: url()+'#root', x: $root.workspace.workspaceOrigin.x() + x(), y: $root.workspace.workspaceOrigin.y() - y()}"></use>
+								<use data-bind="attr: {href: url()+'#root', x: workX( x ), y: workY( y )}"></use>
 							</g>
 						</g>
 					</svg>
@@ -272,7 +272,7 @@
 						<button class="icon-folder-open" data-bind="click: uploadFile"> Open</button>
 					</div>
 					<div class="right">
-						<label for="dialog_itemsList" class="button">Close</label>
+						<label for="dialog_itemsList" class="button icon-logout"> Exit</label>
 					</div>
 				</div>			
 			</footer>
@@ -293,6 +293,21 @@
 							<td><input type="number" data-bind="numericValue: y"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
 						</tr>
 						
+						<tr>
+							<td class="parameter">align</td>
+							<td colspan="3">
+								<button data-bind="click: alignToLeft"><i class="icon-to-end toLeft"></i></button>
+								<button data-bind="click: alignToRight"><i class="icon-to-end toRight"></i></button>
+								<button data-bind="click: alignToOrigin"><i class="icon-crosshairs-gps"></i></button>
+								<button data-bind="click: alignToTop"><i class="icon-to-end toUp"></i></button>
+								<button data-bind="click: alignToBottom"><i class="icon-to-end toDown"></i></button>
+								<!--
+								<i class="spacing"></i>
+								<button><i class="icon-resize-horizontal"></i><i class="icon-ellipsis-horizontal"></i></button>
+								<button><i class="icon-resize-vertical"></i><i class="icon-ellipsis-vertical"></i></button>
+								-->
+							</td>
+						</tr>
 						<tr>
 							<td class="parameter">color</td>
 							<td colspan="3">

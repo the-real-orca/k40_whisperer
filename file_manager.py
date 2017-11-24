@@ -1,6 +1,8 @@
 import os
 import re
 from dxf import DXF_CLASS
+import svgutils.transform as sg
+from lxml import etree
 import design_utils as design
 
 
@@ -54,7 +56,6 @@ class FileManager:
 		# create drawings object
 		name = os.path.basename(path).replace("_", " ")
 		drawing = design.Drawing(polylines, name=name)
-		drawing.flipY()	# DXF import is mirrored around the x-axis -> invert Y coordinates
 		drawing.combineLines()
 
 		return drawing, path
@@ -71,7 +72,30 @@ class FileManager:
 	def saveSVG(self, drawing, filename, path = None):
 		if not(path): path = self.rootPath
 		
+		# compute canvas size
+		[xMin, yMin, width, height], strokeWidth = drawing.getViewBox()
+
+		# create SVG
+		svg = sg.SVGFigure(str(width)+"mm", str(height)+"mm")
+		svg.root.set("viewBox", "%s %s %s %s" % (xMin, yMin, width, height))
+		svgLines = []
+		for line in drawing.polylines:
+			# custom path creation
+			points = " ".join(map(lambda x: "{},-{}".format(*x), line.getPoints()))
+			linedata = etree.Element(sg.SVG+"polyline", {
+								   "points": points,
+								   "stroke-width": str(strokeWidth),
+								   "stroke-linecap": "square",
+								   "stroke": line.color,
+								   "fill": "none"})
+			svgLines.append( sg.FigureElement(linedata) )
+		g = sg.GroupElement(svgLines, {'id': "root"})
+		svg.append(g)
+
+		# save generated SVG files
 		filename = re.sub(r"[^(a-zA-Z0-9\-_)]+", "_", filename)+".svg"	# make sure that only safe characters are used for filename
 		drawing.path = os.path.join(path, filename)
 		drawing.url = self.pathToURL(drawing.path)
-		drawing.saveSVG(drawing.path)
+		svg.save(drawing.path)
+
+		

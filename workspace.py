@@ -14,10 +14,10 @@ def urlForceReload(url):
 
 
 class Workspace:
-	def __init__(self, width=100, height=100, originOffset=[0,0], filemanager = None):
+	def __init__(self, width=100, height=100, homePos=[0,0], filemanager = None):
 		self._drawings = dict()
 		self.size = [width, height]
-		self.originOffset = originOffset
+		self.homePos = homePos
 		self.filemanager = filemanager
 		self.update()
 
@@ -46,14 +46,17 @@ class Workspace:
 
 	def toJson(self):
 		json = {
-			"size": self.size,
-			"originOffset": self.originOffset,
+			"width": self.size[0],
+			"height": self.size[1],
+			"homePos": self.homePos,
 			"workspaceOrigin": self.workspaceOrigin,
+			"viewBox": [-self.workspaceOrigin[0], -self.workspaceOrigin[1], self.size[0], self.size[1]],
 			"items": []
 
 		}
 		for id in self._drawings:
 			item = self._drawings[id]
+			viewBox = item
 			itemJson = {
 				"id": item.id,
 				"name": item.name,
@@ -61,6 +64,7 @@ class Workspace:
 				"y": item.position[1],
 				"width": item.size[0],
 				"height": item.size[1],
+				"viewBox": item.getViewBox(0)[0],
 				"url": item.url
 			}
 			colors = map(lambda x: x.color, item.polylines)

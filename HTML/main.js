@@ -90,6 +90,57 @@ function workspaceRemoveItem(id) {
 	send('workspace.remove', id)
 	return true
 }
+function toX(x) {
+	x = ko.unwrap(x)
+	return x;
+}
+function toY(y) {
+	y = ko.unwrap(y)
+	return viewModel.workspace.height() - y;
+}
+function workX(x) {
+	x = ko.unwrap(x)
+	return toX(viewModel.workspace.workspaceOrigin.x() + x);
+}
+function workY(y) {
+	y = ko.unwrap(y)
+	return toY(viewModel.workspace.workspaceOrigin.y() + y);
+}
+
+function alignToOrigin() {
+	var item = viewModel.selectedItem()
+	item.x(0); item.y(0)
+}
+
+function alignToTop() {
+	var item = viewModel.selectedItem()
+	var delta = item.viewBox()[3] + item.viewBox()[1]
+	var box = viewModel.workspace.viewBox()
+	item.y(box[3] + box[1] - delta)
+}
+
+function alignToLeft() {
+	var item = viewModel.selectedItem()
+	var box = viewModel.workspace.viewBox()
+	item.x(box[0] - item.viewBox()[0])
+}
+
+function alignToBottom() {
+	var item = viewModel.selectedItem()
+	var box = viewModel.workspace.viewBox()
+	item.y(box[1] - item.viewBox()[1])
+}
+
+function alignToRight() {
+	var item = viewModel.selectedItem()
+	var delta = item.viewBox()[2] + item.viewBox()[0]
+	var box = viewModel.workspace.viewBox()
+	item.x(box[2] + box[0] - delta)
+}
+
+
+
+
 
 // communication
 var socket = undefined
@@ -135,18 +186,21 @@ function handleMessage(data) {
 
 	// update workspace
 	if ( typeof data.workspace == "object" ) {
-		if ( "size" in data.workspace ) {
-			viewModel.workspace.width( data.workspace["size"][0] )
-			viewModel.workspace.height( data.workspace["size"][1] )
-		}
-		if ( "originOffset" in data.workspace ) {
-			viewModel.workspace.originOffset.x( data.workspace["originOffset"][0] )
-			viewModel.workspace.originOffset.y( data.workspace["originOffset"][1] )
+		if ( "width" in data.workspace )
+			viewModel.workspace.width( data.workspace["width"] )
+		if ( "height" in data.workspace )
+			viewModel.workspace.height( data.workspace["height"] )
+		if ( "homePos" in data.workspace ) {
+			viewModel.workspace.homePos.x( data.workspace["homePos"][0] )
+			viewModel.workspace.homePos.y( data.workspace["homePos"][1] )
 		}
 		if ( "workspaceOrigin" in data.workspace ) {
 			viewModel.workspace.workspaceOrigin.x( data.workspace["workspaceOrigin"][0] )
 			viewModel.workspace.workspaceOrigin.y( data.workspace["workspaceOrigin"][1] )
 		}
+		if ( "viewBox" in data.workspace )
+			viewModel.workspace.viewBox( data.workspace["viewBox"] )
+		
 		if ( data.workspace.items instanceof Array ) {
 			viewModel.workspace.items.removeAll()
 			for ( var i = 0; i < data.workspace.items.length; i++ ) {
@@ -245,7 +299,7 @@ var viewModel = {
 	workspace: {
 		width: ko.observable(100),
 		height: ko.observable(100),
-		originOffset: {
+		homePos: {
 			x: ko.observable(0),
 			y: ko.observable(0)
 		},
@@ -253,6 +307,7 @@ var viewModel = {
 			x: ko.observable(0),
 			y: ko.observable(0)
 		},
+		viewBox: ko.observable([0,0,0,0]),
 		items: ko.observableArray()
 	},
 	pos: {

@@ -531,14 +531,21 @@ button.move, .button.move  {
 
 .toUp {
 	transform: rotate(-90deg);
+	display: inline-block;
 }
 
 .toDown {
 	transform: rotate(90deg);
+	display: inline-block;
 }
 
 .toLeft {
 	transform: rotate(180deg);
+	display: inline-block;
+}
+
+.toRight {
+	display: inline-block;
 }
 
 .anchorPos  {
@@ -611,7 +618,6 @@ button.move, .button.move  {
 	margin: 0.5em 1em;
 	width: 95%;
 	font-size: 110%;
-
 	font-weight: bold;
 }
 
@@ -621,7 +627,7 @@ button.move, .button.move  {
 	display: inline-block;
 }
 
-.settings .typeSelect {
+.settings td button, .settings td label {
 	margin-right: 1.5em;
 }
 

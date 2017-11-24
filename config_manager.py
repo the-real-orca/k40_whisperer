@@ -3,7 +3,7 @@ import design_utils as design
 
 config = {
 		'workspace': {
-					'originOffset': [0,0],
+					'homePos': [-160,105],
 					'size': [320, 210]
 				},
 		'tasks': [
@@ -22,7 +22,7 @@ def configTasks(taskmanager):
 
 def configWorkspace(workspace):
 	try:
-		workspace.originOffset = config['workspace']['originOffset']
+		workspace.homePos = config['workspace']['homePos']
 		workspace.size = config['workspace']['size']
 		workspace.update()
 	except:

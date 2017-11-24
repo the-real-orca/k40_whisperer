@@ -1,8 +1,7 @@
 import time
 import numpy as np
 import matplotlib.path as path
-import svgutils.transform as sg
-from lxml import etree
+
 
 
 BLACK = "black"      #(0, 0, 0)
@@ -136,31 +135,6 @@ class Drawing:
 	def flipY(self):
 		for line in self.polylines:
 			line.flipY()
-		return self
-
-	def saveSVG(self, filePath):
-		# compute canvas size
-		[xMin, yMin, width, height], strokeWidth = self.getViewBox()
-
-		# create SVG
-		svg = sg.SVGFigure(str(width)+"mm", str(height)+"mm")
-		svg.root.set("viewBox", "%s %s %s %s" % (xMin, yMin, width, height))
-		svgLines = []
-		for line in self.polylines:
-			# custom path creation
-			points = " ".join(map(lambda x: "{},{}".format(*x), line.getPoints()))
-			linedata = etree.Element(sg.SVG+"polyline", {
-								   "points": points,
-								   "stroke-width": str(strokeWidth),
-								   "stroke-linecap": "square",
-								   "stroke": line.color,
-								   "fill": "none"})
-			svgLines.append( sg.FigureElement(linedata) )
-		g = sg.GroupElement(svgLines, {'id': "root"})
-		svg.append(g)
-
-		# save generated SVG files
-		svg.save(filePath)
 		return self
 
 	def optimize(self, ignoreColor=False):
