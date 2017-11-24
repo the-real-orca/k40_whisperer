@@ -7,9 +7,6 @@ import time
 import thread
 from distutils.dir_util import mkpath
 
-# import laser communication
-import k40_wrapper
-
 # import application tools
 from config_manager import *
 import design_utils as design
@@ -44,7 +41,7 @@ socketio = SocketIO(app)
 seqNr = 1
 
 # init laser
-laser = k40_wrapper.LASER_CLASS()
+laser = configLaser()
 
 # setup periodic laser check
 def laser_thread():
