@@ -33,6 +33,12 @@ class Polyline:
 
 	def update(self):
 		pass
+
+	def getPoint(self, index):
+		if index >= len(self._points):
+			return [0,0]
+		else:
+			return self._points[index]
 		
 	def getPoints(self):
 		return self._points
@@ -186,7 +192,10 @@ class Drawing:
 
 		if len(self.polylines) < 2:
 			return self.polylines
-
+		
+		# sort polylines by X coordinate of start point
+		self.polylines = sorted(self.polylines, key=lambda line: line.getPoint(0)[0])
+			
 		print("build polyline tree +++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 		baseGroup = []
 		for polyline in self.polylines:
