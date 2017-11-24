@@ -108,7 +108,7 @@ class Workspace:
 		# update drawing and workspace
 		if changed:
 			drawing.update()
-			drawing.saveSVG(drawing.path)
+			self.filemanager.saveSVG(drawing, drawing.path)
 			drawing.url = urlForceReload(drawing.url)
 			self.update()
 				
