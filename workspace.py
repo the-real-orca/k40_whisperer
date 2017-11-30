@@ -72,7 +72,7 @@ class Workspace:
 			}
 			colors = map(lambda x: x.color, item.polylines)
 			if len(set(colors)) == 1:
-				itemJson['color'] = colors[0]
+				itemJson['color'] = item.polylines[0].color
 			else:
 				itemJson['color'] = COLOR_MIXED
 			json["items"].append(itemJson)

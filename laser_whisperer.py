@@ -4,7 +4,6 @@
 import sys
 import os
 import time
-import thread
 from distutils.dir_util import mkpath
 
 # import application tools
@@ -13,7 +12,6 @@ import design_utils as design
 from task_manager import TaskManager, Task
 from file_manager import FileManager
 from workspace import Workspace
-from svg_reader import SVG_READER
 
 # import web framework
 from flask import g, Flask, request, redirect, url_for
@@ -158,33 +156,38 @@ def handleData(data):
 		seqNr += 1
 
 		# handle command
-		if "cmd" in data:
-			commands = {
-				"status": NullFunc,
-				"init": laser.init,
-				"release": laser.release,
-				"home": laser.home,
-				"unlock": laser.unlock,
-				"stop": laser.stop,
-				"move": lambda params: laser.move( float(params.get("dx",0)), float(params.get("dy",0)) ),
-				"moveTo": lambda params: laser.moveTo( float(params.get("dx",0)), float(params.get("dy",0)) ),
-				"workspace.clear": workspace.clear,
-				"workspace.remove": workspace.remove,
-				"item.set": workspace.setParams,
-				"task.set": taskmanager.setParams,
-				"task.run": taskmanager.run
-			}
-			try:
-				# execute command
-				cmdName = str(data.get("cmd")).lower()
-				params = data.get("params", None)
-				print(cmdName, params)
-				if params is None:
-					commands[cmdName]()
-				else:
-					commands[cmdName](params)
-			except Exception as e:
-				print("Exception", e)
+		commands = {
+			"status": NullFunc,
+			"init": laser.init,
+			"release": laser.release,
+			"home": laser.home,
+			"unlock": laser.unlock,
+			"stop": laser.stop,
+			"move": lambda params: laser.move( float(params.get("dx",0)), float(params.get("dy",0)) ),
+			"moveTo": lambda params: laser.moveTo( float(params.get("dx",0)), float(params.get("dy",0)) ),
+			"workspace.clear": workspace.clear,
+			"workspace.remove": workspace.remove,
+			"item.set": workspace.setParams,
+			"task.set": taskmanager.setParams,
+			"task.run": taskmanager.run
+		}
+		if "multiple" in data:
+			cmdList = data.get("multiple", [])
+		else:
+			cmdList = [data]
+		for cmd in cmdList:
+			if "cmd" in cmd:
+				try:
+					# execute command
+					cmdName = str(cmd.get("cmd")).lower()
+					params = cmd.get("params", None)
+					print(cmdName, params)
+					if params is None:
+						commands[cmdName]()
+					else:
+						commands[cmdName](params)
+				except Exception as e:
+					print("Exception", e)
 	finally:
 		# send status
 		sendStatus()

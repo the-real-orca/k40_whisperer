@@ -1,4 +1,8 @@
 
+function clone(obj) {
+	return JSON.parse(JSON.stringify(obj));
+}
+
 ko.observableArray.fn.pushAll = function(valuesToPush) {
     var underlyingArray = this()
     this.valueWillMutate()
@@ -64,10 +68,80 @@ function unlock() {
 	send('unlock')
 	return true
 }
-function itemSaveParams() {
-	var params = ko.mapping.toJS(viewModel.selectedItem);
-	send('item.set', params)
+
+function itemUpdateSelected(item, selected) {		
+	selected.names.push( item.name() )
+	
+	if ( selected.x() === null )
+		selected.x( item.x() )
+	else if ( selected.x() != item.x() )
+		selected.x( undefined )
+	
+	if ( selected.y() === null )
+		selected.y( item.y() )
+	else if ( selected.y() != item.y() )
+		selected.y( undefined )
+	
+	if ( selected.width() === null )
+		selected.width( item.width() )
+	else if ( selected.width() != item.width() )
+		selected.width( undefined )
+		
+	if ( selected.height() === null )
+		selected.height( item.height() )
+	else if ( selected.height() != item.height() )
+		selected.height( undefined )
+		
+	if ( selected.viewBox() === null )
+		selected.viewBox( item.viewBox() )
+	else if ( selected.viewBox() != item.viewBox() )
+		selected.viewBox( undefined )
+		
+	if ( selected.color() === null )
+		selected.color( item.color() )
+	else if ( selected.color() != item.color() )
+		selected.color( undefined )
+}
+function itemOpenParams(index=undefined) {
+	var selected = viewModel.selectedItem;
+	selected.names.removeAll()
+	selected.x(null)
+	selected.y(null)
+	selected.width(null)
+	selected.height(null)
+	selected.viewBox(null)
+	selected.color(null)	
+
+	if ( index !== undefined ) {
+		itemUpdateSelected(viewModel.workspace.items()[index], selected)
+		return true
+	}
+		
+	for (var i=0; i < viewModel.workspace.items(); i++) {
+		var item = viewModel.workspace.items()[i]
+		if ( item.selected() ) {
+			itemUpdateSelected(item, selected)
+		}
+	}
+	
 	return true
+}
+function itemSaveParams() {
+	var selected = viewModel.selectedItem
+	var params = ko.mapping.toJS(viewModel.selectedItem)
+	params.names = undefined
+	cmds = []
+	for (var i in viewModel.workspace.items()) {
+		var item = viewModel.workspace.items()[i]
+		if ( item.selected() ) {
+			params.id = item.id()
+			params.name = item.name()
+			cmds.push( prepareCommand('item.set', clone(params)) )
+		}
+	}
+	send(cmds)
+	
+	return true	
 }
 function taskRunAll() {
 	send('task.run')
@@ -112,6 +186,22 @@ function alignToOrigin() {
 	item.x(0); item.y(0)
 }
 
+function alignAboveOfAxis() {
+	item.y(-item.viewBox()[3])
+}
+
+function alignUnderOfAxis() {
+	item.y(0)
+}
+
+function alignLeftOfAxis() {
+	item.x(-item.viewBox()[2])
+}
+
+function alignRightOfAxis() {
+	item.x(0)
+}
+
 function alignToTop() {
 	var item = viewModel.selectedItem()
 	var delta = item.viewBox()[3] + item.viewBox()[1]
@@ -140,15 +230,24 @@ function alignToRight() {
 
 
 
-
-
 // communication
 var socket = undefined
-function send(cmd, params) {
-	if ( !socket || viewModel.instable ) return
-	data = {cmd: cmd}
+function prepareCommand(cmd, params) {
+	var data = {cmd: cmd}
 	if ( params !== undefined )
 		data.params = params
+	return(data)
+}
+function send(cmd, params) {
+	if ( !socket || viewModel.instable ) return
+	var data
+	if ( cmd instanceof Array ) {
+		data = {
+			multiple: cmd
+		}
+	} else {
+		data = prepareCommand(cmd, params)
+	}	
 	data.seqNr = viewModel.seqNr
 	console.log("sending ...", data)
 	socket.send(data)
@@ -202,10 +301,17 @@ function handleMessage(data) {
 			viewModel.workspace.viewBox( data.workspace["viewBox"] )
 		
 		if ( data.workspace.items instanceof Array ) {
+			var selectedIDs = {}
+			for ( var i = 0; i < viewModel.workspace.items().length; i++ ) {
+				var item = viewModel.workspace.items()[i]
+				selectedIDs[item.id()] = item.selected() 
+			}
 			viewModel.workspace.items.removeAll()
 			for ( var i = 0; i < data.workspace.items.length; i++ ) {
 				var json = data.workspace.items[i]
-				var item = {}
+				var item = {
+					selected:ko.observable( selectedIDs[json.id] )
+				}
 				for ( var key in json )
 					item[key] = ko.observable(json[key])
 				viewModel.workspace.items.push(item)
@@ -318,7 +424,15 @@ var viewModel = {
 	anchor: ko.observable('upperLeft'),
 	tasks: ko.observableArray(),
 	selectedTask: ko.observable(),
-	selectedItem: ko.observable(),
+	selectedItem: {
+		names: ko.observableArray(),
+		x: ko.observable(),
+		y: ko.observable(),
+		width: ko.observable(),
+		height: ko.observable(),
+		viewBox: ko.observable(),
+		color: ko.observable()		
+	},
 	dialog: {
 		fullscreen: ko.observable(false)
 	},
@@ -399,7 +513,7 @@ function init() {
 		if ( event.target.checked ) {
 			if ( viewModel.workspace.items().length == 1 ) {
 				// skip items list, if we have only one item
-				viewModel.selectedItem( viewModel.workspace.items()[0] )
+				// TODO viewModel.selectedItem( viewModel.workspace.items()[0] )
 				$("#dialog_itemSettings").prop("checked", true);
 				$("#dialog_itemsList").prop("checked", false);
 			}

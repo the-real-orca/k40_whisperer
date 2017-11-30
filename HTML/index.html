@@ -111,8 +111,7 @@
 			</div>
 		</div>
 
-
-		<!-- Position -->
+		<!-- Position Origin -->
 		<input id="Position" name="mainTabsGroup" type="radio"/>
 		<label class="title" for="Position"><i class="icon-move"></i></label>
 		<div class="content center">
@@ -218,15 +217,8 @@
 			</div>
 		</div>
 	</div>
-
-	<!--
-	<div id="menu">
-		<button class="flat gray icon-resize-full" data-bind="click: fullscreen"></button>
-	</div>
-	-->
 	
 	<!-- ------------------------------------------------------------------------------ -->
-
 	<!-- fullscreen dialog -->
 	<div class="modal">
 		<input id="dialog_fullscreen" type="checkbox" data-bind="checked: dialog.fullscreen" />
@@ -254,12 +246,15 @@
 			<section class="content">
 				<table class=""><tbody data-bind="foreach: workspace.items">
 					<tr>
-						<td class="index right"><span data-bind="text: $index()+1"></span></td>
-						<td class="name">
-							<label for="dialog_itemSettings" data-bind="text: name, click: ()=>{$root.selectedItem($data);return true}"></label>
+						<td>
+							<label>
+								<input type="checkbox" name="selected" data-bind="checked: selected"/><span class="checkable"></span>
+								<span class="index" data-bind="text: $index()+1"></span>
+								<span data-bind="text: name"></span>
+							</label>
 						</td>
 						<td>
-							<label for="dialog_itemSettings" class="gray button icon-sliders" data-bind="click: ()=>{$root.selectedItem($data);return true}"></label>
+							<label for="dialog_itemSettings" class="gray button icon-sliders" data-bind="click: ()=>{return itemOpenParams($index())}"></label>
 						</td>
 						<td class="remove"><button class="error icon-trash" data-bind="click: ()=>{workspaceRemoveItem($data.id())}"></button></td>
 					</tr>
@@ -268,9 +263,12 @@
 			<footer>
 				<div class="flex two">
 					<div>
-						<button class="icon-folder-open" data-bind="click: uploadFile"> Open</button>
+						<label ><input type="checkbox" name="all"/><span class="checkable">all/none</span></label>
+						<span class="spacer"></span>
+						<label for="dialog_itemSettings" class="button icon-sliders" data-bind="click: ()=>{return itemOpenParams()}"></label>
 					</div>
 					<div class="right">
+						<button class="icon-folder-open" data-bind="click: uploadFile"> Open</button>
 						<label for="dialog_itemsList" class="button icon-logout"> Exit</label>
 					</div>
 				</div>			
@@ -295,11 +293,11 @@
 						<tr>
 							<td class="parameter">align</td>
 							<td colspan="3">
-								<button data-bind="click: alignToLeft"><i class="icon-to-end toLeft"></i></button>
-								<button data-bind="click: alignToRight"><i class="icon-to-end toRight"></i></button>
+								<button data-bind="click: alignRightOfAxis"><i class="icon-to-end toLeft"></i></button>
+								<button data-bind="click: alignLeftOfAxis"><i class="icon-to-end toRight"></i></button>
 								<button data-bind="click: alignToOrigin"><i class="icon-crosshairs-gps"></i></button>
-								<button data-bind="click: alignToTop"><i class="icon-to-end toUp"></i></button>
-								<button data-bind="click: alignToBottom"><i class="icon-to-end toDown"></i></button>
+								<button data-bind="click: alignAboveOfAxis"><i class="icon-to-end toUp"></i></button>
+								<button data-bind="click: alignUnderOfAxis"><i class="icon-to-end toDown"></i></button>
 								<!--
 								<i class="spacing"></i>
 								<button><i class="icon-resize-horizontal"></i><i class="icon-ellipsis-horizontal"></i></button>
@@ -341,12 +339,12 @@
 							</td>
 						</tr>
 					</table>
-<!--
 					<label>
-						<input type="checkbox" checked /><span class="checkable parameter">message before task</span>
+<!--					
+						<input type="checkbox" /><span class="checkable parameter">message before task</span>
+-->						
 					</label>
 					<textarea class="" placeholder="Task Message ..."></textarea>
--->					
 				</form>
 			</section>
 			<footer>
