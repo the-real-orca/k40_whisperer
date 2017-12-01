@@ -20,7 +20,11 @@ ko.bindingHandlers.numericValue = {
 	update: function(element, valueAccessor, allBindingsAccessor) {
 		var value = parseFloat(ko.utils.unwrapObservable(valueAccessor()))
 		var precision = ko.utils.unwrapObservable(allBindingsAccessor().precision) || ko.bindingHandlers.numericValue.defaultPrecision
-		element.value = value.toFixed(precision)
+		try {
+			element.value = value.toFixed(precision)
+		} catch (e) {
+			element.value = false;
+		}
 	},
 	defaultPrecision: 2
 };
@@ -112,13 +116,10 @@ function itemOpenParams(index=undefined) {
 	selected.viewBox(null)
 	selected.color(null)	
 
-	if ( index !== undefined ) {
-		itemUpdateSelected(viewModel.workspace.items()[index], selected)
-		return true
-	}
-		
-	for (var i=0; i < viewModel.workspace.items(); i++) {
+	for (var i=0; i < viewModel.workspace.items().length; i++) {
 		var item = viewModel.workspace.items()[i]
+		if ( index !== undefined )
+			item.selected(index==i)
 		if ( item.selected() ) {
 			itemUpdateSelected(item, selected)
 		}
@@ -306,12 +307,15 @@ function handleMessage(data) {
 				var item = viewModel.workspace.items()[i]
 				selectedIDs[item.id()] = item.selected() 
 			}
+			selectedCount=0
 			viewModel.workspace.items.removeAll()
 			for ( var i = 0; i < data.workspace.items.length; i++ ) {
 				var json = data.workspace.items[i]
 				var item = {
 					selected:ko.observable( selectedIDs[json.id] )
 				}
+				if ( item.selected() )
+					selectedCount++
 				for ( var key in json )
 					item[key] = ko.observable(json[key])
 				viewModel.workspace.items.push(item)
@@ -383,7 +387,10 @@ var viewModel = {
 		airassist: ko.observable(0),
 		waterTemp: ko.observable(0),
 		waterFlow: ko.observable(0),
-		network: ko.observable(false)
+		network: ko.observable(false),
+		networkIcon: ko.pureComputed(function() {
+			return viewModel.status.network() ? "icon-lan-connect" : "icon-lan-disconnect";
+		})		
 	},
 	alert: {
 		laser: ko.observable(false),
@@ -433,6 +440,24 @@ var viewModel = {
 		viewBox: ko.observable(),
 		color: ko.observable()		
 	},
+	selectedItemsAll: ko.pureComputed({
+		read: function() {
+			selectedCount=0
+			for ( var i = 0; i < viewModel.workspace.items().length; i++ ) {
+				var item = viewModel.workspace.items()[i]
+				if ( item.selected() )
+					selectedCount++
+			}
+			return ( selectedCount == viewModel.workspace.items().length )
+		},
+		write: function(val) {
+			for ( var i = 0; i < viewModel.workspace.items().length; i++ ) {
+				var item = viewModel.workspace.items()[i]
+				item.selected(val)
+			}			
+		},
+		owner: this
+	}),
 	dialog: {
 		fullscreen: ko.observable(false)
 	},
@@ -443,12 +468,9 @@ var viewModel = {
 viewModel.continue = function() {
 	viewModel.wait(false)
 }
-viewModel.status.networkIcon = ko.pureComputed(function() {
-	return this.status.network() ? "icon-lan-connect" : "icon-lan-disconnect";
-}, viewModel);
 viewModel.anchor.subscribe(function (val) {
-		send('anchor', val)
-    }, this)
+	send('anchor', val)
+}, this)
 viewModel.pos.x.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
 viewModel.pos.y.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
 viewModel.workspace.items.extend({ rateLimit: 100 });

@@ -263,7 +263,8 @@
 			<footer>
 				<div class="flex two">
 					<div>
-						<label ><input type="checkbox" name="all"/><span class="checkable">all/none</span></label>
+						<label ><input type="checkbox"  data-bind="checked: selectedItemsAll"/><span class="checkable">all</span></label>
+						
 						<span class="spacer"></span>
 						<label for="dialog_itemSettings" class="button icon-sliders" data-bind="click: ()=>{return itemOpenParams()}"></label>
 					</div>
