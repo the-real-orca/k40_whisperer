@@ -82,6 +82,10 @@ form table {
 form tr {
 	background: none !important;
 }
+form td {
+	width: auto;
+	padding: 0.3em 0em;
+}
 form td.parameter {
 	width: auto;
 	padding: 0.5em 1em;
@@ -619,6 +623,21 @@ button.move, .button.move  {
 	width: 95%;
 	font-size: 110%;
 	font-weight: bold;
+}
+.settings .toggleSwitch {
+	margin: 0 1em;
+}
+
+.settings .toggleSwitch *[class*="icon-toggle-"] {
+    vertical-align: middle;
+    font-size: 150%;
+}
+
+.settings .abs {
+}
+
+.settings .rel {
+	font-style: italic;
 }
 
 .settings .colorSelect {

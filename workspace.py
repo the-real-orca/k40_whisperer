@@ -68,6 +68,7 @@ class Workspace:
 				"width": item.size[0],
 				"height": item.size[1],
 				"viewBox": item.getViewBox(0)[0],
+				"boundingBox": item.getBoundingBox(),
 				"url": item.url
 			}
 			colors = map(lambda x: x.color, item.polylines)
@@ -91,7 +92,9 @@ class Workspace:
 		changed = False
 		
 		# position
-		pos = [float(params.get('x', 0)), float(params.get('y', 0))]
+		x = params.get('x', drawing.position[0]); y = params.get('y', drawing.position[1])
+		dx = params.get('dx', 0); dy = params.get('dy', 0)
+		pos = [float(x) + float(dx), float(y) + float(dy)]
 		if drawing.position != pos:
 			drawing.position = pos
 			changed = True

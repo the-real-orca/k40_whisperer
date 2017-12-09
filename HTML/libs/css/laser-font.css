@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'laser-font';
-  src: url('../font/laser-font.eot?8204919');
-  src: url('../font/laser-font.eot?8204919#iefix') format('embedded-opentype'),
-       url('../font/laser-font.woff2?8204919') format('woff2'),
-       url('../font/laser-font.woff?8204919') format('woff'),
-       url('../font/laser-font.ttf?8204919') format('truetype'),
-       url('../font/laser-font.svg?8204919#laser-font') format('svg');
+  src: url('../font/laser-font.eot?16796878');
+  src: url('../font/laser-font.eot?16796878#iefix') format('embedded-opentype'),
+       url('../font/laser-font.woff2?16796878') format('woff2'),
+       url('../font/laser-font.woff?16796878') format('woff'),
+       url('../font/laser-font.ttf?16796878') format('truetype'),
+       url('../font/laser-font.svg?16796878#laser-font') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -15,7 +15,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'laser-font';
-    src: url('../font/laser-font.svg?8204919#laser-font') format('svg');
+    src: url('../font/laser-font.svg?16796878#laser-font') format('svg');
   }
 }
 */
@@ -117,9 +117,16 @@
 .icon-plus:before { content: '\e83b'; } /* '' */
 .icon-zoom-in:before { content: '\e83c'; } /* '' */
 .icon-zoom-out:before { content: '\e83d'; } /* '' */
+.icon-align-bottom:before { content: '\e83e'; } /* '' */
+.icon-align-top:before { content: '\e83f'; } /* '' */
 .icon-resize-horizontal:before { content: '\e840'; } /* '' */
 .icon-resize-vertical:before { content: '\e841'; } /* '' */
 .icon-to-end:before { content: '\e842'; } /* '' */
+.icon-align-right:before { content: '\e843'; } /* '' */
+.icon-align-left:before { content: '\e844'; } /* '' */
+.icon-toggle-right:before { content: '\e845'; } /* '' */
+.icon-toggle-left:before { content: '\e846'; } /* '' */
+.icon-center:before { content: '\e847'; } /* '' */
 .icon-move:before { content: '\f047'; } /* '' */
 .icon-plus-squared:before { content: '\f0fe'; } /* '' */
 .icon-reply:before { content: '\f112'; } /* '' */

@@ -254,7 +254,7 @@
 							</label>
 						</td>
 						<td>
-							<label for="dialog_itemSettings" class="gray button icon-sliders" data-bind="click: ()=>{return itemOpenParams($index())}"></label>
+							<label for="dialog_itemSettings" class="gray button icon-sliders" data-bind="click: ()=>{return itemPrepareParams($index())}"></label>
 						</td>
 						<td class="remove"><button class="error icon-trash" data-bind="click: ()=>{workspaceRemoveItem($data.id())}"></button></td>
 					</tr>
@@ -266,7 +266,7 @@
 						<label ><input type="checkbox"  data-bind="checked: selectedItemsAll"/><span class="checkable">all</span></label>
 						
 						<span class="spacer"></span>
-						<label for="dialog_itemSettings" class="button icon-sliders" data-bind="click: ()=>{return itemOpenParams()}"></label>
+						<label for="dialog_itemSettings" class="button icon-sliders" data-bind="click: ()=>{return itemPrepareParams()}"></label>
 					</div>
 					<div class="right">
 						<button class="icon-folder-open" data-bind="click: uploadFile"> Open</button>
@@ -284,21 +284,38 @@
 				<form data-bind="with: selectedItem">
 					<span class="name" data-bind="text: name" ></span>
 					<table>
-						<tr>
+						<tr data-bind="visible: showAbs">
 							<td class="parameter">x</td>
-							<td><input type="number" data-bind="numericValue: x"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
+							<td><input type="number" class="abs" data-bind="numericValue: xset"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
 							<td class="parameter">y</td>
-							<td><input type="number" data-bind="numericValue: y"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
+							<td><input type="number" class="abs" data-bind="numericValue: yset"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
+							<td>
+								<input id="showAbs" type="checkbox" data-bind="checked: showAbs" />
+								<label class="toggleSwitch" for="showAbs">
+									<span class="checkable"><b>abs</b> <i class="icon-toggle-left"></i> rel</span>
+								</label>
+							</td>
+						</tr>
+						<tr data-bind="visible: !showAbs()">
+							<td class="parameter">&Delta;x</td>
+							<td><input type="number" data-bind="numericValue: dx"></input> <span class="unit" class="rel" data-bind="text: $root.unit.pos"></span></td>
+							<td class="parameter">&Delta;y</td>
+							<td><input type="number" class="rel" data-bind="numericValue: dy"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
+							<td>
+								<label class="toggleSwitch" for="showAbs">
+									<span class="checkable">abs <i class="icon-toggle-right"></i> <b>rel</b></span>
+								</label>
+							</td>
 						</tr>
 						
 						<tr>
 							<td class="parameter">align</td>
-							<td colspan="3">
-								<button data-bind="click: alignRightOfAxis"><i class="icon-to-end toLeft"></i></button>
-								<button data-bind="click: alignLeftOfAxis"><i class="icon-to-end toRight"></i></button>
-								<button data-bind="click: alignToOrigin"><i class="icon-crosshairs-gps"></i></button>
-								<button data-bind="click: alignAboveOfAxis"><i class="icon-to-end toUp"></i></button>
-								<button data-bind="click: alignUnderOfAxis"><i class="icon-to-end toDown"></i></button>
+							<td colspan="4">
+								<button data-bind="click: alignLeftOfAxis"><i class="icon-align-right"></i></button>
+								<button data-bind="click: alignRightOfAxis"><i class="icon-align-left"></i></button>
+								<button data-bind="click: alignToOrigin"><i class="icon-center"></i></button>
+								<button data-bind="click: alignAboveOfAxis"><i class="icon-align-bottom"></i></button>
+								<button data-bind="click: alignUnderAxis"><i class="icon-align-top"></i></button>
 								<!--
 								<i class="spacing"></i>
 								<button><i class="icon-resize-horizontal"></i><i class="icon-ellipsis-horizontal"></i></button>
@@ -308,7 +325,7 @@
 						</tr>
 						<tr>
 							<td class="parameter">color</td>
-							<td colspan="3">
+							<td colspan="4">
 								<label class="colorSelect" style="color: #222">
 									<input name="color" type="radio" value="black" data-bind="checked: color" />
 									<span class="checkable"><i class="icon-brush large"></i></span>
@@ -340,12 +357,12 @@
 							</td>
 						</tr>
 					</table>
-					<label>
 <!--					
+					<label>
 						<input type="checkbox" /><span class="checkable parameter">message before task</span>
--->						
 					</label>
 					<textarea class="" placeholder="Task Message ..."></textarea>
+-->						
 				</form>
 			</section>
 			<footer>

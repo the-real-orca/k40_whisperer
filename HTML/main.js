@@ -100,20 +100,38 @@ function itemUpdateSelected(item, selected) {
 		selected.viewBox( item.viewBox() )
 	else if ( selected.viewBox() != item.viewBox() )
 		selected.viewBox( undefined )
+
+	{
+		// compine boundingBoxes
+		if ( selected.boundingBox() )
+			var selectedBB = selected.boundingBox()
+		else
+			var selectedBB = [1e12, 1e12, -1e12, -1e12]
+		var itemBB = item.boundingBox()
+		var xMin = Math.min(selectedBB[0], (itemBB[0] + item.x()))
+		var xMax = Math.max(selectedBB[2], (itemBB[2] + item.x()))
+		var yMin = Math.min(selectedBB[1], (itemBB[1] + item.y()))
+		var yMax = Math.max(selectedBB[3], (itemBB[3] + item.y()))
+		selected.boundingBox( [xMin, yMin, xMax, yMax] )
+	}
 		
 	if ( selected.color() === null )
 		selected.color( item.color() )
 	else if ( selected.color() != item.color() )
 		selected.color( undefined )
 }
-function itemOpenParams(index=undefined) {
+function itemPrepareParams(index=undefined) {
 	var selected = viewModel.selectedItem;
 	selected.names.removeAll()
 	selected.x(null)
 	selected.y(null)
+	selected.dx(0)
+	selected.dy(0)
+	selected.showAbs(true)
 	selected.width(null)
 	selected.height(null)
 	selected.viewBox(null)
+	selected.boundingBox(null)
 	selected.color(null)	
 
 	for (var i=0; i < viewModel.workspace.items().length; i++) {
@@ -124,6 +142,9 @@ function itemOpenParams(index=undefined) {
 			itemUpdateSelected(item, selected)
 		}
 	}
+
+	selected.xset(selected.x())
+	selected.yset(selected.y())
 	
 	return true
 }
@@ -131,9 +152,18 @@ function itemSaveParams() {
 	var selected = viewModel.selectedItem
 	var params = ko.mapping.toJS(viewModel.selectedItem)
 	params.names = undefined
+	if ( params.xset !== undefined ) {
+		params.x = params.xset
+		params.dx = 0
+	}
+	if ( params.yset !== undefined ) {
+		params.y = params.yset
+		params.dy = 0
+	}
 	cmds = []
-	for (var i in viewModel.workspace.items()) {
-		var item = viewModel.workspace.items()[i]
+	var itemsList = viewModel.workspace.items()
+	for (var i=0; i<itemsList.length; i++) {
+		var item = itemsList[i]
 		if ( item.selected() ) {
 			params.id = item.id()
 			params.name = item.name()
@@ -142,7 +172,7 @@ function itemSaveParams() {
 	}
 	send(cmds)
 	
-	return true	
+	return true
 }
 function taskRunAll() {
 	send('task.run')
@@ -183,24 +213,32 @@ function workY(y) {
 }
 
 function alignToOrigin() {
-	var item = viewModel.selectedItem()
-	item.x(0); item.y(0)
+	viewModel.selectedItem.xset(0); viewModel.selectedItem.yset(0)
+	viewModel.selectedItem.showAbs(true)
 }
 
 function alignAboveOfAxis() {
-	item.y(-item.viewBox()[3])
+	var delta = -viewModel.selectedItem.boundingBox()[1]
+	viewModel.selectedItem.dy(delta)
+	viewModel.selectedItem.showAbs(false)
 }
 
-function alignUnderOfAxis() {
-	item.y(0)
+function alignUnderAxis() {
+	var delta = -viewModel.selectedItem.boundingBox()[3]
+	viewModel.selectedItem.dy(delta)
+	viewModel.selectedItem.showAbs(false)
 }
 
 function alignLeftOfAxis() {
-	item.x(-item.viewBox()[2])
+	var delta = -viewModel.selectedItem.boundingBox()[2]
+	viewModel.selectedItem.dx(delta)
+	viewModel.selectedItem.showAbs(false)
 }
 
 function alignRightOfAxis() {
-	item.x(0)
+	var delta = -viewModel.selectedItem.boundingBox()[0]
+	viewModel.selectedItem.dx(delta)
+	viewModel.selectedItem.showAbs(false)
 }
 
 function alignToTop() {
@@ -303,19 +341,20 @@ function handleMessage(data) {
 		
 		if ( data.workspace.items instanceof Array ) {
 			var selectedIDs = {}
+			// get previously selected items
 			for ( var i = 0; i < viewModel.workspace.items().length; i++ ) {
 				var item = viewModel.workspace.items()[i]
 				selectedIDs[item.id()] = item.selected() 
 			}
-			selectedCount=0
+			
 			viewModel.workspace.items.removeAll()
+			// read itemsList
 			for ( var i = 0; i < data.workspace.items.length; i++ ) {
 				var json = data.workspace.items[i]
 				var item = {
-					selected:ko.observable( selectedIDs[json.id] )
+					selected: ko.observable( selectedIDs[json.id] === false ? false : true )	// set previously selected state, auto-select new items
 				}
-				if ( item.selected() )
-					selectedCount++
+				// set item values
 				for ( var key in json )
 					item[key] = ko.observable(json[key])
 				viewModel.workspace.items.push(item)
@@ -435,9 +474,15 @@ var viewModel = {
 		names: ko.observableArray(),
 		x: ko.observable(),
 		y: ko.observable(),
+		xset: ko.observable(),
+		yset: ko.observable(),
+		dx: ko.observable(0),
+		dy: ko.observable(0),
+		showAbs: ko.observable(true),
 		width: ko.observable(),
 		height: ko.observable(),
 		viewBox: ko.observable(),
+		boundingBox: ko.observable(),
 		color: ko.observable()		
 	},
 	selectedItemsAll: ko.pureComputed({
@@ -468,13 +513,18 @@ var viewModel = {
 viewModel.continue = function() {
 	viewModel.wait(false)
 }
+viewModel.selectedItem.xset.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.dx(undefined)}, this)
+viewModel.selectedItem.yset.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.dy(undefined)}, this)
+viewModel.selectedItem.dx.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.xset(undefined)}, this)
+viewModel.selectedItem.dy.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.yset(undefined)}, this)
+
 viewModel.anchor.subscribe(function (val) {
 	send('anchor', val)
 }, this)
 viewModel.pos.x.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
 viewModel.pos.y.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
-viewModel.workspace.items.extend({ rateLimit: 100 });
-viewModel.tasks.extend({ rateLimit: 100 });
+viewModel.workspace.items.extend({ rateLimit: 100 })
+viewModel.tasks.extend({ rateLimit: 100 })
 
 function init() {
 	
@@ -533,11 +583,13 @@ function init() {
 	})
 	$("#dialog_itemsList").on("change", (event)=>{
 		if ( event.target.checked ) {
-			if ( viewModel.workspace.items().length == 1 ) {
+			var itemsList = viewModel.workspace.items()
+			if ( itemsList.length == 1 ) {
 				// skip items list, if we have only one item
-				// TODO viewModel.selectedItem( viewModel.workspace.items()[0] )
-				$("#dialog_itemSettings").prop("checked", true);
-				$("#dialog_itemsList").prop("checked", false);
+				itemsList[0].selected(true)
+				itemPrepareParams()
+				$("#dialog_itemSettings").prop("checked", true)
+				$("#dialog_itemsList").prop("checked", false)
 			}
 		}
 	})

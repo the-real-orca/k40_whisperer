@@ -119,8 +119,7 @@ class Drawing:
 		self.size = viewBox[2:4]
 		return self
 
-	def getViewBox(self, strokeWidth = None):
-		if strokeWidth is None: strokeWidth = self._strokeWidth
+	def getBoundingBox(self):
 		xMin=1e12; xMax=-1e12
 		yMin=1e12; yMax=-1e12
 		for line in self.polylines:
@@ -131,10 +130,16 @@ class Drawing:
 			xMax = max( np.append(points[:,0], xMax) )
 			yMin = min( np.append(points[:,1], yMin) )
 			yMax = max( np.append(points[:,1], yMax) )
+		return [xMin, yMin, xMax, yMax]
+		
+	def getViewBox(self, strokeWidth = None):
+		[xMin, yMin, xMax, yMax ] = self.getBoundingBox()
+		if strokeWidth is None: strokeWidth = self._strokeWidth
 		width = xMax - xMin +strokeWidth
 		height = yMax - yMin +strokeWidth
 		return [xMin -strokeWidth/2, yMin -strokeWidth/2, width, height], strokeWidth
 
+		
 	def flipX(self):
 		for line in self.polylines:
 			line.flipX()
