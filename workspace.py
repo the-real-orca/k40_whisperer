@@ -14,18 +14,48 @@ def urlForceReload(url):
 
 
 class Workspace:
-	def __init__(self, width=100, height=100, homePos=[0,0], filemanager = None):
+	def __init__(self, width=100, height=100, home='top-left', homeOff=[0,0], defaultOrigin='center', filemanager = None):
 		self._drawings = dict()
 		self.size = [width, height]
-		self.homePos = homePos
+		self.home = home
+		self.homeOff = homeOff
 		self.filemanager = filemanager
-		self.update()
+		self.defaultOrigin = defaultOrigin
+		self.reset()
 
+	def reset(self):
+		if self.home == 'top-left':
+			self.homePos = [ 0, self.size[1] ]
+		elif self.home == 'top-right':
+			self.homePos = [ self.size[0], self.size[1] ]
+		elif self.home == 'bottom-left':
+			self.homePos = [ 0, 0 ]
+		elif self.home == 'bottom-right':
+			self.homePos = [ self.size[0], 0 ]
+		else: # unknown
+			self.home = [ self.size[0]/2, self.size[1]/2 ]
+			println("ERROR: unknown home location")
+		self.homePos[0] += self.homeOff[0]
+		self.homePos[1] += self.homeOff[1]
+			
+		if self.defaultOrigin == 'top-left':
+			self.workspaceOrigin = [ 0, self.size[1] ]
+		elif self.defaultOrigin == 'top-right':
+			self.workspaceOrigin = [ self.size[0], self.size[1] ]
+		elif self.defaultOrigin == 'bottom-left':
+			self.workspaceOrigin = [ 0, 0 ]
+		elif self.defaultOrigin == 'bottom-right':
+			self.workspaceOrigin = [ self.size[0], 0 ]
+		else: # center
+			self.workspaceOrigin = [ self.size[0]/2, self.size[1]/2 ]
+		self.workspaceOrigin[0] -= self.homePos[0]
+		self.workspaceOrigin[1] -= self.homePos[1]
+		
 	def update(self):
-		self.workspaceOrigin = [ self.size[0]/2, self.size[1]/2 ]
 		print("workspace has been updated -> reload")
 		# TODO
 
+			
 	def add(self, drawing):
 		# create SVG image for displaying
 		filename = drawing.name + "-" + str(drawing.id)
@@ -75,13 +105,16 @@ class Workspace:
 			if len(set(colors)) == 1:
 				itemJson['color'] = item.polylines[0].color
 			else:
-				itemJson['color'] = COLOR_MIXED
+				itemJson['color'] = design.COLOR_MIXED
 			json["items"].append(itemJson)
 		
 		return json
 				
 	def setParams(self, params):
 
+		# update workspace origin
+		self.workspaceOrigin= params.get('workspaceOrigin', self.workspaceOrigin)
+	
 		# find drawing by id
 		id = params.get('id', None)
 		if not(id): return

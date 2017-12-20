@@ -7,16 +7,17 @@ import laser_emulator
 
 config = {
 		'workspace': {
-					'homePos': [-150,100],
+					'home': 'top-left', # top-left, top-right, bottom-left, bottom-right
+					'homeOff': [0,0],
 					'size': [300, 200]
 				},
 		'tasks': [
-					{'id': "engrave", "colors": [design.BLUE], "speed": 100, "type": Task.VECTOR},
-					{'id': "cut", "colors": [design.BLACK, design.RED], "speed": 50, "type": Task.VECTOR}
+					{'id': "engrave", "colors": [design.BLUE], "speed": 50, "type": Task.VECTOR},
+					{'id': "cut", "colors": [design.BLACK, design.RED], "speed": 30, "type": Task.VECTOR}
 				],
 		'laser': {
-#					'type': k40_wrapper		# K40 China Laser
-					'type': laser_emulator	# Simulated Laser for Testing
+					'type': k40_wrapper		# K40 China Laser
+#					'type': laser_emulator	# Simulated Laser for Testing
 				}
 		}
 
@@ -35,8 +36,10 @@ def configTasks(taskmanager):
 
 def configWorkspace(workspace):
 	try:
-		workspace.homePos = config['workspace']['homePos']
+		workspace.home = config['workspace']['home']
+		workspace.homeOff = config['workspace']['homeOff']
 		workspace.size = config['workspace']['size']
-		workspace.update()
+		workspace.defaultOrigin = config['workspace']['home']
+		workspace.reset()
 	except:
 		print("workspace config error")

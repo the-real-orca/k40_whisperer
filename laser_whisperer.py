@@ -167,6 +167,7 @@ def handleData(data):
 			"moveTo": lambda params: laser.moveTo( float(params.get("dx",0)), float(params.get("dy",0)) ),
 			"workspace.clear": workspace.clear,
 			"workspace.remove": workspace.remove,
+			"workspace.set": workspace.setParams,
 			"item.set": workspace.setParams,
 			"task.set": taskmanager.setParams,
 			"task.run": taskmanager.run

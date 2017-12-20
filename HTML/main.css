@@ -412,8 +412,12 @@ button.active, .button.active, button:active, .button:active {
 }
 
 svg #canvasRect {
+	fill: #CCC;
+//	stroke: #CCC;
+}
+
+svg #workspaceRect {
 	fill: white;
-	stroke: #444;
 }
 
 .itemsList {
@@ -494,6 +498,7 @@ svg #canvasRect {
 }
 
 .positionDisplay {
+	margin: 2em 0;
 }
 
 .positionDisplay > * {
@@ -646,8 +651,14 @@ button.move, .button.move  {
 	display: inline-block;
 }
 
-.settings td button, .settings td label {
+.settings td label {
 	margin-right: 1.5em;
+}
+
+.settings td button {
+	margin-right: 1.25em;
+	font-size: 125%;
+	padding: 0.5em 0.8em;
 }
 
 .settings footer {

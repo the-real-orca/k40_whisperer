@@ -82,13 +82,11 @@ class TaskManager:
 		draw.optimize(ignoreColor=True)
 
 		# to laser
-		for i in range(task.repeat):
-			print("home")
-			self.laser.home()
-			print("send to laser")
-			self.laser.processVector(draw.polylines, 
-				originX=-self.workspace.homePos[0],
-				originY=-self.workspace.homePos[1],
-				feedRate=task.speed) #TODO intensity
+		print("send to laser")
+		self.laser.processVector(draw.polylines, 
+			originX=self.workspace.homeOff[0]+self.workspace.workspaceOrigin[0],
+			originY=self.workspace.homeOff[1]+self.workspace.workspaceOrigin[1],
+			feedRate=task.speed,
+			repeat=task.repeat) #TODO intensity
 	
 

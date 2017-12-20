@@ -44,10 +44,20 @@ function getStatus() {
 	send('status')
 	return true
 }
-function move(dx, dy) {
-	send('move', {dx: parseFloat(dx), dy: parseFloat(dy)})
+function moveWorkspaceOrigin(dx, dy) {
+	dx = parseFloat(dx); dy = parseFloat(dy)
+	var x = parseFloat(viewModel.workspace.workspaceOrigin.x()) + dx
+	var y = parseFloat(viewModel.workspace.workspaceOrigin.y()) + dy
+	send([{cmd: 'move', params: {dx: dx, dy: dy}},
+			{cmd: 'workspace.set', params: {workspaceOrigin: [x,y]}}])
 	return true
 }
+function resetWorkspaceOrigin() {
+	send([{cmd: 'home'},
+			{cmd: 'workspace.set', params: {workspaceOrigin: [0,0]}}])
+	return true
+}
+
 function moveTo(x, y) {
 	send('moveTo', {x: parseFloat(x), y: parseFloat(y)})
 	return true
@@ -74,7 +84,10 @@ function unlock() {
 }
 
 function itemUpdateSelected(item, selected) {		
-	selected.names.push( item.name() )
+	if ( !selected.name() )
+		selected.name( item.name() )
+	else
+		selected.name( selected.name() + ", " + item.name() )
 	
 	if ( selected.x() === null )
 		selected.x( item.x() )
@@ -122,7 +135,7 @@ function itemUpdateSelected(item, selected) {
 }
 function itemPrepareParams(index=undefined) {
 	var selected = viewModel.selectedItem;
-	selected.names.removeAll()
+	selected.name('')
 	selected.x(null)
 	selected.y(null)
 	selected.dx(0)
@@ -151,7 +164,6 @@ function itemPrepareParams(index=undefined) {
 function itemSaveParams() {
 	var selected = viewModel.selectedItem
 	var params = ko.mapping.toJS(viewModel.selectedItem)
-	params.names = undefined
 	if ( params.xset !== undefined ) {
 		params.x = params.xset
 		params.dx = 0
@@ -197,11 +209,11 @@ function workspaceRemoveItem(id) {
 }
 function toX(x) {
 	x = ko.unwrap(x)
-	return x;
+	return viewModel.workspace.homePos.x() + x;
 }
 function toY(y) {
 	y = ko.unwrap(y)
-	return viewModel.workspace.height() - y;
+	return viewModel.workspace.height() - (viewModel.workspace.homePos.y() + y);
 }
 function workX(x) {
 	x = ko.unwrap(x)
@@ -216,50 +228,42 @@ function alignToOrigin() {
 	viewModel.selectedItem.xset(0); viewModel.selectedItem.yset(0)
 	viewModel.selectedItem.showAbs(true)
 }
-
 function alignAboveOfAxis() {
 	var delta = -viewModel.selectedItem.boundingBox()[1]
 	viewModel.selectedItem.dy(delta)
 	viewModel.selectedItem.showAbs(false)
 }
-
 function alignUnderAxis() {
 	var delta = -viewModel.selectedItem.boundingBox()[3]
 	viewModel.selectedItem.dy(delta)
 	viewModel.selectedItem.showAbs(false)
 }
-
 function alignLeftOfAxis() {
 	var delta = -viewModel.selectedItem.boundingBox()[2]
 	viewModel.selectedItem.dx(delta)
 	viewModel.selectedItem.showAbs(false)
 }
-
 function alignRightOfAxis() {
 	var delta = -viewModel.selectedItem.boundingBox()[0]
 	viewModel.selectedItem.dx(delta)
 	viewModel.selectedItem.showAbs(false)
 }
-
 function alignToTop() {
 	var item = viewModel.selectedItem()
 	var delta = item.viewBox()[3] + item.viewBox()[1]
 	var box = viewModel.workspace.viewBox()
 	item.y(box[3] + box[1] - delta)
 }
-
 function alignToLeft() {
 	var item = viewModel.selectedItem()
 	var box = viewModel.workspace.viewBox()
 	item.x(box[0] - item.viewBox()[0])
 }
-
 function alignToBottom() {
 	var item = viewModel.selectedItem()
 	var box = viewModel.workspace.viewBox()
 	item.y(box[1] - item.viewBox()[1])
 }
-
 function alignToRight() {
 	var item = viewModel.selectedItem()
 	var delta = item.viewBox()[2] + item.viewBox()[0]
@@ -449,6 +453,7 @@ var viewModel = {
 		stepSize: ko.observable(2)
 	},
 	workspace: {
+		margin: ko.observable(3),
 		width: ko.observable(100),
 		height: ko.observable(100),
 		homePos: {
@@ -471,7 +476,7 @@ var viewModel = {
 	tasks: ko.observableArray(),
 	selectedTask: ko.observable(),
 	selectedItem: {
-		names: ko.observableArray(),
+		name: ko.observable(""),
 		x: ko.observable(),
 		y: ko.observable(),
 		xset: ko.observable(),

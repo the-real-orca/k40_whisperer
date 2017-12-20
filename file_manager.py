@@ -28,7 +28,8 @@ class FileManager:
 			print("Unable To open Drawing Exchange File (DXF) file.")
 			return False
 
-		dxf_lines=dxf_import.DXF_COORDS_GET(new_origin=False)
+#		dxf_lines=dxf_import.DXF_COORDS_GET(new_origin=False)
+		dxf_lines=dxf_import.DXF_COORDS_GET_TYPE(new_origin=False, engrave=False)
 		if dxf_import.dxf_messages != "":
 			print("DXF Import:",dxf_import.dxf_messages)
 

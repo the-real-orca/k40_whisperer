@@ -48,12 +48,16 @@ class LASER_CLASS:
 	def move(self, dx, dy):
 		if not( self.isInit() ): return
 		print("LASER_CLASS move", dx, dy)
+		self.x += dx
+		self.y += dy
 
 
 	""" go to absolute position """
 	def moveTo(self, x, y):
 		if not( self.isInit() ): return
 		print("LASER_CLASS moveTo", x, y)
+		self.x = x
+		self.y = y
 
 
 	def stop(self):
