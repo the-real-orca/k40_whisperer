@@ -59,16 +59,22 @@ class FileManager:
 		drawing = design.Drawing(polylines, name=name)
 		drawing.combineLines()
 
-		return drawing, path
+		return drawing
 
 
 	def open(self, path):
 		# open by filetype
 		ext = os.path.splitext(path.lower())[1]
 		if ext==".dxf":
-			return self.openDXF(path)
+			drawing = self.openDXF(path)
 		else:
 			return False
+			
+		# align drawing
+		drawing.toOrigin()
+		drawing.alignRightOfAxis()
+		drawing.alignUnderAxis()
+		
 
 	def saveSVG(self, drawing, filename, path = None):
 		if not(path): path = self.rootPath

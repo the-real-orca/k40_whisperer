@@ -271,6 +271,27 @@ class Drawing:
 		return self
 
 
+	def alignToOrigin(self):
+		self.position=[0,0]
+	
+	def alignAboveOfAxis(self):
+		bb = getBoundingBox
+		self.position[1] = -bb[1]
+
+	def alignUnderAxis(self):
+		bb = getBoundingBox
+		self.position[1] = -bb[3]
+
+	def alignLeftOfAxis(self):
+		bb = getBoundingBox
+		self.position[0] = -bb[2]
+
+	def alignRightOfAxis(self):
+		bb = getBoundingBox
+		self.position[0] = -bb[0]
+
+
+	
 def equal(a, b, tol=0.001, dim=False):
 	# use max distance for comparing
 	d = abs(np.array(a)-np.array(b))
