@@ -48,8 +48,8 @@ def laser_thread():
 	if not( laser.isInit() ):
 		try:
 			print("init laser")
-			laser.init("mm");
-			laser.home();
+			laser.init("mm")
+			laser.home()
 			print("laser init ok")
 		except StandardError as e:
 			error_text = "%s" %(e)
@@ -132,7 +132,7 @@ def upload_file():
 	filename = secure_filename(file.filename)
 	path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 	file.save(path)
-	drawing, path = filemanager.open(path)
+	drawing = filemanager.open(path)
 	if drawing:
 		workspace.add(drawing)
 	return ""

@@ -94,7 +94,6 @@ class LASER_CLASS:
 	def home(self):
 		if not( self.isInit() ): return
 		print("home")
-		self.nano.reset_usb()
 		self.nano.home_position()
 		self._waitWhileBussy()
 		self.x = 0
@@ -141,8 +140,8 @@ class LASER_CLASS:
 
 
 	def _waitWhileBussy(self, timeout = 600):
-		status = self.nano.say_hello()[0]
 		DELAY = 0.1
+		status=[0,0,0]
 		while not(status[1] & COMPLETED_FLAG):
 			time.sleep(DELAY)
 			status = self.nano.say_hello()[0]

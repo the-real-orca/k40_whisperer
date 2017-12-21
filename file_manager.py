@@ -16,6 +16,10 @@ class FileManager:
 		return os.path.relpath(path, self.webRootPath)		
 		
 	def openDXF(self, path):
+		"""
+
+		:rtype: object
+		"""
 		dxf_import=DXF_CLASS()
 		try:
 			fd = open(path)
@@ -67,15 +71,10 @@ class FileManager:
 		# open by filetype
 		ext = os.path.splitext(path.lower())[1]
 		if ext==".dxf":
-			drawing = self.openDXF(path)
+			return self.openDXF(path)
 		else:
 			return False
-			
-		# align drawing
-		drawing.toOrigin()
-		drawing.alignRightOfAxis()
-		drawing.alignUnderAxis()
-		
+
 
 	def saveSVG(self, drawing, filename, path = None):
 		if not(path): path = self.rootPath

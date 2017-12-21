@@ -275,19 +275,19 @@ class Drawing:
 		self.position=[0,0]
 	
 	def alignAboveOfAxis(self):
-		bb = getBoundingBox
+		bb = self.getBoundingBox()
 		self.position[1] = -bb[1]
 
 	def alignUnderAxis(self):
-		bb = getBoundingBox
+		bb = self.getBoundingBox()
 		self.position[1] = -bb[3]
 
 	def alignLeftOfAxis(self):
-		bb = getBoundingBox
+		bb = self.getBoundingBox()
 		self.position[0] = -bb[2]
 
 	def alignRightOfAxis(self):
-		bb = getBoundingBox
+		bb = self.getBoundingBox()
 		self.position[0] = -bb[0]
 
 

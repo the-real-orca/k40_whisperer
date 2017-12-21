@@ -62,6 +62,23 @@ class Workspace:
 		self.filemanager.saveSVG(drawing, filename)
 		drawing.url = urlForceReload(drawing.url)
 
+		# auto align drawing
+		if self.defaultOrigin == 'top-left':
+			drawing.alignRightOfAxis()
+			drawing.alignUnderAxis()
+		elif self.defaultOrigin == 'top-right':
+			drawing.alignLeftOfAxis()
+			drawing.alignUnderAxis()
+		elif self.defaultOrigin == 'bottom-left':
+			drawing.alignRightOfAxis()
+			drawing.alignAboveOfAxis()
+		elif self.defaultOrigin == 'bottom-right':
+			drawing.alignLeftOfAxis()
+			drawing.alignAboveOfAxis()
+		else:  # unknown
+			# do nothing
+			pass
+
 		# add to workspace
 		self._drawings[drawing.id] = drawing
 		self.update()
