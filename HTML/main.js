@@ -40,46 +40,42 @@ function fxSlideUpRemove(elem) {
 }
 
 // laser functions
-function getStatus() {
-	send('status')
-	return true
-}
 function moveWorkspaceOrigin(dx, dy) {
 	dx = parseFloat(dx); dy = parseFloat(dy)
 	var x = parseFloat(viewModel.workspace.workspaceOrigin.x()) + dx
 	var y = parseFloat(viewModel.workspace.workspaceOrigin.y()) + dy
-	send([{cmd: 'move', params: {dx: dx, dy: dy}},
+	sendCommand([{cmd: 'move', params: {dx: dx, dy: dy}},
 			{cmd: 'workspace.set', params: {workspaceOrigin: [x,y]}}])
 	return true
 }
 function resetWorkspaceOrigin() {
-	send([{cmd: 'home'},
+	sendCommand([{cmd: 'home'},
 			{cmd: 'workspace.set', params: {workspaceOrigin: [0,0]}}])
 	return true
 }
 
 function moveTo(x, y) {
-	send('moveTo', {x: parseFloat(x), y: parseFloat(y)})
+	sendCommand('moveTo', {x: parseFloat(x), y: parseFloat(y)})
 	return true
 }
 function initLaser() {
-	send('init')
+	sendCommand('init')
 	return true
 }
 function releaseLaser() {
-	send('release')
+	sendCommand('release')
 	return true
 }
 function home() {
-	send('home')
+	sendCommand('home')
 	return true
 }
 function stop() {
-	send('stop')
+	sendCommand('stop')
 	return true
 }
 function unlock() {
-	send('unlock')
+	sendCommand('unlock')
 	return true
 }
 
@@ -182,29 +178,29 @@ function itemSaveParams() {
 			cmds.push( prepareCommand('item.set', clone(params)) )
 		}
 	}
-	send(cmds)
+	sendCommand(cmds)
 	
 	return true
 }
 function taskRunAll() {
-	send('task.run')
+	sendCommand('task.run')
 	return true
 }
 function taskRun(id) {
-	send('task.run', id)
+	sendCommand('task.run', id)
 	return true
 }
 function taskSaveParams() {
 	var params = ko.mapping.toJS(viewModel.selectedTask);
-	send('task.set', params)
+	sendCommand('task.set', params)
 	return true
 }
 function workspaceClear() {
-	send('workspace.clear')
+	sendCommand('workspace.clear')
 	return true
 }
 function workspaceRemoveItem(id) {
-	send('workspace.remove', id)
+	sendCommand('workspace.remove', id)
 	return true
 }
 function toX(x) {
@@ -248,41 +244,17 @@ function alignRightOfAxis() {
 	viewModel.selectedItem.dx(delta)
 	viewModel.selectedItem.showAbs(false)
 }
-function alignToTop() {
-	var item = viewModel.selectedItem()
-	var delta = item.viewBox()[3] + item.viewBox()[1]
-	var box = viewModel.workspace.viewBox()
-	item.y(box[3] + box[1] - delta)
-}
-function alignToLeft() {
-	var item = viewModel.selectedItem()
-	var box = viewModel.workspace.viewBox()
-	item.x(box[0] - item.viewBox()[0])
-}
-function alignToBottom() {
-	var item = viewModel.selectedItem()
-	var box = viewModel.workspace.viewBox()
-	item.y(box[1] - item.viewBox()[1])
-}
-function alignToRight() {
-	var item = viewModel.selectedItem()
-	var delta = item.viewBox()[2] + item.viewBox()[0]
-	var box = viewModel.workspace.viewBox()
-	item.x(box[2] + box[0] - delta)
-}
-
 
 
 // communication
-var socket = undefined
 function prepareCommand(cmd, params) {
 	var data = {cmd: cmd}
 	if ( params !== undefined )
 		data.params = params
 	return(data)
 }
-function send(cmd, params) {
-	if ( !socket || viewModel.instable ) return
+function sendCommand(cmd, params) {
+	if ( viewModel.instable ) return
 	var data
 	if ( cmd instanceof Array ) {
 		data = {
@@ -293,10 +265,13 @@ function send(cmd, params) {
 	}	
 	data.seqNr = viewModel.seqNr
 	console.log("sending ...", data)
-	socket.send(data)
+	$.post('/command', JSON.stringify(data), updateStatus)
 }
-function handleMessage(data) {
-	console.log('Received message', data)
+function getStatus() {
+    $.getJSON('/status', updateStatus)
+	return true
+}
+function updateStatus(data) {
 	viewModel.instable = true
 
 	// update status
@@ -524,7 +499,7 @@ viewModel.selectedItem.dx.subscribe((val)=>{ if ( val !== undefined ) viewModel.
 viewModel.selectedItem.dy.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.yset(undefined)}, this)
 
 viewModel.anchor.subscribe(function (val) {
-	send('anchor', val)
+	sendCommand('anchor', val)
 }, this)
 viewModel.pos.x.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
 viewModel.pos.y.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
@@ -533,11 +508,6 @@ viewModel.tasks.extend({ rateLimit: 100 })
 
 function init() {
 	
-/*	
-	$(".title").on('click', function() {
-		enterFullscreen()
-	})
-*/
 	// add pressed / released events for buttons
 	var eventPressed = null
 	$('button, .button').on('touchstart', function(e) {
@@ -577,7 +547,6 @@ function init() {
 	// init messages
 	init_msg()
 
-
 	// bind view model
 	ko.options = {
 		deferUpdates: true
@@ -599,28 +568,15 @@ function init() {
 		}
 	})
 	
-	// init Web Sockets
-	socket = io.connect()
-
-	// socket connected to server
+/* TODO
 	socket.on('connect', function() {
 		viewModel.status.network(true);
 		viewModel.alert.network(false);
 	})
-    // socket disconnected to server
-	socket.on('disconnect', function() {
-		viewModel.status.network(false);
-		viewModel.alert.network(true);
-	})
-	// handle socket error
-	socket.on('error', function(err) {
-		console.error('Socket Error:', err)
-		// TODO add notification
-	})
-
-	// handle incomming message
-	socket.on('message', handleMessage)
-
+*/	
+	// periodic status request
+	getStatus()
+    setInterval(getStatus, 1000)
 
 	// determine to switch to fullscreen mode
 	viewModel.touchMode('ontouchstart' in window || navigator.msMaxTouchPoints || window.screen.width <= 1024)

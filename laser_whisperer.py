@@ -14,8 +14,7 @@ from file_manager import FileManager
 from workspace import Workspace
 
 # import web framework
-from flask import g, Flask, request, redirect, url_for
-from flask_socketio import SocketIO, send, emit
+from flask import Flask, request, redirect, json
 from werkzeug.utils import secure_filename
 
 # web server configuration
@@ -30,13 +29,12 @@ def NullFunc():
 	
 # application
 print("init application")
+mkpath(UPLOAD_FOLDER)
 app = Flask(__name__, static_url_path='', static_folder=HTML_FOLDER)
 app.app_context()
-app.config['HTML_FOLDER'] = HTML_FOLDER
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-mkpath(UPLOAD_FOLDER)
-app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
-socketio = SocketIO(app)
+#app.config['HTML_FOLDER'] = HTML_FOLDER
+#app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+#app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 seqNr = 1
 
 # init laser
@@ -77,8 +75,30 @@ configWorkspace(workspace)
 taskmanager = TaskManager(laser, workspace)
 configTasks(taskmanager)
 
-# send laser status
-def sendStatus(broadcast = True):
+# routing table
+@app.route('/')
+def handleRoot():
+	return app.send_static_file('index.html')
+
+@app.route('/upload', methods=['POST'])
+def handleUpload():
+	# check if the post request has the file part
+	if 'file' not in request.files:
+		return redirect("#")
+	file = request.files['file']
+	# if user does not select file, browser also submit a empty part without filename
+	if not(file) or file.filename == '':
+		return redirect("#")
+	filename = secure_filename(file.filename)
+	path = os.path.join(UPLOAD_FOLDER, filename)
+	file.save(path)
+	drawing = filemanager.open(path)
+	if drawing:
+		workspace.add(drawing)
+	return ""
+
+@app.route('/status')
+def handleStatus():
 	payload = {
 		"seqNr": seqNr,
 		"status": {
@@ -90,7 +110,7 @@ def sendStatus(broadcast = True):
 		},
 		"alert": {
 			"laser": False,
-			"usb": not(laser.isInit()),
+			"usb": not (laser.isInit()),
 			"airassist": False,
 			"waterTemp": False,
 			"waterFlow": False
@@ -112,45 +132,18 @@ def sendStatus(broadcast = True):
 			"type": task.type,
 			"repeat": task.repeat
 		})
-	send(payload, json=True, broadcast=broadcast)
+	return json.jsonify(payload)
 
-
-# routing table
-@app.route('/')
-def index():
-	return app.send_static_file('index.html')
-
-@app.route('/upload', methods=['POST'])
-def upload_file():
-	# check if the post request has the file part
-	if 'file' not in request.files:
-		return redirect("#")
-	file = request.files['file']
-	# if user does not select file, browser also submit a empty part without filename
-	if not(file) or file.filename == '':
-		return redirect("#")
-	filename = secure_filename(file.filename)
-	path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-	file.save(path)
-	drawing = filemanager.open(path)
-	if drawing:
-		workspace.add(drawing)
-	return ""
-
-@socketio.on('connect')
-def handleConnect():
-	sendStatus(broadcast=False)
-
-@socketio.on('message')
-def handleData(data):
+@app.route('/command', methods=['POST'])
+def handleCommand():
+	data = json.loads( next(iter( request.form )) )
 	try:
 		global seqNr
 		# check request sequence
 		if data.get("seqNr", False) != seqNr:
 			# sqeuence error -> ignore request and resend status
-			sendStatus()
 			print("ignore request\n")
-			return
+			raise ValueError("sqeuence error -> ignore request and resend status")
 
 		# increment sequence
 		seqNr += 1
@@ -191,10 +184,9 @@ def handleData(data):
 					print("Exception", e)
 	finally:
 		# send status
-		sendStatus()
-
+		return handleStatus()
 
 print("start webserver")
 if __name__ == '__main__':
-	socketio.run(app, host='0.0.0.0', port='8080', debug=True)
+	app.run(host='0.0.0.0', port=8080)
 	print("SHUTDOWN")
