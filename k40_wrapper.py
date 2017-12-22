@@ -19,6 +19,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
+import sys
 import time
 import numpy as np
 
@@ -54,6 +55,7 @@ class LASER_CLASS:
 
 	""" connect to laser controller board """
 	def init(self, unit="mm", verbose=False):
+		print("LASER_CLASS init")
 		# set unit
 		if unit == "in" or unit == "inch":
 			self.unit = "in"
@@ -63,11 +65,24 @@ class LASER_CLASS:
 			self.scale = 1000 / 25.4
 
 		# connect and init laser main board
-		self.release()
-		self.nano.initialize_device(verbose)
-		self.nano.read_data()
-		self.nano.say_hello()
-		self._stop_flag[0] = False
+		try:
+			self.release()
+			self.nano.initialize_device(verbose)
+			self.nano.read_data()
+			self.nano.say_hello()
+			self._stop_flag[0] = False
+		except Exception as e:
+			error_text = "%s" %e
+			if "BACKEND" in error_text.upper():
+				error_text = error_text + " (libUSB driver not installed)"
+			print ("Error: %s" %error_text)
+			if "NOT FOUND" not in error_text.upper():
+				sys.exit()
+		except:
+			print("Unknown USB Error")
+			sys.exit()
+
+
 
 
 	def isInit(self):

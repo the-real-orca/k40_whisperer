@@ -4,6 +4,8 @@
 import sys
 import os
 import time
+import multiprocessing as thread # import Process, Queue, Pipe
+import queue
 from distutils.dir_util import mkpath
 
 # import application tools
@@ -22,14 +24,135 @@ from werkzeug.utils import secure_filename
 HTML_FOLDER = 'HTML'
 UPLOAD_FOLDER = HTML_FOLDER + '/uploads'
 COMPUTED_FOLDER = HTML_FOLDER + '/computed'
-ALLOWED_EXTENSIONS = set(['dxf']) # TODO set(['svg', 'dxf', 'png', 'jpg', 'jpeg'])
+ALLOWED_EXTENSIONS = ['dxf'] # TODO set(['svg', 'dxf', 'png', 'jpg', 'jpeg'])
 MAX_CONTENT_LENGTH = 64 * 1024 * 1024
 
-def NullFunc():
+LASER_CHECK_INTERVAL = 5
+seqNr = 1
+
+# run laser controller in separate thread
+def controller_function(command_queue):
+	def workspace_add(path):
+		drawing = filemanager.open(path)
+		if drawing:
+			workspace.add(drawing)
+
+	def compose_status(pipe):
+		payload = {
+			"seqNr": seqNr,
+			"status": {
+				"laser": False,
+				"usb": laser.isInit(),
+				"airassist": 0,
+				"waterTemp": 0,
+				"waterFlow": 0,
+			},
+			"alert": {
+				"laser": False,
+				"usb": not (laser.isInit()),
+				"airassist": False,
+				"waterTemp": False,
+				"waterFlow": False
+			},
+			"pos": {
+				"x": laser.x,
+				"y": laser.y
+			},
+			"workspace": workspace.toJson(),
+			"tasks": []
+		}
+		for task in taskmanager.tasks:
+			payload["tasks"].append({
+				"id": task.id,
+				"name": task.id,
+				"colors": task.colors,
+				"speed": task.speed,
+				"intensity": task.intensity,
+				"type": task.type,
+				"repeat": task.repeat
+			})
+		print("compose_status", payload)
+		pipe.send(payload)
+
+	# init laser
+	laser = configLaser()
+
+	# init file manager
+	filemanager = FileManager(rootPath=COMPUTED_FOLDER, webRootPath=HTML_FOLDER)
+
+	# init workspace
+	workspace = Workspace(filemanager=filemanager)
+	configWorkspace(workspace)
+
+	# init task manager
+	taskmanager = TaskManager(laser, workspace)
+	configTasks(taskmanager)
+
+	# map command to function
+	commands = {
+		"status": compose_status,
+		"init": laser.init,
+		"release": laser.release,
+		"home": laser.home,
+		"unlock": laser.unlock,
+		"stop": laser.stop,
+		"move": lambda data: laser.move(float(data.get("dx", 0)), float(data.get("dy", 0))),
+		"moveTo": lambda data: laser.moveTo(float(data.get("dx", 0)), float(data.get("dy", 0))),
+		"workspace.add": workspace_add,
+		"workspace.clear": workspace.clear,
+		"workspace.remove": workspace.remove,
+		"workspace.set": workspace.setParams,
+		"item.set": workspace.setParams,
+		"task.set": taskmanager.setParams,
+		"task.run": taskmanager.run
+	}
+
+	# start command loop
+	while (True):
+		try:
+			cmd = command_queue.get(timeout=LASER_CHECK_INTERVAL)
+#			if cmd is None:
+#				break
+
+			print("cmd", cmd)
+			# handle command
+			try:
+				# execute command
+				cmdName = str(cmd.get('cmd')).lower()
+				params = cmd.get('params', None)
+				print(cmdName, params)
+				if params is None:
+					commands[cmdName]()
+				else:
+					commands[cmdName](params)
+			except Exception as e:
+				print("Exception", e)
+			finally:
+				# sendStatus()
+				command_queue.task_done()
+
+		except queue.Empty:
+			print("laser status %s #################################################" %laser.isInit())
+			if not laser.isInit():
+				laser.init()
+			continue
+		except:
+			break
+
+# send laser status
+def sendStatus(broadcast = True):
+	status_sender, status_receiver = thread.Pipe()
+	global command_queue
+	print("command_queue.put")
+	command_queue.put({'cmd': "status", 'params': status_sender})
+
 	return
-	
-# application
-print("init application")
+	payload = status_receiver.recv()
+
+	print("payload status:", payload['status'])
+	send(payload, json=True, broadcast=broadcast)
+
+print("setup application")
 app = Flask(__name__, static_url_path='', static_folder=HTML_FOLDER)
 app.app_context()
 app.config['HTML_FOLDER'] = HTML_FOLDER
@@ -37,87 +160,11 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 mkpath(UPLOAD_FOLDER)
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 socketio = SocketIO(app)
-seqNr = 1
-
-# init laser
-laser = configLaser()
-
-# setup periodic laser check
-def laser_thread():
-	global app
-	if not( laser.isInit() ):
-		try:
-			print("init laser")
-			laser.init("mm")
-			laser.home()
-			print("laser init ok")
-		except StandardError as e:
-			error_text = "%s" %(e)
-			if "BACKEND" in error_text.upper():
-				error_text = error_text + " (libUSB driver not installed)"
-			print ("Error: %s" %(error_text))
-			if "NOT FOUND" not in error_text.upper():
-				sys.exit()
-		except:
-			print("Unknown USB Error")
-			sys.exit()
-	#sendStatus()
-#thread.start_new_thread(laser_thread, ())
-#laser_thread()
-
-
-# init file manager
-filemanager = FileManager(rootPath = COMPUTED_FOLDER, webRootPath = HTML_FOLDER)
-
-# init workspace
-workspace = Workspace(filemanager = filemanager)
-configWorkspace(workspace)
-
-# init task manager
-taskmanager = TaskManager(laser, workspace)
-configTasks(taskmanager)
-
-# send laser status
-def sendStatus(broadcast = True):
-	payload = {
-		"seqNr": seqNr,
-		"status": {
-			"laser": False,
-			"usb": laser.isInit(),
-			"airassist": 0,
-			"waterTemp": 0,
-			"waterFlow": 0,
-		},
-		"alert": {
-			"laser": False,
-			"usb": not(laser.isInit()),
-			"airassist": False,
-			"waterTemp": False,
-			"waterFlow": False
-		},
-		"pos": {
-			"x": laser.x,
-			"y": laser.y
-		},
-		"workspace": workspace.toJson(),
-		"tasks": []
-	}
-	for task in taskmanager.tasks:
-		payload["tasks"].append({
-			"id": task.id,
-			"name": task.id,
-			"colors": task.colors,
-			"speed": task.speed,
-			"intensity": task.intensity,
-			"type": task.type,
-			"repeat": task.repeat
-		})
-	send(payload, json=True, broadcast=broadcast)
-
 
 # routing table
 @app.route('/')
 def index():
+	print("index.html")
 	return app.send_static_file('index.html')
 
 @app.route('/upload', methods=['POST'])
@@ -127,14 +174,13 @@ def upload_file():
 		return redirect("#")
 	file = request.files['file']
 	# if user does not select file, browser also submit a empty part without filename
-	if not(file) or file.filename == '':
+	if not file or file.filename == '':
 		return redirect("#")
 	filename = secure_filename(file.filename)
 	path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 	file.save(path)
-	drawing = filemanager.open(path)
-	if drawing:
-		workspace.add(drawing)
+	global command_queue
+	command_queue.put({'cmd':"workspace.add", 'params': path})
 	return ""
 
 @socketio.on('connect')
@@ -156,45 +202,23 @@ def handleData(data):
 		seqNr += 1
 
 		# handle command
-		commands = {
-			"status": NullFunc,
-			"init": laser.init,
-			"release": laser.release,
-			"home": laser.home,
-			"unlock": laser.unlock,
-			"stop": laser.stop,
-			"move": lambda params: laser.move( float(params.get("dx",0)), float(params.get("dy",0)) ),
-			"moveTo": lambda params: laser.moveTo( float(params.get("dx",0)), float(params.get("dy",0)) ),
-			"workspace.clear": workspace.clear,
-			"workspace.remove": workspace.remove,
-			"workspace.set": workspace.setParams,
-			"item.set": workspace.setParams,
-			"task.set": taskmanager.setParams,
-			"task.run": taskmanager.run
-		}
+		global command_queue
 		if "multiple" in data:
 			cmdList = data.get("multiple", [])
 		else:
 			cmdList = [data]
 		for cmd in cmdList:
-			if "cmd" in cmd:
-				try:
-					# execute command
-					cmdName = str(cmd.get("cmd")).lower()
-					params = cmd.get("params", None)
-					print(cmdName, params)
-					if params is None:
-						commands[cmdName]()
-					else:
-						commands[cmdName](params)
-				except Exception as e:
-					print("Exception", e)
+			command_queue.put(cmd)
 	finally:
 		# send status
 		sendStatus()
 
-
-print("start webserver")
+# run application
 if __name__ == '__main__':
-	socketio.run(app, host='0.0.0.0', port='8080', debug=True)
+	print("start application")
+	command_queue = thread.Queue()
+	controller_thread = thread.Process(target=controller_function, args=(command_queue,))
+	controller_thread.start()
+
+	socketio.run(app, host='0.0.0.0', port='8080', debug=False)
 	print("SHUTDOWN")
