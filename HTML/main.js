@@ -268,7 +268,20 @@ function sendCommand(cmd, params) {
 	$.post('/command', JSON.stringify(data), updateStatus)
 }
 function getStatus() {
-    $.getJSON('/status', updateStatus)
+    $.ajax({
+        type: 'GET',
+        url: '/status',
+        timeout: 1000,
+        success: function(data) {
+            viewModel.status.network(true)
+            viewModel.alert.network(false)
+            updateStatus(data)
+        },
+        error: function(xhr, type) {
+            viewModel.status.network(false)
+            viewModel.alert.network(true)
+        }
+    })
 	return true
 }
 function updateStatus(data) {
@@ -568,12 +581,6 @@ function init() {
 		}
 	})
 	
-/* TODO
-	socket.on('connect', function() {
-		viewModel.status.network(true);
-		viewModel.alert.network(false);
-	})
-*/	
 	// periodic status request
 	getStatus()
     setInterval(getStatus, 1000)
