@@ -11,21 +11,27 @@ echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="5512", ENV{D
 # get dependencies
 sudo apt-get update
 sudo apt-get upgrade -y
-sudo apt-get install python-pip git -y
+sudo apt-get install python3 python3-pip git -y
 sudo apt-get install inkscape libjpeg-dev zlib1g-dev -y 
-sudo pip install --upgrade pip 
+sudo pip3 install --upgrade pip 
 
 # install K40 Whisperer
 cd ~
 git clone https://github.com/the-real-orca/k40_whisperer.git
 cd k40_whisperer
-sudo pip install -r requirements.txt
+sudo pip3 install -r requirements.txt
 sudo chmod a+x k40_whisperer.py
+
+# run at startup
+sudo apt-get install supervisor
+sudo cp -f laser_whisperer_script.conf /etc/supervisor/conf.d/
+sudo service supervisor restart
+
 
 # finished
 echo
-echo "  ${RED}replug K40 USB${NC} or ${RED}restart Rasperry Pi${NC}"
-echo "  ${GREEN}than you are ready to cut!${NC}"
+echo "  ${RED}connect the K40 USB${NC} and ${RED}restart Rasperry Pi${NC}"
+echo "  ${GREEN}YOU ARE READY TO CUT!${NC}"
 echo
 
 
