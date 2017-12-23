@@ -4,19 +4,19 @@ function clone(obj) {
 }
 
 ko.observableArray.fn.pushAll = function(valuesToPush) {
-    var underlyingArray = this()
-    this.valueWillMutate()
-    ko.utils.arrayPushAll(underlyingArray, valuesToPush)
-    this.valueHasMutated()
-    return this  //optional
+	var underlyingArray = this()
+	this.valueWillMutate()
+	ko.utils.arrayPushAll(underlyingArray, valuesToPush)
+	this.valueHasMutated()
+	return this  //optional
 };
 ko.bindingHandlers.numericValue = {
-    init: function(element, valueAccessor) {
+	init: function(element, valueAccessor) {
 		$(element).on("change", ()=>{
 			var value = valueAccessor();
 			value( parseFloat(element.value) )
 		})
-    },
+	},
 	update: function(element, valueAccessor, allBindingsAccessor) {
 		var value = parseFloat(ko.utils.unwrapObservable(valueAccessor()))
 		var precision = ko.utils.unwrapObservable(allBindingsAccessor().precision) || ko.bindingHandlers.numericValue.defaultPrecision
@@ -268,20 +268,20 @@ function sendCommand(cmd, params) {
 	$.post('/command', JSON.stringify(data), updateStatus)
 }
 function getStatus() {
-    $.ajax({
-        type: 'GET',
-        url: '/status',
-        timeout: 1000,
-        success: function(data) {
-            viewModel.status.network(true)
-            viewModel.alert.network(false)
-            updateStatus(data)
-        },
-        error: function(xhr, type) {
-            viewModel.status.network(false)
-            viewModel.alert.network(true)
-        }
-    })
+	$.ajax({
+		type: 'GET',
+		url: '/status',
+		timeout: 1000,
+		success: function(data) {
+			viewModel.status.network(true)
+			viewModel.alert.network(false)
+			updateStatus(data)
+		},
+		error: function(xhr, type) {
+			viewModel.status.network(false)
+			viewModel.alert.network(true)
+		}
+	})
 	return true
 }
 function updateStatus(data) {
@@ -385,25 +385,25 @@ function sendFile() {
 	// build form data object
 	var fd = new FormData();
 	fd.append('file', file); // append the file
-    $.ajax({
-        url: '/upload',
-        type: 'POST',
-        success: function() {
+	$.ajax({
+		url: '/upload',
+		type: 'POST',
+		success: function() {
 			console.log("upload ok")
 			viewModel.continue()
 			getStatus()
-        },
-        error: function() {
+		},
+		error: function() {
 			viewModel.continue()
 			console.error("cannot uploade: " + file.name)
 			add_msg('error', "upload error", "cannot uploade: " + file.name)
 			getStatus()
-        },
-        data: fd,
-        contentType: false,
-        processData: false,
-        cache: false
-    });
+		},
+		data: fd,
+		contentType: false,
+		processData: false,
+		cache: false
+	});
 }
 
 
@@ -421,7 +421,8 @@ var viewModel = {
 		network: ko.observable(false),
 		networkIcon: ko.pureComputed(function() {
 			return viewModel.status.network() ? "icon-lan-connect" : "icon-lan-disconnect";
-		})		
+		}),
+		fullscreen: ko.observable(isFullscreen())
 	},
 	alert: {
 		laser: ko.observable(false),
@@ -583,18 +584,28 @@ function init() {
 	
 	// periodic status request
 	getStatus()
-    setInterval(getStatus, 1000)
+	setInterval(getStatus, 1000)
 
 	// determine to switch to fullscreen mode
+    document.addEventListener('fullscreenchange', fullscreenEventHandler, false);
+    document.addEventListener('webkitfullscreenchange', fullscreenEventHandler, false);
+    document.addEventListener('mozfullscreenchange', fullscreenEventHandler, false);
+    document.addEventListener('MSFullscreenChange', fullscreenEventHandler, false);
 	viewModel.touchMode('ontouchstart' in window || navigator.msMaxTouchPoints || window.screen.width <= 1024)
 	if ( viewModel.touchMode() )
 		viewModel.dialog.fullscreen(true)
 }
 
-function fullscreen() {
-	return fullscreenElement(document.documentElement)
+function isFullscreen() {
+    return (document.Fullscreen || document.mozFullScreen || document.webkitIsFullScreen || document.msRequestFullscreen)
 }
-function fullscreenElement(element) {
+function fullscreenEventHandler( event ) {
+    viewModel.status.fullscreen( isFullscreen() )
+}
+function enterFullscreen() {
+	return enterFullscreenElement(document.documentElement)
+}
+function enterFullscreenElement(element) {
 	if(element.requestFullscreen) {
 		element.requestFullscreen()
 	} else if(element.mozRequestFullScreen) {
@@ -605,4 +616,13 @@ function fullscreenElement(element) {
 		element.webkitRequestFullscreen()
 	}
 	return true
+}
+function exitFullscreen() {
+	if(document.exitFullscreen) {
+		document.exitFullscreen();
+	} else if(document.mozCancelFullScreen) {
+		document.mozCancelFullScreen();
+	} else if(document.webkitExitFullscreen) {
+		document.webkitExitFullscreen();
+	}
 }

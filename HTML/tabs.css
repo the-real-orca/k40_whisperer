@@ -9,6 +9,15 @@
 	border: 1px solid #888;
 }
 
+.tabs > .spacer {
+	margin: 0;
+	padding: 0;
+	border: none;
+	display: inline-block;
+	height: 2em;
+	width: 2em;
+}
+
 .tabs > .title {
 	box-shadow: 0 0 0 9999px rgba(10, 10, 10, 0.1) inset;
 	cursor: pointer;
@@ -62,7 +71,7 @@
 
 
 @media screen {
-	.tabs > .title {
+	.tabs > .title,  .tabs > .spacer{
 		order: -1;
 	}
 	.tabs > .content {

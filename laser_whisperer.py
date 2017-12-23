@@ -1,21 +1,19 @@
 #!/usr/bin/env python
 
+import os
 # import system tools
 import sys
-import os
-import time
 from distutils.dir_util import mkpath
-
-# import application tools
-from config_manager import *
-import design_utils as design
-from task_manager import TaskManager, Task
-from file_manager import FileManager
-from workspace import Workspace
 
 # import web framework
 from flask import Flask, request, redirect, json
 from werkzeug.utils import secure_filename
+
+# import application tools
+from config_manager import *
+from file_manager import FileManager
+from task_manager import TaskManager
+from workspace import Workspace
 
 # web server configuration
 HTML_FOLDER = 'HTML'
