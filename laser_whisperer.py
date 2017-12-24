@@ -5,6 +5,10 @@ import os
 import sys
 from distutils.dir_util import mkpath
 
+# import gevent
+from gevent import monkey; monkey.patch_all()
+import gevent
+
 # import web framework
 from flask import Flask, request, redirect, json
 from werkzeug.utils import secure_filename
@@ -28,11 +32,8 @@ def NullFunc():
 # application
 print("init application")
 mkpath(UPLOAD_FOLDER)
-app = Flask(__name__, static_url_path='', static_folder=HTML_FOLDER)
-app.app_context()
-#app.config['HTML_FOLDER'] = HTML_FOLDER
-#app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-#app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
+server = Flask(__name__, static_url_path='', static_folder=HTML_FOLDER)
+server.app_context()
 seqNr = 1
 
 # init laser
@@ -40,7 +41,6 @@ laser = configLaser()
 
 # setup periodic laser check
 def laser_thread():
-	global app
 	if not( laser.isInit() ):
 		try:
 			print("init laser")
@@ -74,11 +74,11 @@ taskmanager = TaskManager(laser, workspace)
 configTasks(taskmanager)
 
 # routing table
-@app.route('/')
+@server.route('/')
 def handleRoot():
-	return app.send_static_file('index.html')
+	return server.send_static_file('index.html')
 
-@app.route('/upload', methods=['POST'])
+@server.route('/upload', methods=['POST'])
 def handleUpload():
 	# check if the post request has the file part
 	if 'file' not in request.files:
@@ -95,7 +95,7 @@ def handleUpload():
 		workspace.add(drawing)
 	return ""
 
-@app.route('/status')
+@server.route('/status')
 def handleStatus():
 	payload = {
 		"seqNr": seqNr,
@@ -132,7 +132,7 @@ def handleStatus():
 		})
 	return json.jsonify(payload)
 
-@app.route('/command', methods=['POST'])
+@server.route('/command', methods=['POST'])
 def handleCommand():
 	data = json.loads( next(iter( request.form )) )
 	try:
@@ -186,5 +186,6 @@ def handleCommand():
 
 print("start webserver")
 if __name__ == '__main__':
-	app.run(host='0.0.0.0', port=8080)
+	server.debug=False
+	server.run(host='0.0.0.0', port=8080)
 	print("SHUTDOWN")

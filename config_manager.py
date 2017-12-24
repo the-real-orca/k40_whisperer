@@ -16,8 +16,8 @@ config = {
 					{'id': "cut", "colors": [design.BLACK, design.RED], "speed": 30, "type": Task.VECTOR}
 				],
 		'laser': {
-					'type': k40_wrapper		# K40 China Laser
-#					'type': laser_emulator	# Simulated Laser for Testing
+#					'type': k40_wrapper		# K40 China Laser
+					'type': laser_emulator	# Simulated Laser for Testing
 				}
 }
 

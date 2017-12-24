@@ -1,5 +1,6 @@
 import datetime
 import os
+import time
 from distutils.dir_util import mkpath
 
 
@@ -40,6 +41,7 @@ class LASER_CLASS:
 	def home(self):
 		if not( self.isInit() ): return
 		print("LASER_CLASS home")
+		time.sleep(2)
 		self.x = 0
 		self.y = 0
 
@@ -48,6 +50,7 @@ class LASER_CLASS:
 	def move(self, dx, dy):
 		if not( self.isInit() ): return
 		print("LASER_CLASS move", dx, dy)
+		time.sleep(1)
 		self.x += dx
 		self.y += dy
 
@@ -56,6 +59,7 @@ class LASER_CLASS:
 	def moveTo(self, x, y):
 		if not( self.isInit() ): return
 		print("LASER_CLASS moveTo", x, y)
+		time.sleep(1)
 		self.x = x
 		self.y = y
 
@@ -95,6 +99,11 @@ class LASER_CLASS:
 					file.write("G0 X{:.2f} Y{:.2f}\n".format(p[0][0], p[0][1]))
 					for x in p:
 						file.write("G1 X{:.2f} Y{:.2f} E1\n".format(x[0], x[1]))
+
+		# simulate cutting time
+		print("simulate cutting time ...")
+		time.sleep(300)
+		print("done")
 
 
 	def processRaster(self, raster, feedRate, originX = 0, originY = 0, repeat = 1):
