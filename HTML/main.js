@@ -355,6 +355,12 @@ function updateStatus(data) {
 	}
 
 	// update tasks
+	if ( typeof data.activeTask == "object" ) {
+		viewModel.activeTask.id(data.activeTask.id)
+		viewModel.activeTask.name(data.activeTask.name)
+		viewModel.activeTask.status(data.activeTask.status)
+		viewModel.activeTask.progress( parseInt(data.activeTask.progress) )
+	}
 	if ( data.tasks instanceof Array ) {
 		viewModel.tasks.removeAll()
 		for ( var i = 0; i < data.tasks.length; i++ ) {
@@ -462,6 +468,12 @@ var viewModel = {
 		y: ko.observable(0)
 	},
 	anchor: ko.observable('upperLeft'),
+	activeTask: {
+		id: ko.observable(""),
+		name: ko.observable(""),
+		status: ko.observable(""),
+		progress: ko.observable(0)
+	},
 	tasks: ko.observableArray(),
 	selectedTask: ko.observable(),
 	selectedItem: {

@@ -191,6 +191,9 @@
 		<input id="Process" name="mainTabsGroup" type="radio" />
 		<label class="title" for="Process"><i class="icon-flash"></i></label>
 		<div class="content center">
+			<div class="center activity">
+				<div><span data-bind="text: activeTask.name"></span> (<span data-bind="text: activeTask.status"></span>) <span data-bind="text: activeTask.progress"></span>%</div>
+			</div>
 			<div class="center laserControl">
 				<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off"></i> Init</button>
 				<button data-bind="click: releaseLaser, visible: status.usb"><i class="icon-off"></i> Release</button>

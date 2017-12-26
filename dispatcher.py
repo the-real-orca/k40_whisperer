@@ -26,7 +26,7 @@ configTasks(taskmanager)
 def getStatus():
 	payload = {
 		"status": {
-			"laser": False,
+			"laser": laser.isActive(),
 			"usb": laser.isInit(),
 			"airassist": 0,
 			"waterTemp": 0,
@@ -34,7 +34,7 @@ def getStatus():
 		},
 		"alert": {
 			"laser": False,
-			"usb": not (laser.isInit()),
+			"usb": not(laser.isInit()),
 			"airassist": False,
 			"waterTemp": False,
 			"waterFlow": False
@@ -44,6 +44,7 @@ def getStatus():
 			"y": laser.y
 		},
 		"workspace": workspace.toJson(),
+		"activeTask": taskmanager.getActiveTask(),
 		"tasks": []
 	}
 	for task in taskmanager.tasks:
@@ -59,13 +60,7 @@ def getStatus():
 	return payload
 
 
-def addFileToWorkspace(path):
-	drawing = filemanager.open(path)
-	if drawing:
-		workspace.add(drawing)
-
 def dispatchCommand(cmd, params = None):
-
 	commands = {
 		"status": NullFunc,
 		"init": laser.init,
@@ -75,7 +70,7 @@ def dispatchCommand(cmd, params = None):
 		"stop": laser.stop,
 		"move": lambda params: laser.move(float(params.get("dx", 0)), float(params.get("dy", 0))),
 		"moveTo": lambda params: laser.moveTo(float(params.get("dx", 0)), float(params.get("dy", 0))),
-		"workspace.add": addFileToWorkspace,
+		"workspace.load": workspace.load,
 		"workspace.clear": workspace.clear,
 		"workspace.remove": workspace.remove,
 		"workspace.set": workspace.setParams,

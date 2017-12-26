@@ -34,7 +34,7 @@ class Workspace:
 			self.homePos = [ self.size[0], 0 ]
 		else: # unknown
 			self.home = [ self.size[0]/2, self.size[1]/2 ]
-			println("ERROR: unknown home location")
+			print("ERROR: unknown home location")
 		self.homePos[0] += self.homeOff[0]
 		self.homePos[1] += self.homeOff[1]
 			
@@ -82,6 +82,11 @@ class Workspace:
 		# add to workspace
 		self._drawings[drawing.id] = drawing
 		self.update()
+
+	def load(self, path):
+		drawing = self.filemanager.open(path)
+		if drawing:
+			self.add(drawing)
 
 	def remove(self, id):
 		del self._drawings[id]

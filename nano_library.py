@@ -157,7 +157,7 @@ class K40_CLASS:
             if stop_calc[0]:
                 update_gui("User Commanded Stop")
                 return
-            update_gui( "Sending Data to Laser = %.1f%%" %( 100.0*packet_cnt/len(packets) ) )
+            update_gui( "Sending Data to Laser = %.1f%%" %( 100.0*packet_cnt/len(packets) ), 100.0*packet_cnt/len(packets) )
         ##############################################################
         update_gui( "Packets sent = %d of %d" %( packet_cnt, len(packets) ) )
         

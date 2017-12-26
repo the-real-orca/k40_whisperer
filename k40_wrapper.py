@@ -34,6 +34,10 @@ from egv import egv
 
 COMPLETED_FLAG = 1<<5
 
+
+def idle():
+	time.sleep(0.1)
+
 class LASER_CLASS:
 	def __init__(self, board_name="LASER-M2"):
 		print ("LASER_CLASS __init__")
@@ -41,6 +45,9 @@ class LASER_CLASS:
 		self.scale = 0
 		self.x = False
 		self.y = False
+		self.active = False
+		self.repeat = 0
+		self.progress = 0
 		self.nano = K40_CLASS()
 		self.nano.n_timeouts = 10
 		self.nano.timeout = 1000   # Time in milliseconds
@@ -69,22 +76,27 @@ class LASER_CLASS:
 		self.nano.say_hello()
 		self._stop_flag[0] = False
 
-
 	def isInit(self):
 		return ( self.nano.dev != None )
 
+	def getProgress(self):
+		return self.progress
+
+	def isActive(self):
+		return self.active
 
 	def release(self):
-		if not( self.isInit() ): return
+		if not( self.isInit() ) or self.isActive(): return
 		print("LASER_CLASS released")
 		self.unlock()
 		time.sleep(0.2)
 		self.nano.release_usb()
+		self.nano.dev = None
 		time.sleep(0.2)
 
 
 	def unlock(self):
-		if not( self.isInit() ): return
+		if not( self.isInit() ) or self.isActive(): return
 		print("unlock")
 		self.x = False
 		self.y = False
@@ -92,7 +104,7 @@ class LASER_CLASS:
 
 
 	def home(self):
-		if not( self.isInit() ): return
+		if not( self.isInit() ) or self.isActive(): return
 		print("home")
 		self.nano.home_position()
 		self._waitWhileBussy()
@@ -103,7 +115,7 @@ class LASER_CLASS:
 
 	""" move relative to current position """
 	def move(self, dx, dy):
-		if not( self.isInit() ): return
+		if not( self.isInit() ) or self.isActive(): return
 		if self.x is False or self.y is False: return
 		print("move: " + str(dx) + "/" + str(dy))
 # TODO check movement area
@@ -116,7 +128,7 @@ class LASER_CLASS:
 
 	""" go to absolute position """
 	def moveTo(self, x, y):
-		if not( self.isInit() ): return
+		if not( self.isInit() ) or self.isActive(): return
 		if self.x is False or self.y is False:
 			self.home()
 		print("goto: " + str(x) + "/" + str(y))
@@ -132,12 +144,12 @@ class LASER_CLASS:
 		if not( self.isInit() ): return
 		print("stop")
 		self._stop_flag[0] = True
-		self.nano.e_stop_flag();
+		self.nano.e_stop();
 
-
-	def _updateCallback(self, msg = ""):
-		print(msg)
-
+	def _updateCallback(self, msg = "", progress = 0):
+		self.progress = progress / self.repeat
+		print("updateCallback:", msg)
+		idle()
 
 	def _waitWhileBussy(self, timeout = 600):
 		DELAY = 0.1
@@ -152,54 +164,72 @@ class LASER_CLASS:
 
 
 	def processVector(self, polylines, feedRate, originX = 0, originY = 0, repeat = 1):
-		if not( self.isInit() ): return
-		print("processVector")
-		print(polylines)
+		if not( self.isInit() ) or self.isActive(): return
+		try:
+			print("processVector")
+			print(polylines)
+			self.active = True
+			self.progress = 0
+			self.repeat = repeat
 
-		# convert polylines to ecoords
-		ecoords=[]
-		for loop, line in enumerate(polylines, start=1):
-			if not(line): continue
-			points = line.getPoints()
-			x = np.zeros((len(points), 3))
-			x[:,0:2] = points
-			x[:,2] = loop
-			ecoords.extend(x.tolist())
+			# convert polylines to ecoords
+			ecoords=[]
+			for loop, line in enumerate(polylines, start=1):
+				if not(line): continue
+				points = line.getPoints()
+				x = np.zeros((len(points), 3))
+				x[:,0:2] = points
+				x[:,2] = loop
+				ecoords.extend(x.tolist())
+				if self._stop_flag[0]:
+				   raise RuntimeError("stopped")
+				idle()
 
-		print("ecoords", ecoords, "#####################################################")
-		if len(ecoords)==0: return
 
-# TODO check movement area
+			print("ecoords", ecoords, "#####################################################")
+			if len(ecoords)==0:
+				raise RuntimeError("no ecoords")
 
-		# generate data for K40 controller board
-		data=[]
-		egv_inst = egv(target=lambda s:data.append(s))
-		egv_inst.make_egv_data(
-			ecoords,								\
-			startX = -originX,					\
-			startY = -originY,					\
-			units = 'mm',							\
-			Feed = feedRate ,					\
-			board_name = self.board_name,	\
-			Raster_step = 0,					\
-			update_gui = self._updateCallback,	\
-			stop_calc = self._stop_flag
-		)
+	# TODO check movement area
 
-		while repeat > 0:
-			# send data to laser
-			self.home()
-			self.nano.send_data(data, self._updateCallback, self._stop_flag)
+			# generate data for K40 controller board
+			data=[]
+			egv_inst = egv(target=lambda s:data.append(s))
+			egv_inst.make_egv_data(
+				ecoords,								\
+				startX = -originX,					\
+				startY = -originY,					\
+				units = 'mm',							\
+				Feed = feedRate ,					\
+				board_name = self.board_name,	\
+				Raster_step = 0,					\
+				update_gui = self._updateCallback,	\
+				stop_calc = self._stop_flag
+			)
 
-			# wait for laser to finish
-			self._waitWhileBussy()
-			print("laser finished")
+			while repeat > 0:
+				if self._stop_flag[0]:
+					raise  RuntimeError("stopped")
+				idle()
 
-			# decrease repeat counter
-			repeat -= 1
+				# send data to laser
+				self.home()
+				self.nano.send_data(data, self._updateCallback, self._stop_flag)
 
+				# wait for laser to finish
+				self._waitWhileBussy()
+				print("laser finished")
+
+				# decrease repeat counter
+				repeat -= 1
+
+			self.progress = 100
+		finally:
+			self.active = False
 
 	def processRaster(self, raster, feedRate, originX = 0, originY = 0, repeat = 1):
+		if not( self.isInit() ) or self.isActive(): return
+		self.active = True
 		data=[]
 		egv_inst = egv(target=lambda s:data.append(s))
 
@@ -228,5 +258,5 @@ class LASER_CLASS:
 			# decrease repeat counter
 			repeat -= 1
 
-
+		self.active = False
 

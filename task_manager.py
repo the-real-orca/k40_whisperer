@@ -22,6 +22,25 @@ class TaskManager:
 		self.laser = laser
 		self.workspace = workspace
 		self.tasks = []
+		self.activeTask = None
+
+	def getActiveTask(self):
+		if self.activeTask:
+			activeTask = {
+				"id": self.activeTask.id,
+				"name": self.activeTask.id,
+				"status": "running" if self.laser.isActive() else "stopped" if self.laser.getProgress() < 100 else "finished",
+				"progress": self.laser.getProgress()
+			}
+		else:
+			activeTask = {
+				"id": 0,
+				"name": "---",
+				"status": "---",
+				"progress": 0
+			}
+
+		return activeTask
 
 	def setParams(self, params):
 		id = params.get('id', None)
@@ -46,6 +65,9 @@ class TaskManager:
 		task.repeat = int(params.get('repeat', 0))
 
 	def run(self, id = None):
+		if self.laser.isActive():
+			return
+
 		if id is None:
 			# process all tasks
 			tasks = self.tasks
@@ -59,6 +81,7 @@ class TaskManager:
 				# id not found
 				return
 		for task in tasks:
+			self.activeTask = task
 			if task.type == Task.VECTOR:
 				self.runVectorTask(task)
 			else:
@@ -82,6 +105,8 @@ class TaskManager:
 		draw.optimize(ignoreColor=True)
 
 		# to laser
+		if self.laser.isActive():
+			return
 		print("send to laser")
 		self.laser.processVector(draw.polylines, 
 			originX=self.workspace.homeOff[0]+self.workspace.workspaceOrigin[0],
