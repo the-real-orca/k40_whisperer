@@ -8,7 +8,7 @@ import design_utils as design
 
 
 class FileManager:
-	def __init__(self, rootPath = ".", webRootPath = "."):
+	def __init__(self, rootPath: object = ".", webRootPath: object = ".") -> object:
 		self.rootPath = rootPath
 		self.webRootPath = webRootPath
 

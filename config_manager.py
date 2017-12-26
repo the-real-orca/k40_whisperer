@@ -5,6 +5,13 @@ import design_utils as design
 import k40_wrapper
 import laser_emulator
 
+# web server configuration
+HTML_FOLDER = 'HTML'
+UPLOAD_FOLDER = HTML_FOLDER + '/uploads'
+COMPUTED_FOLDER = HTML_FOLDER + '/computed'
+ALLOWED_EXTENSIONS = set(['dxf']) # TODO set(['svg', 'dxf', 'png', 'jpg', 'jpeg'])
+MAX_CONTENT_LENGTH = 64 * 1024 * 1024
+
 config = {
 		'workspace': {
 			'home': 'top-left', # top-left, top-right, bottom-left, bottom-right
@@ -25,7 +32,10 @@ def configLaser():
 	laser = config['laser']['type'].LASER_CLASS()
 	return laser
 		
-		
+def configFileManager(filemanager):
+	# nothing to do
+	pass
+
 def configTasks(taskmanager):
 	try:
 		del taskmanager.tasks[:]
