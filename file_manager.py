@@ -8,7 +8,7 @@ import design_utils as design
 
 
 class FileManager:
-	def __init__(self, rootPath: object = ".", webRootPath: object = ".") -> object:
+	def __init__(self, rootPath = ".", webRootPath = "."):
 		self.rootPath = rootPath
 		self.webRootPath = webRootPath
 
@@ -16,10 +16,6 @@ class FileManager:
 		return os.path.relpath(path, self.webRootPath)		
 		
 	def openDXF(self, path):
-		"""
-
-		:rtype: object
-		"""
 		dxf_import=DXF_CLASS()
 		try:
 			fd = open(path)

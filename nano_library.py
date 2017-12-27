@@ -129,7 +129,7 @@ class K40_CLASS:
                 packets.append(packet)
                 packet = blank[:]
                 cnt = 2
-                update_gui("Calculating CRC data and Generate Packets: %.1f%%" %(100.0*float(i)/float(len_data)))
+                update_gui("Calculating CRC data and Generate Packets: %.1f%%" %(100.0*float(i)/float(len_data)), 25.0*float(i)/float(len_data) )
                 if stop_calc[0]==True:
                     raise StandardError("Action Stoped by User.")
             packet[cnt]=data[i]
@@ -157,7 +157,7 @@ class K40_CLASS:
             if stop_calc[0]:
                 update_gui("User Commanded Stop")
                 return
-            update_gui( "Sending Data to Laser = %.1f%%" %( 100.0*packet_cnt/len(packets) ), 100.0*packet_cnt/len(packets) )
+            update_gui( "Sending Data to Laser = %.1f%%" %( 100.0*packet_cnt/len(packets) ), 25 + 75.0*packet_cnt/len(packets) )
         ##############################################################
         update_gui( "Packets sent = %d of %d" %( packet_cnt, len(packets) ) )
         

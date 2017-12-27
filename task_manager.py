@@ -88,30 +88,33 @@ class TaskManager:
 				self.runRasterTask(task)
 
 	def runVectorTask(self, task):
-		# get polylines from all drawings in workspace and apply offset to drawing
-		drawings = self.workspace.getItems()
-		polylines = [ polyline.applyOffset(drawings[k].position) for k in drawings for polyline in drawings[k].polylines]
-		print("drawingPolylines", polylines)
+		try:
+			# get polylines from all drawings in workspace and apply offset to drawing
+			drawings = self.workspace.getItems()
+			polylines = [ polyline.applyOffset(drawings[k].position) for k in drawings for polyline in drawings[k].polylines]
+			print("drawingPolylines", polylines)
 
-		# filter polylines by task color
-		print("task.colors",task.colors)
-		polylines = list(filter(lambda p: p.color in task.colors, polylines))
-		if len(polylines) == 0:
-			return
+			# filter polylines by task color
+			print("task.colors",task.colors)
+			polylines = list(filter(lambda p: p.color in task.colors, polylines))
+			if len(polylines) == 0:
+				return
 
-		# connect segmented polylines and reorder from inner to outer
-		print("optimize polylines", polylines)
-		draw = design.Drawing(polylines, name=task.name)
-		draw.optimize(ignoreColor=True)
+			# connect segmented polylines and reorder from inner to outer
+			print("optimize polylines", polylines)
+			draw = design.Drawing(polylines, name=task.name)
+			draw.optimize(ignoreColor=True)
 
-		# to laser
-		if self.laser.isActive():
-			return
-		print("send to laser")
-		self.laser.processVector(draw.polylines, 
-			originX=self.workspace.homeOff[0]+self.workspace.workspaceOrigin[0],
-			originY=self.workspace.homeOff[1]+self.workspace.workspaceOrigin[1],
-			feedRate=task.speed,
-			repeat=task.repeat) #TODO intensity
-	
+			# to laser
+			if self.laser.isActive():
+				return
+			print("send to laser")
+			self.laser.processVector(draw.polylines,
+				originX=self.workspace.homeOff[0]+self.workspace.workspaceOrigin[0],
+				originY=self.workspace.homeOff[1]+self.workspace.workspaceOrigin[1],
+				feedRate=task.speed,
+				repeat=task.repeat) #TODO intensity
+		finally:
+			self.laser.home()
+
 

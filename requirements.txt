@@ -1,8 +1,8 @@
 lxml
 pyusb
 pillow
-flask-socketio
-eventlet
+flask
+gevent
 svgutils
 numpy
 matplotlib

@@ -20,7 +20,7 @@ config = {
 		},
 		'tasks': [
 					{'id': "engrave", "colors": [design.BLUE], "speed": 50, "type": Task.VECTOR},
-					{'id': "cut", "colors": [design.BLACK, design.RED], "speed": 30, "type": Task.VECTOR}
+					{'id': "cut", "colors": [design.BLACK, design.RED], "speed": 5, "type": Task.VECTOR, "repeat": 3}
 				],
 		'laser': {
 #					'type': k40_wrapper		# K40 China Laser
@@ -40,7 +40,7 @@ def configTasks(taskmanager):
 	try:
 		del taskmanager.tasks[:]
 		for task in config['tasks']:
-			taskmanager.tasks.append( Task(id=task['id'], colors=task['colors'], speed=task['speed'], type=task['type']) )
+			taskmanager.tasks.append( Task(id=task['id'], colors=task['colors'], speed=task['speed'], type=task['type'], repeat=task.get('repeat',1)) )
 	except:
 		print("task config error")
 

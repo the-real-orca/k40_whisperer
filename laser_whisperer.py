@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
+# import gevent
+from gevent import monkey; monkey.patch_all()
+import gevent
+
 import os
 # import system tools
 import sys
 from distutils.dir_util import mkpath
-
-# import gevent
-from gevent import monkey; monkey.patch_all()
-import gevent
-gevent.idle()
 
 # import web framework
 from flask import Flask, request, redirect, json
@@ -42,6 +41,7 @@ def handleUpload():
 	filename = secure_filename(file.filename)
 	path = os.path.join(UPLOAD_FOLDER, filename)
 	file.save(path)
+	#dispatcher.dispatchCommand("workspace.load", path)
 	gevent.spawn(dispatcher.dispatchCommand, "workspace.load", path)
 	return ""
 
@@ -71,6 +71,7 @@ def handleCommand():
 		else:
 			cmdList = [data]
 		for cmd in cmdList:
+			#dispatcher.dispatchCommand(cmd.get("cmd"), cmd.get("params", None))
 			gevent.spawn(dispatcher.dispatchCommand, cmd.get("cmd"), cmd.get("params", None))
 	finally:
 		# send status

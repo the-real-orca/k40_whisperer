@@ -88,11 +88,14 @@ class LASER_CLASS:
 	def release(self):
 		if not( self.isInit() ) or self.isActive(): return
 		print("LASER_CLASS released")
-		self.unlock()
-		time.sleep(0.2)
-		self.nano.release_usb()
-		self.nano.dev = None
-		time.sleep(0.2)
+		try:
+			self.unlock()
+			time.sleep(0.1)
+			self.nano.release_usb()
+		finally:
+			self.nano.dev = None
+#			time.sleep(0.2)
+			print("self.nano.dev", self.nano.dev)
 
 
 	def unlock(self):
@@ -107,10 +110,10 @@ class LASER_CLASS:
 		if not( self.isInit() ) or self.isActive(): return
 		print("home")
 		self.nano.home_position()
-		self._waitWhileBussy()
 		self.x = 0
 		self.y = 0
 		self._stop_flag[0] = False
+		self._waitWhileBussy()
 
 
 	""" move relative to current position """
@@ -146,13 +149,14 @@ class LASER_CLASS:
 		self._stop_flag[0] = True
 		self.nano.e_stop();
 
-	def _updateCallback(self, msg = "", progress = 0):
-		self.progress = progress / self.repeat
+	def _updateCallback(self, msg = "", progress = None):
+		if progress is not None:
+			self.progress = progress / self.repeat
 		print("updateCallback:", msg)
 		idle()
 
 	def _waitWhileBussy(self, timeout = 600):
-		DELAY = 0.1
+		DELAY = 0.2
 		status=[0,0,0]
 		while not(status[1] & COMPLETED_FLAG):
 			time.sleep(DELAY)
@@ -214,9 +218,11 @@ class LASER_CLASS:
 
 				# send data to laser
 				self.home()
+				time.sleep(0.1)
 				self.nano.send_data(data, self._updateCallback, self._stop_flag)
 
 				# wait for laser to finish
+				time.sleep(0.5)	# workaround TODO: make sure that laser data buffer is empty ????
 				self._waitWhileBussy()
 				print("laser finished")
 
