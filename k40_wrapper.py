@@ -32,9 +32,6 @@ from egv import egv
 # [255, 206, 111, 8, 2, 0] -> before home
 # [255, 238, 111, 8, 18, 0] -> home finished
 
-COMPLETED_FLAG = 1<<5
-
-
 def idle():
 	time.sleep(0.1)
 
@@ -54,6 +51,10 @@ class LASER_CLASS:
 		self.board_name = board_name
 		self._stop_flag = [True]
 
+		# response codes
+		self.COMPLETED = 236
+		self.CRC_FLAG = 1 << 0
+		self.BUFFER_FULL_FLAG = 1 << 5
 
 	def __del__(self):
 		print ("LASER_CLASS __del__")
@@ -94,7 +95,6 @@ class LASER_CLASS:
 			self.nano.release_usb()
 		finally:
 			self.nano.dev = None
-#			time.sleep(0.2)
 			print("self.nano.dev", self.nano.dev)
 
 
@@ -155,12 +155,12 @@ class LASER_CLASS:
 		print("updateCallback:", msg)
 		idle()
 
-	def _waitWhileBussy(self, timeout = 600):
-		DELAY = 0.2
-		status=[0,0,0]
-		while not(status[1] & COMPLETED_FLAG):
+	def _waitWhileBussy(self, timeout = 20):
+		DELAY = 0.1
+		status=0
+		while not(status != self.COMPLETED):
 			time.sleep(DELAY)
-			status = self.nano.say_hello()[0]
+			status = self.nano.say_hello()
 			timeout -= DELAY
 			if ( timeout < 0):
 				return False
@@ -211,23 +211,19 @@ class LASER_CLASS:
 				stop_calc = self._stop_flag
 			)
 
-			while repeat > 0:
-				if self._stop_flag[0]:
-					raise  RuntimeError("stopped")
-				idle()
+			if self._stop_flag[0]:
+				raise  RuntimeError("stopped")
+			idle()
 
-				# send data to laser
-				self.home()
-				time.sleep(0.1)
-				self.nano.send_data(data, self._updateCallback, self._stop_flag)
+			# send data to laser
+			self.home()
+			time.sleep(0.1)
+			self.nano.send_data(data, self._updateCallback, self._stop_flag, repeat)
 
-				# wait for laser to finish
-				time.sleep(0.5)	# workaround TODO: make sure that laser data buffer is empty ????
-				self._waitWhileBussy()
-				print("laser finished")
-
-				# decrease repeat counter
-				repeat -= 1
+			# wait for laser to finish
+			time.sleep(0.5)	# workaround TODO: make sure that laser data buffer is empty ????
+			self._waitWhileBussy()
+			print("laser finished")
 
 			self.progress = 100
 		finally:
