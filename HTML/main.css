@@ -250,7 +250,6 @@ hr {
 	box-shadow: 0 .1em .3em rgba(0, 0, 0, 0.25) inset;
 	display: block;
 	padding: 0;
-	margin: 1em auto;
 	height: 1.8em;
 }
 
@@ -353,6 +352,10 @@ button.active, .button.active, button:active, .button:active {
 
 .status .ok {
 	color: black;
+}
+
+.status .ok.dangerous{
+	color: darkred;
 }
 
 .status .warn {

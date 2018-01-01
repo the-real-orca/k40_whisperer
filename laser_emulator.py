@@ -15,6 +15,7 @@ class LASER_CLASS:
 		self._init = True
 		self.active = False
 		self.progress = 0
+		self.mode = ""
 
 	def __del__(self):
 		print ("LASER_CLASS __del__")
@@ -31,22 +32,21 @@ class LASER_CLASS:
 	def isActive(self):
 		return self.active
 
-	def getProgress(self):
-		return self.progress
-
 	def release(self):
 		if not( self.isInit() ) or self.isActive(): return
 		print("LASER_CLASS release")
 		self._init = False
 		self.x = False
-		self.y = False		
+		self.y = False
+		self.mode = ""
 
 
 	def unlock(self):
 		if not( self.isInit() ) or self.isActive(): return
 		print("LASER_CLASS unlock")
 		self.x = False
-		self.y = False		
+		self.y = False
+		self.mode = "unlocked"
 
 
 	def home(self):
@@ -79,10 +79,12 @@ class LASER_CLASS:
 		if not( self.isInit() ): return
 		print("LASER_CLASS stop")
 		self.active = False
+		self.mode = "stopped"
 
 	def enable(self):
 		if not( self.isInit() ): return
 		print("LASER_CLASS enable")
+		self.mode = "enable"
 		
 	def processVector(self, polylines, feedRate, originX = 0, originY = 0, repeat = 1):
 		if not( self.isInit() ) or self.active: return
@@ -90,6 +92,7 @@ class LASER_CLASS:
 			print("LASER_CLASS processVector")
 			self.active = True
 			self.progress = 0
+			self.mode = "prepare"
 			path = "HTML/emulator"
 			mkpath(path)
 			filename = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S.txt")
@@ -124,6 +127,7 @@ class LASER_CLASS:
 
 			# simulate cutting time
 			print("simulate cutting time ...")
+			self.mode = "running"
 			for i in range(0,10):
 				self.progress = i*10
 				self.msg = "simulate: " + str(self.progress) + "%"
@@ -132,10 +136,17 @@ class LASER_CLASS:
 					raise RuntimeError("stopped")
 				idle()
 			self.progress = 100
+			self.mode = "finished"
 			self.msg = "finished"
+
+		except Exception as e:
+			if self.active:
+				self.mode = "stopped"
+			else:
+				self.mode = "error"
+			self.msg = str(e)
 		finally:
 			self.active = False
-			print("done")
 
 
 

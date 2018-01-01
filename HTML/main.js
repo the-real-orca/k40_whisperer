@@ -364,7 +364,7 @@ function updateStatus(data) {
 		viewModel.activeTask.id(data.activeTask.id)
 		viewModel.activeTask.name(data.activeTask.name)
 		viewModel.activeTask.status(data.activeTask.status)
-		viewModel.activeTask.progress( parseInt(data.activeTask.progress) )
+		viewModel.activeTask.progress(data.activeTask.progress)
 	}
 	if ( data.tasks instanceof Array ) {
 		viewModel.tasks.removeAll()

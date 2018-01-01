@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import time
 import numpy as np
+import re as regex
 
 ##############################################################################
 
@@ -45,6 +46,7 @@ class LASER_CLASS:
 		self.msg = ""
 		self.active = False
 		self.repeat = 0
+		self.mode = ""
 		self.progress = 0
 		self.nano = K40_CLASS()
 		self.nano.n_timeouts = 10
@@ -85,9 +87,6 @@ class LASER_CLASS:
 	def isInit(self):
 		return ( self.nano.dev != None )
 
-	def getProgress(self):
-		return self.progress
-
 	def isActive(self):
 		return self.active
 
@@ -100,7 +99,9 @@ class LASER_CLASS:
 			self.nano.release_usb()
 		finally:
 			self.nano.dev = None
+			self.mode = ""
 			print("self.nano.dev", self.nano.dev)
+
 
 
 	def unlock(self):
@@ -109,6 +110,7 @@ class LASER_CLASS:
 		self.x = False
 		self.y = False
 		self.nano.unlock_rail()
+		self.mode = "unlocked"
 
 	def _internalHome(self):
 		print("home")
@@ -155,18 +157,26 @@ class LASER_CLASS:
 		print("stop")
 		self._stop_flag[0] = True
 		self.nano.e_stop()
+		self.mode = "stopped"
 
 	def enable(self):
 		if not( self.isInit() ): return
 		print("enable")
 		self._stop_flag[0] = False
+		self.mode = "enable"
 
-	def _updateCallback(self, msg = "", progress = None):
-		if progress is not None:
-			self.progress = progress / self.repeat
+	def _updateCallback(self, msg = ""):
 		if msg:
 			self.msg = msg
-		print("updateCallback:", msg, progress)
+			m = regex.match("(\w+) \D*([\d.]+)%", msg)
+			if m:
+				f = float(m.group(2))
+				if m.group(1) == "Generating":
+					self.mode = "prepare"
+					self.progress = f/2
+				if m.group(1) == "Sending":
+					self.mode = "running"
+					self.progress = 50.0 + f/2
 		idle()
 
 	def _waitWhileBussy(self, timeout = 20):
@@ -196,8 +206,8 @@ class LASER_CLASS:
 		if not( self.isInit() ) or self.isActive(): return
 		try:
 			self.msg = "prepare data..."
+			self.mode = "prepare"
 			print("processVector")
-			print(polylines)
 			self.active = True
 			self.progress = 0
 			self.repeat = repeat
@@ -215,10 +225,8 @@ class LASER_CLASS:
 				   raise RuntimeError("stopped")
 				idle()
 
-
-			print("ecoords", ecoords, "#####################################################")
 			if len(ecoords)==0:
-				raise RuntimeError("no ecoords")
+				raise StandardError("no ecoords")
 
 	# TODO check movement area
 
@@ -241,6 +249,7 @@ class LASER_CLASS:
 			idle()
 
 			# run laser
+			self.mode = "running"
 			self._internalHome()
 			idle()
 			self.nano.send_data(data, self._updateCallback, self._stop_flag, repeat, False)
@@ -249,6 +258,14 @@ class LASER_CLASS:
 			self._waitWhileBussy(60)
 			print("laser finished")
 			self.progress = 100
+			self.mode = "finished"
+
+		except Exception as e:
+			self.msg = str(e)
+			if self._stop_flag[0]:
+				self.mode = "stopped"
+			else:
+				self.mode = "error"
 		finally:
 			self.active = False
 
