@@ -12,6 +12,7 @@ from distutils.dir_util import mkpath
 # import web framework
 from flask import Flask, request, redirect, json
 from werkzeug.utils import secure_filename
+import logging
 
 # import laser application config and dispatcher
 from config_manager import *
@@ -79,6 +80,8 @@ def handleCommand():
 
 print("start webserver")
 if __name__ == '__main__':
+	log = logging.getLogger('werkzeug')
+	log.setLevel(logging.ERROR)
 	server.debug=False
 	server.run(host='0.0.0.0', port=8080)
 	print("SHUTDOWN")

@@ -42,6 +42,7 @@ class LASER_CLASS:
 		self.scale = 0
 		self.x = False
 		self.y = False
+		self.msg = ""
 		self.active = False
 		self.repeat = 0
 		self.progress = 0
@@ -52,9 +53,9 @@ class LASER_CLASS:
 		self._stop_flag = [True]
 
 		# response codes
+		self.OK = 206
 		self.COMPLETED = 236
-		self.CRC_FLAG = 1 << 0
-		self.BUFFER_FULL_FLAG = 1 << 5
+		self.HOMED = 238
 
 	def __del__(self):
 		print ("LASER_CLASS __del__")
@@ -71,11 +72,15 @@ class LASER_CLASS:
 			self.scale = 1000 / 25.4
 
 		# connect and init laser main board
-		self.release()
-		self.nano.initialize_device(verbose)
-		self.nano.read_data()
-		self.nano.say_hello()
 		self._stop_flag[0] = False
+		self.release()
+		idle()
+		self.nano.initialize_device(verbose)
+		idle()
+		if self.nano.say_hello() != self.OK:
+			self.release()
+			return
+		self.home()
 
 	def isInit(self):
 		return ( self.nano.dev != None )
@@ -105,15 +110,17 @@ class LASER_CLASS:
 		self.y = False
 		self.nano.unlock_rail()
 
-
-	def home(self):
-		if not( self.isInit() ) or self.isActive(): return
+	def _internalHome(self):
 		print("home")
-		self.nano.home_position()
 		self.x = 0
 		self.y = 0
 		self._stop_flag[0] = False
-		self._waitWhileBussy()
+		self.nano.home_position()
+		self._waitForHome()
+
+	def home(self):
+		if not( self.isInit() ) or self.isActive(): return
+		return self._internalHome()
 
 
 	""" move relative to current position """
@@ -147,18 +154,36 @@ class LASER_CLASS:
 		if not( self.isInit() ): return
 		print("stop")
 		self._stop_flag[0] = True
-		self.nano.e_stop();
+		self.nano.e_stop()
+
+	def enable(self):
+		if not( self.isInit() ): return
+		print("enable")
+		self._stop_flag[0] = False
 
 	def _updateCallback(self, msg = "", progress = None):
 		if progress is not None:
 			self.progress = progress / self.repeat
-		print("updateCallback:", msg)
+		if msg:
+			self.msg = msg
+		print("updateCallback:", msg, progress)
 		idle()
 
 	def _waitWhileBussy(self, timeout = 20):
 		DELAY = 0.1
 		status=0
-		while not(status != self.COMPLETED):
+		while status != self.COMPLETED:
+			time.sleep(DELAY)
+			status = self.nano.say_hello()
+			timeout -= DELAY
+			if ( timeout < 0):
+				return False
+		return True
+
+	def _waitForHome(self, timeout = 20):
+		DELAY = 0.1
+		status=0
+		while status != self.HOMED:
 			time.sleep(DELAY)
 			status = self.nano.say_hello()
 			timeout -= DELAY
@@ -170,6 +195,7 @@ class LASER_CLASS:
 	def processVector(self, polylines, feedRate, originX = 0, originY = 0, repeat = 1):
 		if not( self.isInit() ) or self.isActive(): return
 		try:
+			self.msg = "prepare data..."
 			print("processVector")
 			print(polylines)
 			self.active = True
@@ -210,55 +236,22 @@ class LASER_CLASS:
 				update_gui = self._updateCallback,	\
 				stop_calc = self._stop_flag
 			)
-
 			if self._stop_flag[0]:
 				raise  RuntimeError("stopped")
 			idle()
 
-			# send data to laser
-			self.home()
-			time.sleep(0.1)
-			self.nano.send_data(data, self._updateCallback, self._stop_flag, repeat)
+			# run laser
+			self._internalHome()
+			idle()
+			self.nano.send_data(data, self._updateCallback, self._stop_flag, repeat, False)
 
-			# wait for laser to finish
-			time.sleep(0.5)	# workaround TODO: make sure that laser data buffer is empty ????
-			self._waitWhileBussy()
+			# wait for laser to finish and data buffer is empty
+			self._waitWhileBussy(60)
 			print("laser finished")
-
 			self.progress = 100
 		finally:
 			self.active = False
 
 	def processRaster(self, raster, feedRate, originX = 0, originY = 0, repeat = 1):
-		if not( self.isInit() ) or self.isActive(): return
-		self.active = True
-		data=[]
-		egv_inst = egv(target=lambda s:data.append(s))
-
-		# generate data for K40 controller board
-		egv_inst.make_egv_data(
-			raster,									\
-			startX = -originX,					\
-			startY = -originY,					\
-			units = 'mm',							\
-			Feed = feedRate ,					\
-			board_name = self.board_name,	\
-			Raster_step = 10,					\
-			update_gui = self._updateCallback,	\
-			stop_calc = self._stop_flag
-		)
-
-		while repeat > 0:
-			# send data to laser
-			self.home()
-			self.nano.send_data(data, self._updateCallback, self._stop_flag)
-
-			# wait for laser to finish
-			self._waitWhileBussy()
-			print("laser finished")
-
-			# decrease repeat counter
-			repeat -= 1
-
-		self.active = False
+		return
 

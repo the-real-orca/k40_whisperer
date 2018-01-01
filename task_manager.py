@@ -80,12 +80,15 @@ class TaskManager:
 			else:
 				# id not found
 				return
+
+		self.laser.enable()
 		for task in tasks:
 			self.activeTask = task
 			if task.type == Task.VECTOR:
 				self.runVectorTask(task)
 			else:
 				self.runRasterTask(task)
+		self.laser.home()
 
 	def runVectorTask(self, task):
 		try:
@@ -115,6 +118,6 @@ class TaskManager:
 				feedRate=task.speed,
 				repeat=task.repeat) #TODO intensity
 		finally:
-			self.laser.home()
+			pass
 
 

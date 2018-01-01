@@ -39,6 +39,7 @@ def getStatus():
 			"waterTemp": False,
 			"waterFlow": False
 		},
+		"message": laser.msg,
 		"pos": {
 			"x": laser.x,
 			"y": laser.y

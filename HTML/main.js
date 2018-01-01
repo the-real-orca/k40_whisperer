@@ -271,7 +271,7 @@ function getStatus() {
 	$.ajax({
 		type: 'GET',
 		url: '/status',
-		timeout: 1000,
+		timeout: 5000,
 		success: function(data) {
 			viewModel.status.network(true)
 			viewModel.alert.network(false)
@@ -307,6 +307,11 @@ function updateStatus(data) {
 			viewModel.pos.x(x)
 			viewModel.pos.y(y)
 		}
+	}
+
+	// update message
+	if ( typeof data.message == "string" ) {
+		viewModel.message( data.message )
 	}
 
 	// update anchor
@@ -438,6 +443,7 @@ var viewModel = {
 		waterFlow: ko.observable(false),
 		network: ko.observable(false)
 	},
+	message: ko.observable(""),
 	unit: {
 		pos: ko.observable("mm"),
 		speed: ko.observable("mm/s"),

@@ -139,7 +139,7 @@ class K40_CLASS:
                 inbyte >>= 1
         return crc
     #######################################################################
-    def none_function(self,dummy=None):
+    def none_function(self,dummy=None,d=None):
         #Don't delete this function (used in send_data)
         pass
     
@@ -172,10 +172,10 @@ class K40_CLASS:
                     packet[-1] = self.OneWireCRC(packet[1:len(packet)-2])
                     if not preprocess_crc:
                         self.send_packet_w_error_checking(packet,update_gui,stop_calc)
-                        update_gui("Sending Data to Laser = %.1f%%" %(100.0*float(i)/float(len_data)))
+                        update_gui("Sending Data to Laser on-the-fly = %.1f%%" %(100.0*float(i)/float(len_data)), 100.0*float(i)/float(len_data))
                     else:
                         packets.append(packet)
-                        update_gui("Calculating CRC data and Generate Packets: %.1f%%" %(100.0*float(i)/float(len_data)), 25.0*float(i)/float(len_data))
+                        update_gui("Calculating CRC data and Generate Packets: %.1f%%" %(100.0*float(i)/float(len_data)))
                     packet = blank[:]
                     cnt = 2
                     
@@ -194,7 +194,7 @@ class K40_CLASS:
             update_gui()
             self.send_packet_w_error_checking(line,update_gui,stop_calc)
             packet_cnt = packet_cnt+1.0
-            update_gui( "Sending Data to Laser = %.1f%%" %( 100.0*packet_cnt/len(packets) ), 25 + 75.0*packet_cnt/len(packets) )
+            update_gui( "Sending Data to Laser = %.1f%%" %( 100.0*packet_cnt/len(packets) ), 100*packet_cnt/len(packets) )
         ##############################################################
 
 

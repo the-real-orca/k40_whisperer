@@ -11,6 +11,7 @@ class LASER_CLASS:
 		print ("LASER_CLASS __init__")
 		self.x = False
 		self.y = False
+		self.msg = ""
 		self._init = True
 		self.active = False
 		self.progress = 0
@@ -79,6 +80,9 @@ class LASER_CLASS:
 		print("LASER_CLASS stop")
 		self.active = False
 
+	def enable(self):
+		if not( self.isInit() ): return
+		print("LASER_CLASS enable")
 		
 	def processVector(self, polylines, feedRate, originX = 0, originY = 0, repeat = 1):
 		if not( self.isInit() ) or self.active: return
@@ -90,6 +94,7 @@ class LASER_CLASS:
 			mkpath(path)
 			filename = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S.txt")
 			filename = "testcut.gcode" # TODO
+			self.msg = "save to: " + filename
 			path = os.path.join(path, filename)
 
 			# save G-code
@@ -121,12 +126,13 @@ class LASER_CLASS:
 			print("simulate cutting time ...")
 			for i in range(0,10):
 				self.progress = i*10
-				print(self.progress, "% ")
-				time.sleep(2)
+				self.msg = "simulate: " + str(self.progress) + "%"
+				time.sleep(1)
 				if not self.active:
 					raise RuntimeError("stopped")
 				idle()
 			self.progress = 100
+			self.msg = "finished"
 		finally:
 			self.active = False
 			print("done")

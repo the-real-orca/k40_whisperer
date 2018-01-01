@@ -20,11 +20,11 @@ config = {
 		},
 		'tasks': [
 					{'id': "engrave", "colors": [design.BLUE], "speed": 50, "type": Task.VECTOR},
-					{'id': "cut", "colors": [design.BLACK, design.RED], "speed": 5, "type": Task.VECTOR, "repeat": 3}
+					{'id': "cut", "colors": [design.BLACK, design.RED], "speed": 5, "type": Task.VECTOR, "repeat": 1}
 				],
 		'laser': {
-#					'type': k40_wrapper		# K40 China Laser
-					'type': laser_emulator	# Simulated Laser for Testing
+					'type': k40_wrapper		# K40 China Laser
+#					'type': laser_emulator	# Simulated Laser for Testing
 				}
 }
 
