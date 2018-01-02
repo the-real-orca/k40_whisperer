@@ -14,13 +14,16 @@ def urlForceReload(url):
 
 
 class Workspace:
-	def __init__(self, width=100, height=100, home='top-left', homeOff=[0,0], defaultOrigin='center', filemanager = None):
+	def __init__(self, width=100, height=100, home='top-left', homeOff=[0,0], defaultOrigin='center', filemanager = None, laser = None):
 		self._drawings = dict()
+		self.laser = laser
 		self.size = [width, height]
 		self.home = home
 		self.homeOff = homeOff
 		self.filemanager = filemanager
 		self.defaultOrigin = defaultOrigin
+		self.indicator = False
+		self.indicatorOff = [0,0]
 		self.reset()
 
 	def reset(self):
@@ -50,10 +53,35 @@ class Workspace:
 			self.workspaceOrigin = [ self.size[0]/2, self.size[1]/2 ]
 		self.workspaceOrigin[0] -= self.homePos[0]
 		self.workspaceOrigin[1] -= self.homePos[1]
-		
+
+		self.indicator = False
+
 	def update(self):
 		print("workspace has been updated -> reload")
-		# TODO
+		if len(self._drawings) > 0:
+			boundingBoxes = []
+			for id in self._drawings:
+				boundingBoxes.append(self._drawings[id].getBoundingBox())
+			boundingBox = product = reduce(
+				(lambda x, y: [min(x[0], y[0]), min(x[1], y[1]), max(x[2], y[2]), max(x[3], y[3])]), boundingBoxes)
+		else:
+			boundingBox = [0, 0, 0, 0]
+		if self.indicator == 'top-left':
+			dx = boundingBox[0]
+			dy = boundingBox[3]
+		elif self.indicator == 'top-right':
+			dx = boundingBox[2]
+			dy = boundingBox[3]
+		elif self.indicator == 'bottom-left':
+			dx = boundingBox[0]
+			dy = boundingBox[1]
+		elif self.indicator == 'bottom-right':
+			dx = boundingBox[2]
+			dy = boundingBox[1]
+		else:
+			dx = 0
+			dy = 0
+		self.indicatorOff = [dx,dy]
 
 			
 	def add(self, drawing):
@@ -105,6 +133,9 @@ class Workspace:
 			"height": self.size[1],
 			"homePos": self.homePos,
 			"workspaceOrigin": self.workspaceOrigin,
+			"indicator": self.indicator if (self.workspaceOrigin[0]+self.indicatorOff[0])==self.laser.x and
+											(self.workspaceOrigin[1]++self.indicatorOff[1])==self.laser.y
+											else False,
 			"viewBox": [-self.workspaceOrigin[0], -self.workspaceOrigin[1], self.size[0], self.size[1]],
 			"items": []
 
@@ -134,9 +165,12 @@ class Workspace:
 				
 	def setParams(self, params):
 
+		# update indicator
+		self.setIndicator( params.get('indicator', self.indicator) )
+
 		# update workspace origin
-		self.workspaceOrigin= params.get('workspaceOrigin', self.workspaceOrigin)
-	
+		self.setWorkspaceOrigin( params.get('workspaceOrigin', self.workspaceOrigin) )
+
 		# find drawing by id
 		id = params.get('id', None)
 		if not(id): return
@@ -170,6 +204,18 @@ class Workspace:
 			self.filemanager.saveSVG(drawing, drawing.path)
 			drawing.url = urlForceReload(drawing.url)
 			self.update()
-				
-		
-		
+
+	def setIndicator(self, params):
+		# update indicator location
+		if self.indicator != params:
+			self.indicator = params
+			self.update()
+			self.setWorkspaceOrigin(self.workspaceOrigin)
+
+	def setWorkspaceOrigin(self, params):
+		# update workspace origin
+		self.workspaceOrigin = params
+
+		# move laser to indicator position
+		if self.indicator and self.laser:
+			self.laser.moveTo(self.workspaceOrigin[0]+self.indicatorOff[0], self.workspaceOrigin[1]+self.indicatorOff[1])

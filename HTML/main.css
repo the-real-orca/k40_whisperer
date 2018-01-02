@@ -5,8 +5,8 @@ div {
 fieldset {
 	border: 1px solid rgba(0, 0, 0, 0.2);
 	border-radius: 0.3em;
-	margin-bottom: 1em;
-	padding: 0.5em 2em;
+	margin: 0.5em;
+	padding: 0.5em;
 }
 
 legend {
@@ -472,19 +472,23 @@ svg #workspaceRect {
 }
 
 .small {
-	font-size: 75%;
+	font-size: 75% !important;
 }
 
 .x-small {
-	font-size: 50%;
+	font-size: 50% !important;
 }
 
 .large {
-	font-size: 125%;
+	font-size: 125% !important;
 }
 
 .x-large {
-	font-size: 200%;
+	font-size: 150% !important;
+}
+
+.xx-large {
+	font-size: 200% !important;
 }
 
 .inline {
@@ -495,29 +499,37 @@ svg #workspaceRect {
 .moveControl {
 	margin: 0;
 	padding: 0;
-	width: calc(100% - 12em);
+	width: calc(100% - 13em);
 	height: 90vh;
 }
 
 .moveSidePanel {
 	margin: 0 auto;
-	width: 12em;
+	width: 13em;
+}
+
+.moveSidePanel legend {
+	margin: -0.5em auto;
+}
+
+.moveSidePanel button {
+	width: 7em;
 }
 
 .positionDisplay {
-	margin: 2em 0;
+	margin: 0.5em;
+	text-align: center;
 }
 
 .positionDisplay > * {
-	margin: 1em auto;
+	margin: 0.5em auto;
 }
 
 .laserControl {
 }
 
 .laserControl > * {
-	margin: 1em;
-	width: 7em;
+	margin: 0.5em auto;
 }
 
 table.move {
@@ -542,7 +554,33 @@ button.move, .button.move  {
 	margin: 0;
 	padding: 0;
 	width: 95%;
-	height: 100%;
+	height: 95%;
+}
+
+.indicator {
+    height: 95%;
+    width: 95%;
+    display: block;
+    margin: auto;
+}
+
+.indicator > button, .indicator > .button  {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 110%;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    background: #e2e2e2;
+}
+
+.indicator > input:checked ~ button, .indicator > input:checked ~ .button  {
+	background: white;
+    color: mediumvioletred;
+    text-shadow: 0 0 2em red;
+	box-shadow: .05em .05em .3em rgba(0, 0, 0, 0.5) inset
 }
 
 .toUp {
@@ -562,17 +600,6 @@ button.move, .button.move  {
 
 .toRight {
 	display: inline-block;
-}
-
-.anchorPos  {
-	background: #EEE;
-	color: #444;
-	vertical-align: middle;
-}
-
-:checked + .anchorPos {
-	box-shadow: -.05em -.05em .2em rgba(255, 255, 255, 0.5) inset, .05em .05em .2em rgba(0, 0, 0, 0.5) inset;
-	color: #F11 !important;
 }
 
 .taskList {
@@ -613,14 +640,12 @@ button.move, .button.move  {
 }
 
 .taskSidePanel > button {
-	margin: 1em auto;
-	padding: 0.5em;
-	width: 2.5em;
-	font-size: 175%;
-    height: 7em;
+    margin: 2em auto;
+    padding: 0.5em;
+    width: 3em;
+    height: 9em;
+    font-size: 125%;
 }
-}
-
 
 .settings {
 	font-size: 105%;

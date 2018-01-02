@@ -38,6 +38,9 @@
 		<div class="title">
 			<h1 data-bind="click: getStatus"><i class="icon-hazard-laser"></i> Laser Whisperer</h1>
 		</div>
+		<div>
+			(<span data-bind="text: pos.x"></span>,<span data-bind="text: pos.y"></span>)
+		</div>
 		<div class="status">
 			<span class="dangerous" data-bind="css: { ok: status.laser, error: alert.laser }"><i class="icon-laser"></i></span>
 			<span data-bind="css: { ok: status.airassist, error: alert.airassist }"><i class="icon-fan"></i> <span data-bind="text: status.airassist" class="unit percent"></span></span>
@@ -125,9 +128,19 @@
 							<td></td><td></td><td></td>
 						</tr>
 						<tr>
-							<td></td><td></td><td></td>
+							<td></td><td>
+								<label class="indicator">
+									<input type="radio" value="top-left" name="indicator" data-bind="checked: workspace.indicator"></input>
+									<i class="button icon-top-left"></i>
+								</label>
+							</td><td></td>
 							<td><button class="move" data-bind="click: moveWorkspaceOrigin.bind($data, 0, $root.config.stepSize() ), enable: status.usb() && !status.laser()"><i class="toUp icon-move_std"></i></button></td>
-							<td></td><td></td><td></td>
+							<td></td><td>
+								<label class="indicator">
+									<input type="radio" value="top-right" name="indicator" data-bind="checked: workspace.indicator"></input>
+									<i class="button icon-top-right"></i>
+								</label>
+							</td><td></td>
 						</tr>
 						<tr>
 							<td></td><td></td><td></td>
@@ -140,9 +153,9 @@
 							<td><button class="move" data-bind="click: moveWorkspaceOrigin.bind($data, -$root.config.stepSize()/10, 0), enable: status.usb() && !status.laser()"><i class="toLeft icon-move_slow"></i></button></td>
 							
 							<td>
-								<label class="TODO anchorPos button flat"><!-- center -->
-									<i class="icon-center"></i>
-									<input type="radio" value="center" name="anchorPos" data-bind="checked: anchor"></input>
+								<label class="indicator">
+									<input type="radio" value="origin" name="indicator" data-bind="checked: workspace.indicator"></input>
+									<i class="button icon-origin"></i>
 								</label>
 							</td>
 							
@@ -156,9 +169,19 @@
 							<td></td><td></td><td></td>
 						</tr>
 						<tr>
-							<td></td><td></td><td></td>
+							<td></td><td>
+								<label class="indicator">
+									<input type="radio" value="bottom-left" name="indicator" data-bind="checked: workspace.indicator"></input>
+									<i class="button icon-bottom-left"></i>
+								</label>
+							</td><td></td>
 							<td><button class="move" data-bind="click: moveWorkspaceOrigin.bind($data, 0, -$root.config.stepSize() ), enable: status.usb() && !status.laser()"><i class="toDown icon-move_std"></i></button></td>
-							<td></td><td></td><td></td>
+							<td></td><td>
+								<label class="indicator">
+									<input type="radio" value="bottom-right" name="indicator" data-bind="checked: workspace.indicator"></input>
+									<i class="button icon-bottom-right"></i>
+								</label>
+							</td><td></td>
 						</tr>
 						<tr>
 							<td></td><td></td><td></td>
@@ -168,18 +191,22 @@
 					</table>
 				</div>
 				<div class="moveSidePanel">
-					<div class="positionDisplay">
+					<fieldset class="positionDisplay">
+						<legend><i class="icon-origin large"></i></legend>
 						<div>
 							<b>X:</b> <input type="number" data-bind="numericValue: workspace.workspaceOrigin.x, precision: 2, enable: pos.valid"></input><span class="unit" data-bind="text: unit.pos"></span>
 						</div>
 						<div>
 							<b>Y:</b> <input type="number" data-bind="numericValue: workspace.workspaceOrigin.y, precision: 2, enable: pos.valid"></input><span class="unit" data-bind="text: unit.pos"></span>
 						</div>
-					</div>
-					<hr>
-					<div class="laserControl">
-						<button data-bind="css: {success: !pos.valid()}, click: resetWorkspaceOrigin, enable: status.usb() && !status.laser()"><i class="icon-ccw"></i> Reset</button>
-					</div>
+						<button data-bind="css: {success: !pos.valid()}, click: resetWorkspaceOrigin, enable: status.usb() && !status.laser()"><i class="icon-forward"></i> (0,0)</button>
+					</fieldset>
+					<fieldset class="laserControl">
+						<legend><i class="icon-attention large"></i></legend>
+						<button data-bind="click: unlock, enable: status.usb() && !status.laser()"><i class="icon-eject"></i></button>
+						<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off"></i></button>
+						<button class="error" data-bind="click: releaseLaser, visible: status.usb, enable: !status.laser()"><i class="icon-off"></i></button>
+					</fieldset>
 				</div>
 			</div>
 		</div>
@@ -195,13 +222,6 @@
 						<span data-bind="text: activeTask.status"></span> / <span data-bind="text: activeTask.progress"></span>%
 					</div>
 				</div>
-			</div>
-			<div class="center laserControl">
-				<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off"></i> Init</button>
-				<button data-bind="click: releaseLaser, visible: status.usb, enable: !status.laser()"><i class="icon-off"></i> Release</button>
-				<button data-bind="css: {success: !pos.valid()}, click: home, enable: status.usb() && !status.laser()"><i class="icon-home"></i> Home</button>
-				<button data-bind="click: unlock, enable: status.usb() && !status.laser()"><i class="icon-eject"></i> Unlock</button>
-				<button data-bind="click: stop, enable: status.usb" class="error"><i class="icon-close-octagon"></i> Stop</button>
 			</div>
 			<hr>
 			<div class="flex">
@@ -220,7 +240,8 @@
 					</tbody></table>
 				</div>
 				<div class="taskSidePanel">
-					<button class="success icon-play" data-bind="click: taskRunAll, enable: status.usb() && !status.laser()"></button>
+					<button class="success" data-bind="click: taskRunAll, enable: status.usb(), visible: !status.laser()"><i class="icon-play x-large"></i></button>
+					<button class="error" data-bind="click: stop, enable: status.usb(), visible: status.laser()"><i class="icon-close-octagon xx-large"></i></button>
 				</div>
 			</div>
 		</div>
@@ -336,7 +357,7 @@
 							<td colspan="4">
 								<button data-bind="click: alignLeftOfAxis"><i class="icon-align-right"></i></button>
 								<button data-bind="click: alignRightOfAxis"><i class="icon-align-left"></i></button>
-								<button data-bind="click: alignToOrigin"><i class="icon-center"></i></button>
+								<button data-bind="click: alignToOrigin"><i class="icon-origin"></i></button>
 								<button data-bind="click: alignAboveOfAxis"><i class="icon-align-bottom"></i></button>
 								<button data-bind="click: alignUnderAxis"><i class="icon-align-top"></i></button>
 								<!--

@@ -41,16 +41,14 @@ function fxSlideUpRemove(elem) {
 
 // laser functions
 function moveWorkspaceOrigin(dx, dy) {
-	dx = parseFloat(dx); dy = parseFloat(dy)
-	var x = parseFloat(viewModel.workspace.workspaceOrigin.x()) + dx
-	var y = parseFloat(viewModel.workspace.workspaceOrigin.y()) + dy
-	sendCommand([{cmd: 'move', params: {dx: dx, dy: dy}},
-			{cmd: 'workspace.set', params: {workspaceOrigin: [x,y]}}])
+	var x = parseFloat(viewModel.workspace.workspaceOrigin.x()) + parseFloat(dx)
+	var y = parseFloat(viewModel.workspace.workspaceOrigin.y()) + parseFloat(dy)
+	sendCommand('workspace.origin', [x,y])
 	return true
 }
 function resetWorkspaceOrigin() {
 	sendCommand([{cmd: 'home'},
-			{cmd: 'workspace.set', params: {workspaceOrigin: [0,0]}}])
+			{cmd: 'workspace.set', params: {indicator: 'origin', workspaceOrigin: [0,0]}}])
 	return true
 }
 
@@ -314,11 +312,6 @@ function updateStatus(data) {
 		viewModel.message( data.message )
 	}
 
-	// update anchor
-	if ( typeof data.anchor == "string" ) {
-		viewModel.anchor( data.anchor )
-	}
-
 	// update workspace
 	if ( typeof data.workspace == "object" ) {
 		if ( "width" in data.workspace )
@@ -333,6 +326,9 @@ function updateStatus(data) {
 			viewModel.workspace.workspaceOrigin.x( data.workspace["workspaceOrigin"][0] )
 			viewModel.workspace.workspaceOrigin.y( data.workspace["workspaceOrigin"][1] )
 		}
+        if ( "indicator" in data.workspace)
+            viewModel.workspace.indicator( data.workspace["indicator"] )
+
 		if ( "viewBox" in data.workspace )
 			viewModel.workspace.viewBox( data.workspace["viewBox"] )
 		
@@ -466,6 +462,7 @@ var viewModel = {
 			y: ko.observable(0)
 		},
 		viewBox: ko.observable([0,0,0,0]),
+    	indicator: ko.observable(""),
 		items: ko.observableArray()
 	},
 	pos: {
@@ -473,7 +470,6 @@ var viewModel = {
 		x: ko.observable(0),
 		y: ko.observable(0)
 	},
-	anchor: ko.observable('upperLeft'),
 	activeTask: {
 		id: ko.observable(""),
 		name: ko.observable(""),
@@ -530,8 +526,8 @@ viewModel.selectedItem.yset.subscribe((val)=>{ if ( val !== undefined ) viewMode
 viewModel.selectedItem.dx.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.xset(undefined)}, this)
 viewModel.selectedItem.dy.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.yset(undefined)}, this)
 
-viewModel.anchor.subscribe(function (val) {
-	sendCommand('anchor', val)
+viewModel.workspace.indicator.subscribe(function (val) {
+	sendCommand('workspace.indicator', val)
 }, this)
 viewModel.pos.x.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
 viewModel.pos.y.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)

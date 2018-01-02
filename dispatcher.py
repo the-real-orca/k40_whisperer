@@ -15,7 +15,7 @@ filemanager = FileManager(rootPath = COMPUTED_FOLDER, webRootPath = HTML_FOLDER)
 configFileManager(filemanager)
 
 # init workspace
-workspace = Workspace(filemanager = filemanager)
+workspace = Workspace(filemanager = filemanager, laser = laser)
 configWorkspace(workspace)
 
 # init task manager
@@ -75,6 +75,8 @@ def dispatchCommand(cmd, params = None):
 		"workspace.clear": workspace.clear,
 		"workspace.remove": workspace.remove,
 		"workspace.set": workspace.setParams,
+		"workspace.indicator": workspace.setIndicator,
+		"workspace.origin": workspace.setWorkspaceOrigin,
 		"item.set": workspace.setParams,
 		"task.set": taskmanager.setParams,
 		"task.run": taskmanager.run
