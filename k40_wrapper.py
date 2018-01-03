@@ -129,6 +129,7 @@ class LASER_CLASS:
 	def move(self, dx, dy):
 		if not( self.isInit() ) or self.isActive(): return
 		if self.x is False or self.y is False: return
+		if dx == 0 and dy == 0: return
 		print("move: " + str(dx) + "/" + str(dy))
 # TODO check movement area
 		dxmils = round(dx*self.scale)
@@ -143,6 +144,7 @@ class LASER_CLASS:
 		if not( self.isInit() ) or self.isActive(): return
 		if self.x is False or self.y is False:
 			self.home()
+		if x == self.x and y == self.y: return
 		print("goto: " + str(x) + "/" + str(y))
 # TODO check movement area
 		dxmils = round( (x-self.x) *self.scale)

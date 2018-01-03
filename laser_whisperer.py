@@ -75,8 +75,7 @@ def handleCommand():
 			#dispatcher.dispatchCommand(cmd.get("cmd"), cmd.get("params", None))
 			gevent.spawn(dispatcher.dispatchCommand, cmd.get("cmd"), cmd.get("params", None))
 	finally:
-		# send status
-		return handleStatus()
+		return ""
 
 print("start webserver")
 if __name__ == '__main__':

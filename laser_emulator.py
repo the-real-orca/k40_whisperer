@@ -60,6 +60,7 @@ class LASER_CLASS:
 	""" move relative to current position """
 	def move(self, dx, dy):
 		if not( self.isInit() ) or self.active: return
+		if dx == 0 and dy == 0: return
 		print("LASER_CLASS move", dx, dy)
 		time.sleep(1)
 		self.x += dx
@@ -69,6 +70,7 @@ class LASER_CLASS:
 	""" go to absolute position """
 	def moveTo(self, x, y):
 		if not( self.isInit() ) or self.active: return
+		if x == self.x and y == self.y: return
 		print("LASER_CLASS moveTo", x, y)
 		time.sleep(1)
 		self.x = x

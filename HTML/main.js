@@ -521,17 +521,16 @@ var viewModel = {
 viewModel.continue = function() {
 	viewModel.wait(false)
 }
-viewModel.selectedItem.xset.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.dx(undefined)}, this)
-viewModel.selectedItem.yset.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.dy(undefined)}, this)
-viewModel.selectedItem.dx.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.xset(undefined)}, this)
-viewModel.selectedItem.dy.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.yset(undefined)}, this)
+viewModel.selectedItem.xset.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.dx(undefined) }, this)
+viewModel.selectedItem.yset.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.dy(undefined) }, this)
+viewModel.selectedItem.dx.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.xset(undefined) }, this)
+viewModel.selectedItem.dy.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.yset(undefined )}, this)
 
-viewModel.workspace.indicator.subscribe(function (val) {
-	sendCommand('workspace.indicator', val)
-}, this)
-viewModel.pos.x.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
-viewModel.pos.y.subscribe(()=>{moveTo(viewModel.pos.x(), viewModel.pos.y())}, this)
+viewModel.workspace.indicator.subscribe((val)=>{ sendCommand('workspace.indicator', val) }, this)
+viewModel.workspace.workspaceOrigin.x.subscribe(()=>{ sendCommand('workspace.origin', [parseFloat(viewModel.workspace.workspaceOrigin.x()), parseFloat(viewModel.workspace.workspaceOrigin.y())]) }, this)
+viewModel.workspace.workspaceOrigin.y.subscribe(()=>{ sendCommand('workspace.origin', [parseFloat(viewModel.workspace.workspaceOrigin.x()), parseFloat(viewModel.workspace.workspaceOrigin.y())]) }, this)
 viewModel.workspace.items.extend({ rateLimit: 100 })
+
 viewModel.tasks.extend({ rateLimit: 100 })
 
 function init() {

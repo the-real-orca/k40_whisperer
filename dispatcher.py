@@ -70,7 +70,7 @@ def dispatchCommand(cmd, params = None):
 		"unlock": laser.unlock,
 		"stop": laser.stop,
 		"move": lambda params: laser.move(float(params.get("dx", 0)), float(params.get("dy", 0))),
-		"moveTo": lambda params: laser.moveTo(float(params.get("dx", 0)), float(params.get("dy", 0))),
+		"moveto": lambda params: laser.moveTo(float(params.get("x", 0)), float(params.get("y", 0))),
 		"workspace.load": workspace.load,
 		"workspace.clear": workspace.clear,
 		"workspace.remove": workspace.remove,
