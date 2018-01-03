@@ -339,34 +339,34 @@ button.active, .button.active, button:active, .button:active {
 	font-size: 30px;
 }
 
-.status {
+.statusLine {
 	right: 0;
 	position: absolute;
 }
 
-.status > * {
+.statusLine > * {
 	margin: 0 0.4em;
 	font-size: 110%;
 	color: #AAA;
 }
 
-.status .ok {
+.statusLine .ok {
 	color: black;
 }
 
-.status .ok.dangerous{
+.statusLine .ok.dangerous{
 	color: darkred;
 }
 
-.status .warn {
+.statusLine .warn {
 	color: darkorange;
 }
 
-.status .error {
+.statusLine .error {
 	color: #D00 !important;
 }
 
-.status .error:before {
+.statusLine .error:before {
 	font-family: "laser-font";
 	content: "\e80e";
 }
@@ -374,6 +374,11 @@ button.active, .button.active, button:active, .button:active {
 .unit {
 	font-size: 90%;
 	padding-left: 0.1em;
+}
+
+.percent:after {
+	content: "%";
+	padding-right: 0.5em;
 }
 
 .upload {
@@ -603,9 +608,81 @@ button.move, .button.move  {
 }
 
 .taskList {
+    position: relative;
 	margin: 0;
-	padding: 0 0 0 1em;
+	padding: 1em 0 0 0;
 	width: calc(100% - 8em);
+	text-align: left;
+}
+
+.taskItem {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.taskItem div {
+	display: inline-block;
+	width: auto;
+	margin: 0.5em;
+}
+
+.taskItem .index {
+    width: 2em;
+	text-align: right;
+}
+
+.taskItem .index:after {
+	content: ".";
+	padding-right: 0.5em;
+}
+
+.taskList .progress {
+    flex-grow: 10;
+    border-radius: 0.25em;
+    box-shadow: 0 0.1em 0.3em rgba(0, 0, 0, 0.25) inset;
+    padding: 0 1em;
+    height: 2.5em;
+    display: block;
+    position: relative;
+    z-index: 0;
+}
+
+.taskList .progress > div {
+    background-color: #0074d9;
+    border-radius: inherit;
+//    box-shadow: 0.1em 0.1em 0.2em rgba(255, 255, 255, 0.75) inset, -0.1em -0.1em 0.2em rgba(0, 0, 0, 0.75) inset;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    left: 0;
+    z-index: -1;
+}
+
+.taskList .name {
+	font-size: 110%;
+	font-weight: bold;
+	text-shadow: .1em .1em .05em white;
+	cursor: pointer;
+    position: absolute;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+.taskItem .status {
+    width: 3.5em;
+    text-align: center;
+    text-shadow: .1em .1em .05em white;
+    right: 0;
+    position: absolute;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
 }
 
 .taskSidePanel {
@@ -613,37 +690,11 @@ button.move, .button.move  {
 	width: 8em;
 }
 
-.taskList table {
-	width: 100%;
-	margin: auto;
-}
-
-.taskList td {
-	padding: 0.5em;
-	width: 2em;
-}
-
-.taskList td > label {
-	width: 100%;
-	display: inline-block;;
-}
-
-.taskList td > button {
-	margin: 0 0.5em;
-}
-
-.taskList .name {
-	width: auto;
-	font-size: 110%;
-	font-weight: bold;
-	cursor: pointer;
-}
-
 .taskSidePanel > button {
-    margin: 2em auto;
+    margin: 3em auto;
     padding: 0.5em;
     width: 3em;
-    height: 9em;
+    height: 11em;
     font-size: 125%;
 }
 
@@ -743,4 +794,4 @@ button.move, .button.move  {
 	text-align: right;
 	width: auto;
 }
-	
+

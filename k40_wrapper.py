@@ -175,10 +175,10 @@ class LASER_CLASS:
 				f = float(m.group(2))
 				if m.group(1) == "Generating":
 					self.mode = "prepare"
-					self.progress = f/2
+					# self.progress = f
 				if m.group(1) == "Sending":
 					self.mode = "running"
-					self.progress = 50.0 + f/2
+					self.progress = f
 		idle()
 
 	def _waitWhileBussy(self, timeout = 20):

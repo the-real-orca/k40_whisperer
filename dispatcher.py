@@ -45,19 +45,8 @@ def getStatus():
 			"y": laser.y
 		},
 		"workspace": workspace.toJson(),
-		"activeTask": taskmanager.getActiveTask(),
-		"tasks": []
+		"tasks": taskmanager.toJson()
 	}
-	for task in taskmanager.tasks:
-		payload["tasks"].append({
-			"id": task.id,
-			"name": task.id,
-			"colors": task.colors,
-			"speed": task.speed,
-			"intensity": task.intensity,
-			"type": task.type,
-			"repeat": task.repeat
-		})
 	return payload
 
 

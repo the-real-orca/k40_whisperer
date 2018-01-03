@@ -193,6 +193,42 @@ function taskSaveParams() {
 	sendCommand('task.set', params)
 	return true
 }
+function taskStatusIcon(status) {
+    switch (status) {
+        case 'wait':
+            return "icon-hourglass"
+        case 'prepare':
+            return "icon-cog animate-spin"
+        case 'running':
+            return "icon-flash"
+        case 'finished':
+            return "icon-ok"
+        case 'error':
+            return "icon-cancel"
+        case 'stopped':
+            return "icon-stop"
+        case 'empty':
+            return "icon-minus"
+        default:
+            return "" // "icon-ellipsis-horizontal"
+    }
+}
+function taskStatusColor(status) {
+    switch (status) {
+        case 'prepare':
+        case 'running':
+        case 'stopped':
+            return "#0074d980"
+        case 'finished':
+            return "#2ecc4080"
+        case 'error':
+            return "#ff413680"
+        case 'wait':
+        case 'empty':
+        default:
+            return "#cccccc"
+    }
+}
 function workspaceClear() {
 	sendCommand('workspace.clear')
 	return true
@@ -356,19 +392,34 @@ function updateStatus(data) {
 	}
 
 	// update tasks
-	if ( typeof data.activeTask == "object" ) {
-		viewModel.activeTask.id(data.activeTask.id)
-		viewModel.activeTask.name(data.activeTask.name)
-		viewModel.activeTask.status(data.activeTask.status)
-		viewModel.activeTask.progress(data.activeTask.progress)
-	}
 	if ( data.tasks instanceof Array ) {
-		viewModel.tasks.removeAll()
+	    var tasks = viewModel.tasks()
+	    // prepare task list
+		for ( var i = 0; i < tasks.length; i++ )
+		    tasks[i].remove = true
+
+	    // update with received tasks
 		for ( var i = 0; i < data.tasks.length; i++ ) {
 			var json = data.tasks[i]
-			var task = ko.mapping.fromJS(json);
-			viewModel.tasks.push(task)
+            for ( var i = 0; i < tasks.length; i++ )
+                if (tasks[i].id() == json.id) {
+                    // task found -> update
+                    var task = tasks[i]
+                    ko.mapping.fromJS(json, task)
+                    task.remove = false
+                    break
+                }
+			if ( i == tasks.length ) {
+			    // new task -> append
+                var task = ko.mapping.fromJS(json);
+                task.statusIcon = ko.pureComputed(function() { return taskStatusIcon(this.status()) }, task)
+                task.statusColor = ko.pureComputed(function() { return taskStatusColor(this.status()) }, task)
+                viewModel.tasks.push(task)
+            }
 		}
+
+        // clean-up
+        viewModel.tasks.remove((item)=>{ return item.remove })
 	}
 	
 	// update sequence as final step to avoid data races
@@ -469,12 +520,6 @@ var viewModel = {
 		valid: ko.observable(false),
 		x: ko.observable(0),
 		y: ko.observable(0)
-	},
-	activeTask: {
-		id: ko.observable(""),
-		name: ko.observable(""),
-		status: ko.observable(""),
-		progress: ko.observable(0)
 	},
 	tasks: ko.observableArray(),
 	selectedTask: ko.observable(),
@@ -605,8 +650,7 @@ function init() {
     document.addEventListener('mozfullscreenchange', fullscreenEventHandler, false);
     document.addEventListener('MSFullscreenChange', fullscreenEventHandler, false);
 	viewModel.touchMode('ontouchstart' in window || navigator.msMaxTouchPoints || window.screen.width <= 1024)
-	if ( viewModel.touchMode() )
-		viewModel.dialog.fullscreen(true)
+// TODO	if ( viewModel.touchMode() ) viewModel.dialog.fullscreen(true)
 }
 
 function isFullscreen() {

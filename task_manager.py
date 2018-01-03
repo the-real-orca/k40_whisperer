@@ -1,5 +1,9 @@
 import design_utils as design
 
+import time
+def idle():
+	time.sleep(0.1)
+
 class Task:
 	VECTOR = "vector"
 	RASTER = "raster"
@@ -15,6 +19,8 @@ class Task:
 		self.intensity = intensity
 		self.type = type
 		self.repeat = repeat
+		self.status = "---"
+		self.progress = 0.0
 
 
 class TaskManager:
@@ -22,25 +28,35 @@ class TaskManager:
 		self.laser = laser
 		self.workspace = workspace
 		self.tasks = []
-		self.activeTask = None
+		self._activeTask = None
 
-	def getActiveTask(self):
-		if self.activeTask:
-			activeTask = {
-				"id": self.activeTask.id,
-				"name": self.activeTask.id,
-				"status": self.laser.mode,
-				"progress": self.laser.progress
+	def toJson(self):
+		json = []
+		for task in self.tasks:
+			if task == self._activeTask:
+				task.status = self.laser.mode
+				task.progress = self.laser.progress
+			t = {
+				"id": task.id,
+				"name": task.id,
+				"colors": task.colors,
+				"speed": task.speed,
+				"intensity": task.intensity,
+				"type": task.type,
+				"repeat": task.repeat,
+				"status": task.status,
+				"progress": task.progress
 			}
-		else:
-			activeTask = {
-				"id": 0,
-				"name": "---",
-				"status": "---",
-				"progress": 0
-			}
+			json.append(t)
+		return json
 
-		return activeTask
+	def updated(self):
+		# reset tasks
+		self._activeTask = None
+		for t in self.tasks:
+			t.status = "---"
+			t.progress = 0.0
+			print(t.id)
 
 	def setParams(self, params):
 		id = params.get('id', None)
@@ -64,6 +80,8 @@ class TaskManager:
 		task.type = params.get('type', Task.VECTOR)
 		task.repeat = int(params.get('repeat', 0))
 
+		self.updated()
+
 	def run(self, id = None):
 		if self.laser.isActive():
 			return
@@ -81,13 +99,23 @@ class TaskManager:
 				# id not found
 				return
 
+		for task in self.tasks:
+			task.status = "wait" if task in tasks else "---"
+			task.progress = 0.0
+
 		self.laser.enable()
 		for task in tasks:
-			self.activeTask = task
+			self._activeTask = task
 			if task.type == Task.VECTOR:
 				self.runVectorTask(task)
 			else:
 				self.runRasterTask(task)
+			# get final status of task
+			idle()
+			task.status = self.laser.mode
+			task.progress = self.laser.progress
+			if task.status == "error" or task.status == "stopped":
+				break
 		self.laser.home()
 
 	def runVectorTask(self, task):
@@ -102,6 +130,7 @@ class TaskManager:
 			polylines = list(filter(lambda p: p.color in task.colors, polylines))
 			if len(polylines) == 0:
 				self.laser.mode = "empty"
+				self.laser.progress = 100.0
 				return
 
 			# connect segmented polylines and reorder from inner to outer

@@ -126,6 +126,7 @@ class LASER_CLASS:
 						file.write("G0 X{:.2f} Y{:.2f}\n".format(p[0][0], p[0][1]))
 						for x in p:
 							file.write("G1 X{:.2f} Y{:.2f} E1\n".format(x[0], x[1]))
+			time.sleep(5)
 
 			# simulate cutting time
 			print("simulate cutting time ...")
