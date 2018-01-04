@@ -218,33 +218,29 @@
 			<div class="flex">
 				<div class="profile">
 					<input class="name" input="text" placeholder="Profile Name" data-bind="value: profile.name" />
-
-<select data-bind="options: profile.list,
-                       optionsText: 'name',
-                       value: profile.selected,
-                       optionsCaption: 'Choose...'"></select>
-
-
-					<button class="gray">&#9660;</button>
-					<button class="icon-floppy"></button>
+					<button class="icon-cubes"></button>
 				</div>
-				<div class="taskList" data-bind="foreach: tasks">
-					<div class="taskItem">
-						<div class="index"><span data-bind="text: $index()+1"></span></div>
-						<div class="progress">
-							<div data-bind="style: {width: progress()+'%', background: statusColor()}" ></div>
-							<label class="name" for="dialog_taskSettings" data-bind="text: name, click: ()=>{$root.selectedTask($data);return true}"></label>
-							<span class="status">
-								<span data-bind="css: statusIcon" class=""></span>
-<!--								<span data-bind="text: progress, visible: status()=='running'" class="unit percent"></span> -->
-							</span>
+				<div class="taskList">
+					<div data-bind="foreach: tasks">
+						<div class="taskItem">
+							<div class="index"><span data-bind="text: $index()+1"></span></div>
+							<div class="progress">
+								<div data-bind="style: {width: progress()+'%', background: statusColor()}" ></div>
+								<label class="name" for="dialog_taskSettings" data-bind="text: name, click: ()=>{$root.selectedTask($data);return true}"></label>
+								<span class="status">
+									<span data-bind="css: statusIcon" class=""></span>
+								</span>
+							</div>
+							<div>
+								<label for="dialog_taskSettings" class="gray button icon-sliders" data-bind="click: ()=>{$root.selectedTask($data);return true}"></label>
+							</div>
+							<div>
+								<button class="gray icon-play" data-bind="click: ()=>{taskRun($data.id())}, enable: $root.status.usb && !$root.status.laser()"></button>
+							</div>
 						</div>
-						<div>
-							<label for="dialog_taskSettings" class="gray button icon-sliders" data-bind="click: ()=>{$root.selectedTask($data);return true}"></label>
-						</div>
-						<div>
-							<button class="gray icon-play" data-bind="click: ()=>{taskRun($data.id())}, enable: $root.status.usb && !$root.status.laser()"></button>
-						</div>
+					</div>
+					<div class="index">
+						<button class="gray icon-plus" data-bind="click: ()=>{tasks.push(taskViewModel()); taskSave()}"></button>
 					</div>
 				</div>
 				<div class="taskSidePanel">
@@ -259,7 +255,7 @@
 
 		<!-- Setup -->
 		<input id="Setup" name="mainTabsGroup" type="radio" />
-		<label class="title" for="Setup"><i class="icon-cog"></i></label>
+		<label class="title" for="Setup"><i class="icon-wrench"></i></label>
 		<div class="content center">
 			<div class="flex">
 				<div class="">
@@ -270,7 +266,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<!-- ------------------------------------------------------------------------------ -->
 	<!-- fullscreen dialog -->
 	<div class="modal">
@@ -293,7 +289,7 @@
 
 	<!-- item dialog -->
 	<div class="modal">
-		<input id="dialog_itemsList" type="checkbox" />
+		<input id="dialog_itemsList" type="checkbox" data-bind="checked: dialog.itemsList"/>
 		<label for="dialog_itemsList" class="overlay"></label>
 		<article class="itemsList">
 			<section class="content">
@@ -316,8 +312,8 @@
 			<footer>
 				<div class="flex two">
 					<div>
-						<label ><input type="checkbox"  data-bind="checked: selectedItemsAll"/><span class="checkable">all</span></label>
-						
+						<label ><input type="checkbox"  data-bind="checked: selectAllItems"/><span class="checkable">all</span></label>
+
 						<span class="spacer"></span>
 						<label for="dialog_itemSettings" class="button icon-sliders" data-bind="click: ()=>{return itemPrepareParams()}"></label>
 					</div>
@@ -325,12 +321,12 @@
 						<button class="icon-folder-open" data-bind="click: uploadFile"> Open</button>
 						<label for="dialog_itemsList" class="button icon-logout"> Exit</label>
 					</div>
-				</div>			
+				</div>
 			</footer>
 		</article>
 	</div>
 	<div class="modal">
-		<input id="dialog_itemSettings" type="checkbox" />
+		<input id="dialog_itemSettings" type="checkbox" data-bind="checked: dialog.itemsSettings"/>
 		<label for="dialog_itemSettings" class="overlay"></label>
 		<article class="item settings">
 			<section class="content">
@@ -360,7 +356,7 @@
 								</label>
 							</td>
 						</tr>
-						
+
 						<tr>
 							<td class="parameter">align</td>
 							<td colspan="4">
@@ -410,12 +406,12 @@
 							</td>
 						</tr>
 					</table>
-<!--					
+<!--
 					<label>
 						<input type="checkbox" /><span class="checkable parameter">message before task</span>
 					</label>
 					<textarea class="" placeholder="Task Message ..."></textarea>
--->						
+-->
 				</form>
 			</section>
 			<footer>
@@ -430,10 +426,10 @@
 			</footer>
 		</article>
 	</div>
-	
+
 	<!-- task dialog -->
 	<div class="modal">
-		<input id="dialog_taskSettings" type="checkbox" />
+		<input id="dialog_taskSettings" type="checkbox" data-bind="checked: dialog.taskSettings"/>
 		<label for="dialog_taskSettings" class="overlay"></label>
 		<article class="task settings">
 			<section class="content">
@@ -508,7 +504,7 @@
 						<label for="dialog_taskSettings" class="button error">Cancel</label>
 					</div>
 					<div class="right">
-						<label for="dialog_taskSettings" class="button success" data-bind="click: taskSaveParams">OK</label>
+						<label for="dialog_taskSettings" class="button success" data-bind="click: taskSave">OK</label>
 					</div>
 				</div>
 			</footer>
@@ -518,13 +514,11 @@
 
 	<!-- wait overlay -->
 	<div class="modal">
-		<input id="wait_overlay" type="checkbox" data-bind="checked: wait" />
+		<input id="wait_overlay" type="checkbox" data-bind="checked: dialog.wait" />
 		<div class="overlay"></div>
 		<div class="wait">
-			<div>
-				<i class="icon-spin3 animate-spin" data-bind="visible: wait()===true"></i>
-			</div>
-			<div data-bind="html: wait, visible: wait()!==true"></div>
+			<div> <i class="icon-spin3 animate-spin"></i> </div>
+			<div data-bind="html: dialog.wait, visible: dialog.wait()!==true"></div>
 		</div>
 	</div>
 	<script type='text/javascript'>

@@ -3,6 +3,13 @@ function clone(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
 
+function uuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 ko.observableArray.fn.pushAll = function(valuesToPush) {
 	var underlyingArray = this()
 	this.valueWillMutate()
@@ -188,7 +195,7 @@ function taskRun(id) {
 	sendCommand('profile.run', id)
 	return true
 }
-function taskSaveParams() {
+function taskSave() {
 	var params = {
 		id: viewModel.profile.id(),
 		name: viewModel.profile.name(),
@@ -214,7 +221,7 @@ function taskStatusIcon(status) {
 		case 'empty':
 			return "icon-minus"
 		default:
-			return "" // "icon-ellipsis-horizontal"
+			return "" // icon-ellipsis-horizontal
 	}
 }
 function taskStatusColor(status) {
@@ -302,9 +309,62 @@ function sendCommand(cmd, params) {
 		data = prepareCommand(cmd, params)
 	}	
 	data.seqNr = viewModel.seqNr
+	viewModel.suppressUntil = Date.now() + 1000 // suppress updates for 1 Second
 	console.log("sending ...", data)
-	$.post('/command', JSON.stringify(data), updateStatus)
+// TODO	$.post('/command', JSON.stringify(data), updateStatus)
+	$.ajax({
+		type: 'POST',
+		url: '/command',
+		data: JSON.stringify(data),
+		dataType: 'application/json',
+		timeout: 1000,
+		success: function(data) {},
+		error: function(xhr, type) {
+			viewModel.suppressUntil = 0
+		}
+	})
+	return true
+
 }
+function taskViewModel(data={}, task) {
+	if ( !data.id )
+		data.id = uuid()
+	if ( typeof task == "object" ) {
+		task.id(data.id)
+		if ( data.name !== undefined )
+			task.name(data.name)
+		if ( data.colors !== undefined )
+			task.colors(data.colors)
+		if ( data.speed !== undefined )
+			task.speed( parseFloat(data.speed) )
+		if ( data.intensity !== undefined )
+			task.intensity( parseFloat(data.intensity) )
+		if ( data.type !== undefined )
+			task.type(data.type)
+		if ( data.repeat !== undefined )
+			task.repeat( parseInt(data.repeat) )
+		if ( data.status !== undefined )
+			task.status(data.status)
+		if ( data.progress !== undefined )
+			task.progress( parseFloat(data.progress) )
+	} else {
+		task = {
+			id: ko.observable(data.id),
+			name: ko.observable(data.name),
+			colors: ko.observable(data.colors),
+			speed: ko.observable(data.speed),
+			intensity: ko.observable(data.intensity),
+			type: ko.observable(data.type),
+			repeat: ko.observable(data.repeat),
+			status: ko.observable(data.status),
+			progress: ko.observable(data.progress)
+		}
+		task.statusIcon = ko.pureComputed(function() { return taskStatusIcon(this.status()) }, task)
+		task.statusColor = ko.pureComputed(function() { return taskStatusColor(this.status()) }, task)
+	}
+	return task
+}
+
 function getStatus() {
 	$.ajax({
 		type: 'GET',
@@ -347,10 +407,12 @@ function updateStatus(data) {
 		}
 	}
 
+/* TODO
 	// update message
 	if ( typeof data.message == "string" ) {
 		viewModel.message( data.message )
 	}
+*/
 
 	// update workspace
 	if ( typeof data.workspace == "object" ) {
@@ -407,17 +469,15 @@ function updateStatus(data) {
 			for ( var i = 0; i < data.profile.profiles.length; i++ ) {
 				var json = data.profile.profiles[i]
 				for ( var i = 0; i < profiles.length; i++ )
-					if (profiles[i].id() == json.id) {
+					if ( profiles[i].id == json.id ) {
 						// task found -> update
-						var profile = profiles[i]
-						ko.mapping.fromJS(json, profile)
-						profile.remove = false
+						profiles[i].name = json.name
+						profiles[i].remove = false
 						break
 					}
 				if ( i == profiles.length ) {
 					// new profile -> append
-					var profile = ko.mapping.fromJS(json); // TODO use only name and id
-					viewModel.profile.list.push(profile)
+					viewModel.profile.list.push({ id: json.id, name: json.name })
 				}
 			}
 
@@ -447,15 +507,13 @@ function updateStatus(data) {
 						if (tasks[i].id() == json.id) {
 							// task found -> update
 							var task = tasks[i]
-							ko.mapping.fromJS(json, task)
+							taskViewModel(json, task)
 							task.remove = false
 							break
 						}
 					if ( i == tasks.length ) {
 						// new task -> append
-						var task = ko.mapping.fromJS(json);
-						task.statusIcon = ko.pureComputed(function() { return taskStatusIcon(this.status()) }, task)
-						task.statusColor = ko.pureComputed(function() { return taskStatusColor(this.status()) }, task)
+						var task = taskViewModel(json);
 						viewModel.tasks.push(task)
 					}
 				}
@@ -468,7 +526,8 @@ function updateStatus(data) {
 
 	// update sequence as final step to avoid data races
 	// -> intermediate requests will be ignored due-to sequence error
-	viewModel.seqNr = data.seqNr
+	if ( !viewModel.edit() )
+		viewModel.seqNr = data.seqNr
 	viewModel.instable = false
 }
 function uploadFile() {
@@ -482,7 +541,7 @@ function sendFile() {
 		return;
 
 	// indicate uploading
-	viewModel.wait("<i class='icon-upload x-large'></i><br>" + file.name);
+	viewModel.dialog.wait("<i class='icon-upload x-large'></i><br>" + file.name);
 
 	// build form data object
 	var fd = new FormData();
@@ -512,6 +571,8 @@ function sendFile() {
 // view model data
 var viewModel = {
 	instable: false,
+	edit: ko.pureComputed(function() { return viewModel.dialog.itemsSettings() || viewModel.dialog.taskSettings() }),
+	suppressUntil: 0,
 	touchMode: ko.observable(false),
 	seqNr: 0,
 	status: {
@@ -521,9 +582,7 @@ var viewModel = {
 		waterTemp: ko.observable(0),
 		waterFlow: ko.observable(0),
 		network: ko.observable(false),
-		networkIcon: ko.pureComputed(function() {
-			return viewModel.status.network() ? "icon-lan-connect" : "icon-lan-disconnect";
-		}),
+		networkIcon: ko.pureComputed(function() { return viewModel.status.network() ? "icon-lan-connect" : "icon-lan-disconnect"; }),
 		fullscreen: ko.observable(isFullscreen())
 	},
 	alert: {
@@ -534,7 +593,6 @@ var viewModel = {
 		waterFlow: ko.observable(false),
 		network: ko.observable(false)
 	},
-	message: ko.observable(""),
 	unit: {
 		pos: ko.observable("mm"),
 		speed: ko.observable("mm/s"),
@@ -588,7 +646,7 @@ var viewModel = {
 		boundingBox: ko.observable(),
 		color: ko.observable()		
 	},
-	selectedItemsAll: ko.pureComputed({
+	selectAllItems: ko.pureComputed({
 		read: function() {
 			selectedCount=0
 			for ( var i = 0; i < viewModel.workspace.items().length; i++ ) {
@@ -607,15 +665,15 @@ var viewModel = {
 		owner: this
 	}),
 	dialog: {
-		fullscreen: ko.observable(false)
-	},
-	wait: ko.observable(false)
-	
+		fullscreen: ko.observable(false),
+		itemsList: ko.observable(false),
+		itemsSettings: ko.observable(false),
+		taskSettings: ko.observable(false),
+		wait: ko.observable(false)
+	}
 };
 // view model functions
-viewModel.continue = function() {
-	viewModel.wait(false)
-}
+viewModel.continue = function() { viewModel.dialog.wait(false) }
 viewModel.selectedItem.xset.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.dx(undefined) }, this)
 viewModel.selectedItem.yset.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.dy(undefined) }, this)
 viewModel.selectedItem.dx.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.xset(undefined) }, this)
@@ -626,10 +684,12 @@ viewModel.workspace.workspaceOrigin.x.subscribe(()=>{ sendCommand('workspace.ori
 viewModel.workspace.workspaceOrigin.y.subscribe(()=>{ sendCommand('workspace.origin', [parseFloat(viewModel.workspace.workspaceOrigin.x()), parseFloat(viewModel.workspace.workspaceOrigin.y())]) }, this)
 viewModel.workspace.items.extend({ rateLimit: 100 })
 
+viewModel.profile.name.subscribe(taskSave)
 viewModel.tasks.extend({ rateLimit: 100 })
 
 function init() {
-	
+
+/* TODO remove
 	// add pressed / released events for buttons
 	var eventPressed = null
 	$('button, .button').on('touchstart', function(e) {
@@ -664,7 +724,7 @@ function init() {
 	})
 	$('button, .button').on('keypress', function(e) { if ( e.key == ' ' || e.keyCode == 32 ) {$(e.target).trigger('pressed', e);} })
 	$('button, .button').on('keyup', function(e) { if ( e.key == ' ' || e.keyCode == 32 ) {$(e.target).trigger('released', e);} })
-
+*/
 
 	// init messages
 	init_msg()

@@ -608,7 +608,7 @@ button.move, .button.move  {
 }
 
 .profile {
-	margin: 1em;
+	margin: 1em 1.5em 0 1em;
 	text-align: left;
 	display: flex;
 	flex-direction: row;
@@ -629,7 +629,8 @@ button.move, .button.move  {
 .taskList {
     position: relative;
 	margin: 0;
-	width: calc(100% - 8em);
+	padding-left: 1em;
+	width: calc(100% - 10em);
 	text-align: left;
 }
 
@@ -646,13 +647,13 @@ button.move, .button.move  {
 	margin: 0.5em;
 }
 
-.taskItem .index {
-    width: 2em;
-	text-align: right;
+.taskList .index {
+    width: 1.5em;
+	margin: 0;
 }
 
 .taskItem .index:after {
-	content: ".";
+	content: ":";
 	padding-right: 0.5em;
 }
 
@@ -670,7 +671,6 @@ button.move, .button.move  {
 .taskList .progress > div {
     background-color: #0074d9;
     border-radius: inherit;
-//    box-shadow: 0.1em 0.1em 0.2em rgba(255, 255, 255, 0.75) inset, -0.1em -0.1em 0.2em rgba(0, 0, 0, 0.75) inset;
     height: 100%;
     padding: 0;
     margin: 0;
@@ -680,7 +680,6 @@ button.move, .button.move  {
 }
 
 .taskList .name {
-//	font-size: 110%;
 	font-weight: bold;
 	text-shadow: .1em .1em .05em white;
 	cursor: pointer;
@@ -704,20 +703,17 @@ button.move, .button.move  {
 }
 
 .taskSidePanel {
-	margin: 1em auto;
-	width: 8em;
+	width: auto;
+	margin: 0.5em 0;
 }
 
 .taskSidePanel > button {
-    margin: 3em auto;
-    padding: 0.5em;
-    width: 3em;
-    height: 11em;
-    font-size: 125%;
+	height: calc(100% - 3.5em);
+    font-size: 110%;
 }
 
 .settings {
-	font-size: 105%;
+	font-size: 110%;
 }
 
 .settings section {
@@ -727,7 +723,6 @@ button.move, .button.move  {
 .settings .name {
 	margin: 0.5em 1em;
 	width: 95%;
-	font-size: 110%;
 	font-weight: bold;
 }
 .settings .toggleSwitch {

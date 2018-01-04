@@ -23,14 +23,14 @@ config = {
 				'id': "sample",
 				'name': "sample",
 				'tasks': [
-					{'id': "sample", 'colors': [design.BLUE], 'speed': 50, 'type': Task.VECTOR}
+					{'id': "sample", 'name': "sample", 'colors': [design.BLUE], 'speed': 50, 'type': Task.VECTOR}
 				]
 			}, {
 				'id': "test_1",
 				'name': "test 3mm",
 				'tasks': [
-					{'id': "engrave", 'colors': [design.BLUE], 'speed': 50, 'type': Task.VECTOR},
-					{'id': "cut", 'colors': [design.BLACK, design.RED], 'speed': 5, 'type': Task.VECTOR, 'repeat': 1}
+					{'id': "engrave", 'name': "engrave", 'colors': [design.BLUE], 'speed': 50, 'type': Task.VECTOR},
+					{'id': "cut", 'name': "cut", 'colors': [design.BLACK, design.RED], 'speed': 5, 'type': Task.VECTOR, 'repeat': 1}
 				]
 			}
 		],

@@ -8,12 +8,9 @@ class Task:
 	VECTOR = "vector"
 	RASTER = "raster"
 
-	def __init__(self, id, name=None, colors=[design.BLACK], speed=100, intensity=0, type=VECTOR, repeat=1):
+	def __init__(self, id, name="", colors=[design.BLACK], speed=100, intensity=0, type=VECTOR, repeat=1):
 		self.id = id
-		if name:
-			self.name = name
-		else:
-			self.name = id
+		self.name = name
 		self.colors = colors
 		self.speed = speed
 		self.intensity = intensity
@@ -23,19 +20,16 @@ class Task:
 		self.progress = 0.0
 
 class Profile:
-	def __init__(self, id, name=None, tasks=[]):
+	def __init__(self, id, name="", tasks=[]):
 		self.id = id
-		if name:
-			self.name = name
-		else:
-			self.name = id
+		self.name = name
 		self.tasks = []
 		self.setTasks(tasks)
 
 	def setTasks(self, tasks):
 		self.tasks = []
 		for task in tasks:
-			self.tasks.append(Task(id=task['id'], colors=task.get('colors', design.BLACK), speed=task.get('speed', 0), type=task.get('type', None),
+			self.tasks.append(Task(id=task['id'], name=task.get('name', ""), colors=task.get('colors', [design.BLACK]), speed=task.get('speed', 0), type=task.get('type', None),
 		                              repeat=task.get('repeat', 1)))
 
 	def toJson(self):
@@ -50,7 +44,7 @@ class Profile:
 		for task in self.tasks:
 			json = {
 				'id': task.id,
-				'name': task.id,
+				'name': task.name,
 				'colors': task.colors,
 				'speed': task.speed,
 				'intensity': task.intensity,
@@ -108,13 +102,13 @@ class TaskManager:
 
 		# update profile
 		if id not in self.profiles:
-			profile = Profile(id, name=params.get('name', id), tasks=params.get('tasks', []))
+			profile = Profile(id, name=params.get('name', ""), tasks=params.get('tasks', []))
 			self.profiles[id] = profile
 		else:
 			profile = self.profiles[id]
 			profile.name = params.get('name', profile.name)
 			if 'tasks' in params:
-				profile.setTasks( params['tasks'] )
+				profile.setTasks( params.get('tasks', []) )
 
 		self._activeProfile = profile
 		self.updated()

@@ -61,7 +61,7 @@ def handleCommand():
 		if data.get("seqNr", False) != seqNr:
 			# sqeuence error -> ignore request and resend status
 			print("ignore request\n")
-			raise ValueError("sqeuence error -> ignore request and resend status")
+			raise ValueError("sqeuence error -> ignore request")
 
 		# increment sequence
 		seqNr += 1
@@ -74,8 +74,13 @@ def handleCommand():
 		for cmd in cmdList:
 			#dispatcher.dispatchCommand(cmd.get("cmd"), cmd.get("params", None))
 			gevent.spawn(dispatcher.dispatchCommand, cmd.get("cmd"), cmd.get("params", None))
-	finally:
-		return ""
+
+		# return status
+		return handleStatus()
+
+	except StandardError as e:
+		# return error
+		return str(e), 500
 
 print("start webserver")
 if __name__ == '__main__':
