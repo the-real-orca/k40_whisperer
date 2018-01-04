@@ -22,76 +22,115 @@ class Task:
 		self.status = "---"
 		self.progress = 0.0
 
+class Profile:
+	def __init__(self, id, name=None, tasks=[]):
+		self.id = id
+		if name:
+			self.name = name
+		else:
+			self.name = id
+		self.tasks = []
+		self.setTasks(tasks)
+
+	def setTasks(self, tasks):
+		self.tasks = []
+		for task in tasks:
+			self.tasks.append(Task(id=task['id'], colors=task.get('colors', design.BLACK), speed=task.get('speed', 0), type=task.get('type', None),
+		                              repeat=task.get('repeat', 1)))
+
+	def toJson(self):
+		return {
+			'id': self.id,
+			'name': self.name,
+			'tasks': self.tasksToJson()
+		}
+
+	def tasksToJson(self):
+		list = []
+		for task in self.tasks:
+			json = {
+				'id': task.id,
+				'name': task.id,
+				'colors': task.colors,
+				'speed': task.speed,
+				'intensity': task.intensity,
+				'type': task.type,
+				'repeat': task.repeat,
+				'status': task.status,
+				'progress': task.progress
+			}
+			list.append(json)
+		return list
 
 class TaskManager:
 	def __init__(self, laser, workspace):
 		self.laser = laser
 		self.workspace = workspace
-		self.tasks = []
+		self.profiles = {}
+		self._activeProfile = None
 		self._activeTask = None
 
 	def toJson(self):
-		json = []
-		for task in self.tasks:
-			if task == self._activeTask:
-				task.status = self.laser.mode
-				task.progress = self.laser.progress
-			t = {
-				"id": task.id,
-				"name": task.id,
-				"colors": task.colors,
-				"speed": task.speed,
-				"intensity": task.intensity,
-				"type": task.type,
-				"repeat": task.repeat,
-				"status": task.status,
-				"progress": task.progress
-			}
-			json.append(t)
+		json = {}
+
+		# update status and progress of active task
+		if self._activeProfile:
+			for task in self._activeProfile.tasks:
+				if task == self._activeTask:
+					task.status = self.laser.mode
+					task.progress = self.laser.progress
+
+		# add profiles list
+		json['profiles'] = []
+		for key in self.profiles:
+			profile = self.profiles[key]
+			json['profiles'].append(profile.toJson())
+
+		# active profile
+		if self._activeProfile:
+			json['active'] = self._activeProfile.toJson()
+
 		return json
+
 
 	def updated(self):
 		# reset tasks
 		self._activeTask = None
-		for t in self.tasks:
-			t.status = "---"
-			t.progress = 0.0
-			print(t.id)
+		if self._activeProfile:
+			for task in self._activeProfile.tasks:
+				task.status = "---"
+				task.progress = 0.0
 
-	def setParams(self, params):
+
+	def setProfile(self, params):
 		id = params.get('id', None)
 		if not(id): return
 
-		# find task by id
-		for task in self.tasks:
-			if task.id == id:
-				break
+		# update profile
+		if id not in self.profiles:
+			profile = Profile(id, name=params.get('name', id), tasks=params.get('tasks', []))
+			self.profiles[id] = profile
 		else:
-			# create new task
-			task = Task(id)
-			self.tasks.append(task)
+			profile = self.profiles[id]
+			profile.name = params.get('name', profile.name)
+			if 'tasks' in params:
+				profile.setTasks( params['tasks'] )
 
-		# set task params
-		task.id = params.get('id')
-		task.name = params.get('name', task.id)
-		task.colors = params.get('colors', [design.BLACK])
-		task.speed = float(params.get('speed', 100))
-		task.intensity = float(params.get('intensity', 0))
-		task.type = params.get('type', Task.VECTOR)
-		task.repeat = int(params.get('repeat', 0))
-
+		self._activeProfile = profile
 		self.updated()
 
+
 	def run(self, id = None):
-		if self.laser.isActive():
+		profile = self._activeProfile
+		if self.laser.isActive() or not(profile):
 			return
 
 		if id is None:
 			# process all tasks
-			tasks = self.tasks
+			tasks = profile.tasks
 		else:
 			# find task by id
-			for task in self.tasks:
+			for task in profile.tasks:
 				if task.id == id:
 					tasks = [task]
 					break
@@ -99,7 +138,7 @@ class TaskManager:
 				# id not found
 				return
 
-		for task in self.tasks:
+		for task in profile.tasks:
 			task.status = "wait" if task in tasks else "---"
 			task.progress = 0.0
 

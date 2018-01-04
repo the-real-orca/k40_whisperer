@@ -607,10 +607,28 @@ button.move, .button.move  {
 	display: inline-block;
 }
 
+.profile {
+	margin: 1em;
+	text-align: left;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.profile button, .profile .button {
+	margin-left: 1em;
+}
+
+.profile .name {
+	font-size: 110%;
+	font-weight: bold;
+	flex-grow: 10;
+}
+
 .taskList {
     position: relative;
 	margin: 0;
-	padding: 1em 0 0 0;
 	width: calc(100% - 8em);
 	text-align: left;
 }
@@ -662,7 +680,7 @@ button.move, .button.move  {
 }
 
 .taskList .name {
-	font-size: 110%;
+//	font-size: 110%;
 	font-weight: bold;
 	text-shadow: .1em .1em .05em white;
 	cursor: pointer;

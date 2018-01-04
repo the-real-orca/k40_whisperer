@@ -216,6 +216,18 @@
 		<label class="title" for="Process"><i class="icon-flash"></i></label>
 		<div class="content center">
 			<div class="flex">
+				<div class="profile">
+					<input class="name" input="text" placeholder="Profile Name" data-bind="value: profile.name" />
+
+<select data-bind="options: profile.list,
+                       optionsText: 'name',
+                       value: profile.selected,
+                       optionsCaption: 'Choose...'"></select>
+
+
+					<button class="gray">&#9660;</button>
+					<button class="icon-floppy"></button>
+				</div>
 				<div class="taskList" data-bind="foreach: tasks">
 					<div class="taskItem">
 						<div class="index"><span data-bind="text: $index()+1"></span></div>

@@ -45,7 +45,7 @@ def getStatus():
 			"y": laser.y
 		},
 		"workspace": workspace.toJson(),
-		"tasks": taskmanager.toJson()
+		"profile": taskmanager.toJson()
 	}
 	return payload
 
@@ -67,8 +67,8 @@ def dispatchCommand(cmd, params = None):
 		"workspace.indicator": workspace.setIndicator,
 		"workspace.origin": workspace.setWorkspaceOrigin,
 		"item.set": workspace.setParams,
-		"task.set": taskmanager.setParams,
-		"task.run": taskmanager.run
+		"profile.set": taskmanager.setProfile,
+		"profile.run": taskmanager.run
 	}
 
 	# handle command

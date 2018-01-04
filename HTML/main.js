@@ -181,53 +181,57 @@ function itemSaveParams() {
 	return true
 }
 function taskRunAll() {
-	sendCommand('task.run')
+	sendCommand('profile.run')
 	return true
 }
 function taskRun(id) {
-	sendCommand('task.run', id)
+	sendCommand('profile.run', id)
 	return true
 }
 function taskSaveParams() {
-	var params = ko.mapping.toJS(viewModel.selectedTask);
-	sendCommand('task.set', params)
+	var params = {
+		id: viewModel.profile.id(),
+		name: viewModel.profile.name(),
+		tasks: ko.mapping.toJS(viewModel.tasks)
+	}
+	sendCommand('profile.set', params)
 	return true
 }
 function taskStatusIcon(status) {
-    switch (status) {
-        case 'wait':
-            return "icon-hourglass"
-        case 'prepare':
-            return "icon-cog animate-spin"
-        case 'running':
-            return "icon-flash"
-        case 'finished':
-            return "icon-ok"
-        case 'error':
-            return "icon-cancel"
-        case 'stopped':
-            return "icon-stop"
-        case 'empty':
-            return "icon-minus"
-        default:
-            return "" // "icon-ellipsis-horizontal"
-    }
+	switch (status) {
+		case 'wait':
+			return "icon-hourglass"
+		case 'prepare':
+			return "icon-cog animate-spin"
+		case 'running':
+			return "icon-flash"
+		case 'finished':
+			return "icon-ok"
+		case 'error':
+			return "icon-cancel"
+		case 'stopped':
+			return "icon-stop"
+		case 'empty':
+			return "icon-minus"
+		default:
+			return "" // "icon-ellipsis-horizontal"
+	}
 }
 function taskStatusColor(status) {
-    switch (status) {
-        case 'prepare':
-        case 'running':
-        case 'stopped':
-            return "#0074d980"
-        case 'finished':
-            return "#2ecc4080"
-        case 'error':
-            return "#ff413680"
-        case 'wait':
-        case 'empty':
-        default:
-            return "#cccccc"
-    }
+	switch (status) {
+		case 'prepare':
+		case 'running':
+		case 'stopped':
+			return "#0074d980"
+		case 'finished':
+			return "#2ecc4080"
+		case 'error':
+			return "#ff413680"
+		case 'wait':
+		case 'empty':
+		default:
+			return "#cccccc"
+	}
 }
 function workspaceClear() {
 	sendCommand('workspace.clear')
@@ -362,8 +366,8 @@ function updateStatus(data) {
 			viewModel.workspace.workspaceOrigin.x( data.workspace["workspaceOrigin"][0] )
 			viewModel.workspace.workspaceOrigin.y( data.workspace["workspaceOrigin"][1] )
 		}
-        if ( "indicator" in data.workspace)
-            viewModel.workspace.indicator( data.workspace["indicator"] )
+		if ( "indicator" in data.workspace)
+			viewModel.workspace.indicator( data.workspace["indicator"] )
 
 		if ( "viewBox" in data.workspace )
 			viewModel.workspace.viewBox( data.workspace["viewBox"] )
@@ -391,37 +395,77 @@ function updateStatus(data) {
 		}
 	}
 
-	// update tasks
-	if ( data.tasks instanceof Array ) {
-	    var tasks = viewModel.tasks()
-	    // prepare task list
-		for ( var i = 0; i < tasks.length; i++ )
-		    tasks[i].remove = true
+	// update profiles / tasks
+	if ( typeof data.profile == "object" ) {
+		if ( data.profile.profiles instanceof Array ) {
+			var profiles = viewModel.profile.list()
+			// prepare task list
+			for ( var i = 0; i < profiles.length; i++ )
+				profiles[i].remove = true
 
-	    // update with received tasks
-		for ( var i = 0; i < data.tasks.length; i++ ) {
-			var json = data.tasks[i]
-            for ( var i = 0; i < tasks.length; i++ )
-                if (tasks[i].id() == json.id) {
-                    // task found -> update
-                    var task = tasks[i]
-                    ko.mapping.fromJS(json, task)
-                    task.remove = false
-                    break
-                }
-			if ( i == tasks.length ) {
-			    // new task -> append
-                var task = ko.mapping.fromJS(json);
-                task.statusIcon = ko.pureComputed(function() { return taskStatusIcon(this.status()) }, task)
-                task.statusColor = ko.pureComputed(function() { return taskStatusColor(this.status()) }, task)
-                viewModel.tasks.push(task)
-            }
+			// update with received profiles
+			for ( var i = 0; i < data.profile.profiles.length; i++ ) {
+				var json = data.profile.profiles[i]
+				for ( var i = 0; i < profiles.length; i++ )
+					if (profiles[i].id() == json.id) {
+						// task found -> update
+						var profile = profiles[i]
+						ko.mapping.fromJS(json, profile)
+						profile.remove = false
+						break
+					}
+				if ( i == profiles.length ) {
+					// new profile -> append
+					var profile = ko.mapping.fromJS(json); // TODO use only name and id
+					viewModel.profile.list.push(profile)
+				}
+			}
+
+			// clean-up
+			viewModel.profile.list.remove((item)=>{ return item.remove })
 		}
 
-        // clean-up
-        viewModel.tasks.remove((item)=>{ return item.remove })
+		if ( "active" in data.profile ) {
+			var profile = data.profile.active
+
+			// active profile
+			viewModel.profile.id( profile["id"] )
+			if ( "name" in profile )
+				viewModel.profile.name( profile["name"] )
+
+			// tasks
+			if ( profile.tasks instanceof Array ) {
+				var tasks = viewModel.tasks()
+				// prepare task list
+				for ( var i = 0; i < tasks.length; i++ )
+					tasks[i].remove = true
+
+				// update with received tasks
+				for ( var i = 0; i < profile.tasks.length; i++ ) {
+					var json = profile.tasks[i]
+					for ( var i = 0; i < tasks.length; i++ )
+						if (tasks[i].id() == json.id) {
+							// task found -> update
+							var task = tasks[i]
+							ko.mapping.fromJS(json, task)
+							task.remove = false
+							break
+						}
+					if ( i == tasks.length ) {
+						// new task -> append
+						var task = ko.mapping.fromJS(json);
+						task.statusIcon = ko.pureComputed(function() { return taskStatusIcon(this.status()) }, task)
+						task.statusColor = ko.pureComputed(function() { return taskStatusColor(this.status()) }, task)
+						viewModel.tasks.push(task)
+					}
+				}
+
+				// clean-up
+				viewModel.tasks.remove((item)=>{ return item.remove })
+			}
+		}
 	}
-	
+
 	// update sequence as final step to avoid data races
 	// -> intermediate requests will be ignored due-to sequence error
 	viewModel.seqNr = data.seqNr
@@ -513,13 +557,19 @@ var viewModel = {
 			y: ko.observable(0)
 		},
 		viewBox: ko.observable([0,0,0,0]),
-    	indicator: ko.observable(""),
+		indicator: ko.observable(""),
 		items: ko.observableArray()
 	},
 	pos: {
 		valid: ko.observable(false),
 		x: ko.observable(0),
 		y: ko.observable(0)
+	},
+	profile: {
+		id: ko.observable(),
+		name: ko.observable(),
+		selected: ko.observable(),
+		list: ko.observableArray()
 	},
 	tasks: ko.observableArray(),
 	selectedTask: ko.observable(),
@@ -645,19 +695,19 @@ function init() {
 	setInterval(getStatus, 1000)
 
 	// determine to switch to fullscreen mode
-    document.addEventListener('fullscreenchange', fullscreenEventHandler, false);
-    document.addEventListener('webkitfullscreenchange', fullscreenEventHandler, false);
-    document.addEventListener('mozfullscreenchange', fullscreenEventHandler, false);
-    document.addEventListener('MSFullscreenChange', fullscreenEventHandler, false);
+	document.addEventListener('fullscreenchange', fullscreenEventHandler, false);
+	document.addEventListener('webkitfullscreenchange', fullscreenEventHandler, false);
+	document.addEventListener('mozfullscreenchange', fullscreenEventHandler, false);
+	document.addEventListener('MSFullscreenChange', fullscreenEventHandler, false);
 	viewModel.touchMode('ontouchstart' in window || navigator.msMaxTouchPoints || window.screen.width <= 1024)
 // TODO	if ( viewModel.touchMode() ) viewModel.dialog.fullscreen(true)
 }
 
 function isFullscreen() {
-    return (document.Fullscreen || document.mozFullScreen || document.webkitIsFullScreen || document.msRequestFullscreen)
+	return (document.Fullscreen || document.mozFullScreen || document.webkitIsFullScreen || document.msRequestFullscreen)
 }
 function fullscreenEventHandler( event ) {
-    viewModel.status.fullscreen( isFullscreen() )
+	viewModel.status.fullscreen( isFullscreen() )
 }
 function enterFullscreen() {
 	return enterFullscreenElement(document.documentElement)

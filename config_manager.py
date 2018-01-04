@@ -1,4 +1,4 @@
-from task_manager import Task
+from task_manager import Profile, Task
 import design_utils as design
 
 # import laser communication
@@ -18,10 +18,22 @@ config = {
 			'homeOff': [0,0],
 			'size': [300, 200]
 		},
-		'tasks': [
-					{'id': "engrave", "colors": [design.BLUE], "speed": 50, "type": Task.VECTOR},
-					{'id': "cut", "colors": [design.BLACK, design.RED], "speed": 5, "type": Task.VECTOR, "repeat": 1}
-				],
+		'profiles': [
+			{
+				'id': "sample",
+				'name': "sample",
+				'tasks': [
+					{'id': "sample", 'colors': [design.BLUE], 'speed': 50, 'type': Task.VECTOR}
+				]
+			}, {
+				'id': "test_1",
+				'name': "test 3mm",
+				'tasks': [
+					{'id': "engrave", 'colors': [design.BLUE], 'speed': 50, 'type': Task.VECTOR},
+					{'id': "cut", 'colors': [design.BLACK, design.RED], 'speed': 5, 'type': Task.VECTOR, 'repeat': 1}
+				]
+			}
+		],
 		'laser': {
 #					'type': k40_wrapper		# K40 China Laser
 					'type': laser_emulator	# Simulated Laser for Testing
@@ -38,9 +50,9 @@ def configFileManager(filemanager):
 
 def configTasks(taskmanager):
 	try:
-		del taskmanager.tasks[:]
-		for task in config['tasks']:
-			taskmanager.tasks.append( Task(id=task['id'], colors=task['colors'], speed=task['speed'], type=task['type'], repeat=task.get('repeat',1)) )
+		taskmanager.profiles.clear()
+		for profile in config['profiles']:
+			taskmanager.setProfile( profile )
 	except:
 		print("task config error")
 
