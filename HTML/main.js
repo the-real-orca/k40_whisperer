@@ -1,13 +1,12 @@
 
 function clone(obj) {
-	return JSON.parse(JSON.stringify(obj));
+	return JSON.parse(JSON.stringify(obj))
 }
-
 function uuid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8)
+    return v.toString(16)
+  })
 }
 
 ko.observableArray.fn.pushAll = function(valuesToPush) {
@@ -16,6 +15,23 @@ ko.observableArray.fn.pushAll = function(valuesToPush) {
 	ko.utils.arrayPushAll(underlyingArray, valuesToPush)
 	this.valueHasMutated()
 	return this  //optional
+};
+ko.observable.fn.update = function(value) {
+	if ( this() == value )
+		return
+	if ( typeof(this.suppressUpdate) == "function" ) {
+		if ( this.suppressUpdate() )
+			return
+	} else {
+		if ( this.suppressUpdate )
+			return
+	}
+	this(value)
+	return this  //optional
+};
+ko.extenders.suppressUpdate = function(target, option) {
+    target.suppressUpdate = option
+    return target
 };
 ko.bindingHandlers.numericValue = {
 	init: function(element, valueAccessor) {
@@ -35,6 +51,39 @@ ko.bindingHandlers.numericValue = {
 	},
 	defaultPrecision: 2
 };
+/* TODO
+ko.extenders.logChange = function(target, option) {
+    target.subscribe(function(newValue) {
+       console.log(option + ": " + newValue)
+    });
+    return target
+}
+ko.extenders.confirmable = function(target, options) {
+    var message = options.message;
+    var unless = options.unless || function() { return false; }
+    //create a writeable computed observable to intercept writes to our observable
+    var result = ko.computed({
+        read: target,  //always return the original observables value
+        write: function(newValue) {
+            var current = target()
+
+            //ask for confirmation unless you don't have
+            if (unless() || confirm(message)) {
+                target(newValue)
+            } else {
+              target.notifySubscribers(current)
+            }
+        }
+    }).extend({ notify: 'always' })
+
+    //return the new computed observable
+    return result
+}
+var viewModel = {
+	myvalue: ko.observable(false).extend({confirmable: "Are you sure?"});
+    myvalue: ko.observable(false).extend({confirmable: { message: "Are you sure?", unless: function() { return new Date().getMonth() == 2 }} });
+}
+*/
 function fxFadeIn(elem) {
 	if (elem.nodeType === 1) {
 		$(elem).addClass("fadeIn").on('animationend webkitAnimationEnd', function(){ $(elem).removeClass("fadeIn")})
@@ -84,32 +133,32 @@ function unlock() {
 	return true
 }
 
-function itemUpdateSelected(item, selected) {		
+function itemUpdateSelected(item, selected) {
 	if ( !selected.name() )
 		selected.name( item.name() )
 	else
 		selected.name( selected.name() + ", " + item.name() )
-	
+
 	if ( selected.x() === null )
 		selected.x( item.x() )
 	else if ( selected.x() != item.x() )
 		selected.x( undefined )
-	
+
 	if ( selected.y() === null )
 		selected.y( item.y() )
 	else if ( selected.y() != item.y() )
 		selected.y( undefined )
-	
+
 	if ( selected.width() === null )
 		selected.width( item.width() )
 	else if ( selected.width() != item.width() )
 		selected.width( undefined )
-		
+
 	if ( selected.height() === null )
 		selected.height( item.height() )
 	else if ( selected.height() != item.height() )
 		selected.height( undefined )
-		
+
 	if ( selected.viewBox() === null )
 		selected.viewBox( item.viewBox() )
 	else if ( selected.viewBox() != item.viewBox() )
@@ -128,7 +177,7 @@ function itemUpdateSelected(item, selected) {
 		var yMax = Math.max(selectedBB[3], (itemBB[3] + item.y()))
 		selected.boundingBox( [xMin, yMin, xMax, yMax] )
 	}
-		
+
 	if ( selected.color() === null )
 		selected.color( item.color() )
 	else if ( selected.color() != item.color() )
@@ -146,7 +195,7 @@ function itemPrepareParams(index=undefined) {
 	selected.height(null)
 	selected.viewBox(null)
 	selected.boundingBox(null)
-	selected.color(null)	
+	selected.color(null)
 
 	for (var i=0; i < viewModel.workspace.items().length; i++) {
 		var item = viewModel.workspace.items()[i]
@@ -159,7 +208,7 @@ function itemPrepareParams(index=undefined) {
 
 	selected.xset(selected.x())
 	selected.yset(selected.y())
-	
+
 	return true
 }
 function itemSaveParams() {
@@ -184,7 +233,7 @@ function itemSaveParams() {
 		}
 	}
 	sendCommand(cmds)
-	
+
 	return true
 }
 function taskRunAll() {
@@ -307,7 +356,7 @@ function sendCommand(cmd, params) {
 		}
 	} else {
 		data = prepareCommand(cmd, params)
-	}	
+	}
 	data.seqNr = viewModel.seqNr
 	viewModel.suppressUntil = Date.now() + 1000 // suppress updates for 1 Second
 	console.log("sending ...", data)
@@ -330,34 +379,34 @@ function taskViewModel(data={}, task) {
 	if ( !data.id )
 		data.id = uuid()
 	if ( typeof task == "object" ) {
-		task.id(data.id)
+		task.id.update(data.id)
 		if ( data.name !== undefined )
-			task.name(data.name)
+			task.name.update(data.name)
 		if ( data.colors !== undefined )
-			task.colors(data.colors)
+			task.colors.update(data.colors)
 		if ( data.speed !== undefined )
-			task.speed( parseFloat(data.speed) )
+			task.speed.update( parseFloat(data.speed) )
 		if ( data.intensity !== undefined )
-			task.intensity( parseFloat(data.intensity) )
+			task.intensity.update( parseFloat(data.intensity) )
 		if ( data.type !== undefined )
-			task.type(data.type)
+			task.type.update(data.type)
 		if ( data.repeat !== undefined )
-			task.repeat( parseInt(data.repeat) )
+			task.repeat.update( parseInt(data.repeat) )
 		if ( data.status !== undefined )
-			task.status(data.status)
+			task.status.update(data.status)
 		if ( data.progress !== undefined )
-			task.progress( parseFloat(data.progress) )
+			task.progress.update( parseFloat(data.progress) )
 	} else {
 		task = {
-			id: ko.observable(data.id),
-			name: ko.observable(data.name),
-			colors: ko.observable(data.colors),
-			speed: ko.observable(data.speed),
-			intensity: ko.observable(data.intensity),
-			type: ko.observable(data.type),
-			repeat: ko.observable(data.repeat),
-			status: ko.observable(data.status),
-			progress: ko.observable(data.progress)
+			id: viewable(data.id),
+			name: editable(data.name),
+			colors: editable(data.colors),
+			speed: editable(data.speed),
+			intensity: editable(data.intensity),
+			type: editable(data.type),
+			repeat: editable(data.repeat),
+			status: viewable(data.status),
+			progress: viewable(data.progress)
 		}
 		task.statusIcon = ko.pureComputed(function() { return taskStatusIcon(this.status()) }, task)
 		task.statusColor = ko.pureComputed(function() { return taskStatusColor(this.status()) }, task)
@@ -382,76 +431,78 @@ function getStatus() {
 	})
 	return true
 }
+function suppressUpdate() { return viewModel.editMode() }
 function updateStatus(data) {
 	viewModel.instable = true
 
 	// update status
 	if ( typeof data.status == "object" ) {
 		for ( var key in data.status )
-			viewModel.status[key]( data.status[key] )
+			viewModel.status[key].update( data.status[key] )
 	}
 	if ( typeof data.alert == "object" ) {
 		for ( var key in data.alert )
-			viewModel.alert[key]( data.alert[key] )
+			viewModel.alert[key].update( data.alert[key] )
 	}
 
 	// update position
 	if ( typeof data.pos == "object" ) {
 		var x = parseFloat(data.pos.x), y = parseFloat(data.pos.y)
 		if ( isNaN(x) || isNaN(y) ) {
-			viewModel.pos.valid(false)
+			viewModel.pos.valid.update(false)
 		} else {
-			viewModel.pos.valid(true)
-			viewModel.pos.x(x)
-			viewModel.pos.y(y)
+			viewModel.pos.valid.update(true)
+			viewModel.pos.x.update(x)
+			viewModel.pos.y.update(y)
 		}
 	}
 
 /* TODO
 	// update message
 	if ( typeof data.message == "string" ) {
-		viewModel.message( data.message )
+		viewModel.message.update( data.message )
 	}
 */
 
 	// update workspace
 	if ( typeof data.workspace == "object" ) {
 		if ( "width" in data.workspace )
-			viewModel.workspace.width( data.workspace["width"] )
+			viewModel.workspace.width.update( data.workspace["width"] )
 		if ( "height" in data.workspace )
-			viewModel.workspace.height( data.workspace["height"] )
+			viewModel.workspace.height.update( data.workspace["height"] )
 		if ( "homePos" in data.workspace ) {
-			viewModel.workspace.homePos.x( data.workspace["homePos"][0] )
-			viewModel.workspace.homePos.y( data.workspace["homePos"][1] )
+			viewModel.workspace.homePos.x.update( data.workspace["homePos"][0] )
+			viewModel.workspace.homePos.y.update( data.workspace["homePos"][1] )
 		}
 		if ( "workspaceOrigin" in data.workspace ) {
-			viewModel.workspace.workspaceOrigin.x( data.workspace["workspaceOrigin"][0] )
-			viewModel.workspace.workspaceOrigin.y( data.workspace["workspaceOrigin"][1] )
+			viewModel.workspace.workspaceOrigin.x.update( data.workspace["workspaceOrigin"][0] )
+			viewModel.workspace.workspaceOrigin.y.update( data.workspace["workspaceOrigin"][1] )
 		}
 		if ( "indicator" in data.workspace)
-			viewModel.workspace.indicator( data.workspace["indicator"] )
+			viewModel.workspace.indicator.update( data.workspace["indicator"] )
 
 		if ( "viewBox" in data.workspace )
-			viewModel.workspace.viewBox( data.workspace["viewBox"] )
-		
+			viewModel.workspace.viewBox.update( data.workspace["viewBox"] )
+
 		if ( data.workspace.items instanceof Array ) {
 			var selectedIDs = {}
 			// get previously selected items
 			for ( var i = 0; i < viewModel.workspace.items().length; i++ ) {
 				var item = viewModel.workspace.items()[i]
-				selectedIDs[item.id()] = item.selected() 
+				selectedIDs[item.id()] = item.selected()
 			}
-			
+
+			// TODO -> update items list instead of overwriting !!!
 			viewModel.workspace.items.removeAll()
 			// read itemsList
 			for ( var i = 0; i < data.workspace.items.length; i++ ) {
 				var json = data.workspace.items[i]
 				var item = {
-					selected: ko.observable( selectedIDs[json.id] === false ? false : true )	// set previously selected state, auto-select new items
+					selected: viewable( selectedIDs[json.id] === false ? false : true )	// set previously selected state, auto-select new items
 				}
 				// set item values
 				for ( var key in json )
-					item[key] = ko.observable(json[key])
+					item[key] = editable(json[key])
 				viewModel.workspace.items.push(item)
 			}
 		}
@@ -491,7 +542,7 @@ function updateStatus(data) {
 			// active profile
 			viewModel.profile.id( profile["id"] )
 			if ( "name" in profile )
-				viewModel.profile.name( profile["name"] )
+				viewModel.profile.name.update( profile["name"] )
 
 			// tasks
 			if ( profile.tasks instanceof Array ) {
@@ -526,7 +577,7 @@ function updateStatus(data) {
 
 	// update sequence as final step to avoid data races
 	// -> intermediate requests will be ignored due-to sequence error
-	if ( !viewModel.edit() )
+	if ( !suppressUpdate() )
 		viewModel.seqNr = data.seqNr
 	viewModel.instable = false
 }
@@ -535,7 +586,7 @@ function uploadFile() {
 }
 function sendFile() {
 	var file = $("#uploadFile")[0].files[0]
-	
+
 	// check that file ia an image
 	if (!file)
 		return;
@@ -569,82 +620,84 @@ function sendFile() {
 
 
 // view model data
+function viewable(val) { return ko.observable(val) }
+function editable(val) { return ko.observable(val).extend({suppressUpdate: suppressUpdate}) }
 var viewModel = {
 	instable: false,
-	edit: ko.pureComputed(function() { return viewModel.dialog.itemsSettings() || viewModel.dialog.taskSettings() }),
-	suppressUntil: 0,
-	touchMode: ko.observable(false),
+	editMode: ko.pureComputed(function() { return (viewModel.dialog.itemsSettings() || viewModel.dialog.taskSettings() || viewModel.suppressTimer()) ? true : false }),
+	suppressTimer: viewable(false),
+	touchMode: viewable(false),
 	seqNr: 0,
 	status: {
-		laser: ko.observable(0),
-		usb: ko.observable(false),
-		airassist: ko.observable(0),
-		waterTemp: ko.observable(0),
-		waterFlow: ko.observable(0),
-		network: ko.observable(false),
+		laser: viewable(0),
+		usb: viewable(false),
+		airassist: viewable(0),
+		waterTemp: viewable(0),
+		waterFlow: viewable(0),
+		network: viewable(false),
 		networkIcon: ko.pureComputed(function() { return viewModel.status.network() ? "icon-lan-connect" : "icon-lan-disconnect"; }),
-		fullscreen: ko.observable(isFullscreen())
+		fullscreen: viewable(isFullscreen())
 	},
 	alert: {
-		laser: ko.observable(false),
-		usb: ko.observable(false),
-		airassist: ko.observable(false),
-		waterTemp: ko.observable(false),
-		waterFlow: ko.observable(false),
-		network: ko.observable(false)
+		laser: viewable(false),
+		usb: viewable(false),
+		airassist: viewable(false),
+		waterTemp: viewable(false),
+		waterFlow: viewable(false),
+		network: viewable(false)
 	},
 	unit: {
-		pos: ko.observable("mm"),
-		speed: ko.observable("mm/s"),
-		temp: ko.observable("°C"),
-		flow: ko.observable("l/min")
+		pos: editable("mm"),
+		speed: editable("mm/s"),
+		temp: editable("°C"),
+		flow: editable("l/min")
 	},
 	config: {
-		stepSize: ko.observable(2)
+		stepSize: editable(2)
 	},
 	workspace: {
-		margin: ko.observable(3),
-		width: ko.observable(100),
-		height: ko.observable(100),
+		margin: viewable(3),
+		width: editable(100),
+		height: editable(100),
 		homePos: {
-			x: ko.observable(0),
-			y: ko.observable(0)
+			x: editable(0),
+			y: editable(0),
 		},
 		workspaceOrigin: {
-			x: ko.observable(0),
-			y: ko.observable(0)
+			x: editable(0),
+			y: editable(0)
 		},
-		viewBox: ko.observable([0,0,0,0]),
-		indicator: ko.observable(""),
+		viewBox: viewable([0,0,0,0]),
+		indicator: viewable(""),
 		items: ko.observableArray()
 	},
 	pos: {
-		valid: ko.observable(false),
-		x: ko.observable(0),
-		y: ko.observable(0)
+		valid: viewable(false),
+		x: viewable(0),
+		y: viewable(0)
 	},
 	profile: {
-		id: ko.observable(),
-		name: ko.observable(),
-		selected: ko.observable(),
+		id: viewable(),
+		name: editable(),
+		selected: viewable(),
 		list: ko.observableArray()
 	},
 	tasks: ko.observableArray(),
 	selectedTask: ko.observable(),
 	selectedItem: {
-		name: ko.observable(""),
-		x: ko.observable(),
-		y: ko.observable(),
-		xset: ko.observable(),
-		yset: ko.observable(),
-		dx: ko.observable(0),
-		dy: ko.observable(0),
-		showAbs: ko.observable(true),
-		width: ko.observable(),
-		height: ko.observable(),
-		viewBox: ko.observable(),
-		boundingBox: ko.observable(),
-		color: ko.observable()		
+		name: editable(""),
+		x: editable(),
+		y: editable(),
+		xset: editable(),
+		yset: editable(),
+		dx: editable(0),
+		dy: editable(0),
+		showAbs: editable(true),
+		width: editable(),
+		height: editable(),
+		viewBox: editable(),
+		boundingBox: editable(),
+		color: editable()
 	},
 	selectAllItems: ko.pureComputed({
 		read: function() {
@@ -660,16 +713,16 @@ var viewModel = {
 			for ( var i = 0; i < viewModel.workspace.items().length; i++ ) {
 				var item = viewModel.workspace.items()[i]
 				item.selected(val)
-			}			
+			}
 		},
 		owner: this
 	}),
 	dialog: {
-		fullscreen: ko.observable(false),
-		itemsList: ko.observable(false),
-		itemsSettings: ko.observable(false),
-		taskSettings: ko.observable(false),
-		wait: ko.observable(false)
+		fullscreen: viewable(false),
+		itemsList: viewable(false),
+		itemsSettings: viewable(false),
+		taskSettings: viewable(false),
+		wait: viewable(false)
 	}
 };
 // view model functions
