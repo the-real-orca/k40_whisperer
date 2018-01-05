@@ -60,11 +60,8 @@ def handleCommand():
 		# check request sequence
 		if data.get("seqNr", False) != seqNr:
 			# sqeuence error -> ignore request and resend status
-			print("ignore request\n")
+			print("sqeuence error -> ignore request")
 			raise ValueError("sqeuence error -> ignore request")
-
-		# increment sequence
-		seqNr += 1
 
 		# handle command
 		if "multiple" in data:
@@ -75,8 +72,13 @@ def handleCommand():
 			#dispatcher.dispatchCommand(cmd.get("cmd"), cmd.get("params", None))
 			gevent.spawn(dispatcher.dispatchCommand, cmd.get("cmd"), cmd.get("params", None))
 
+		status = handleStatus()
+
+		# increment sequence
+		seqNr += 1
+
 		# return status
-		return handleStatus()
+		return status
 
 	except StandardError as e:
 		# return error

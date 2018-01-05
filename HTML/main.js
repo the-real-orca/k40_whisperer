@@ -10,6 +10,34 @@ function uuid() {
   });
 }
 
+ko.options.deferUpdates = true;
+ko.dirtyFlag = function(root) {
+	root = ko.utils.unwrapObservable(root)
+	var dirtyFlag = ko.computed(function() {
+		var state = ko.toJSON(root)
+		if ( dirtyFlag ) {
+			var dirty = dirtyFlag._initialState() != state
+			console.log("dirtyFlag:", dirty, root)
+			if ( dirty && !dirtyFlag._dirtyCache && dirtyFlag._onDirty )
+				dirtyFlag._onDirty()
+			dirtyFlag._dirtyCache = dirty
+			return dirty
+		}
+		return false
+	})
+	dirtyFlag._initialState = ko.observable()
+	dirtyFlag._onDirty = null
+	dirtyFlag._dirtyCache = false
+	dirtyFlag.reset = function() {
+		dirtyFlag._initialState( ko.toJSON(root) )
+	}
+	dirtyFlag.onDirty = function(callback) {
+		dirtyFlag._onDirty = callback
+	}
+
+	dirtyFlag.reset()
+	return dirtyFlag
+}
 ko.observableArray.fn.pushAll = function(valuesToPush) {
 	var underlyingArray = this()
 	this.valueWillMutate()
@@ -35,6 +63,7 @@ ko.bindingHandlers.numericValue = {
 	},
 	defaultPrecision: 2
 };
+
 function fxFadeIn(elem) {
 	if (elem.nodeType === 1) {
 		$(elem).addClass("fadeIn").on('animationend webkitAnimationEnd', function(){ $(elem).removeClass("fadeIn")})
@@ -84,7 +113,7 @@ function unlock() {
 	return true
 }
 
-function itemUpdateSelected(item, selected) {		
+function itemsMergeWithSelected(item, selected) {		
 	if ( !selected.name() )
 		selected.name( item.name() )
 	else
@@ -135,7 +164,7 @@ function itemUpdateSelected(item, selected) {
 		selected.color( undefined )
 }
 function itemPrepareParams(index=undefined) {
-	var selected = viewModel.selectedItem;
+	var selected = viewModel.selectedItems;
 	selected.name('')
 	selected.x(null)
 	selected.y(null)
@@ -153,24 +182,26 @@ function itemPrepareParams(index=undefined) {
 		if ( index !== undefined )
 			item.selected(index==i)
 		if ( item.selected() ) {
-			itemUpdateSelected(item, selected)
+			itemsMergeWithSelected(item, selected)
 		}
 	}
 
-	selected.xset(selected.x())
-	selected.yset(selected.y())
-	
+	selected.ax(selected.x())
+	selected.ay(selected.y())
+
+console.log("itemPrepareParams")
+	viewModel.dirty.selectedItems.reset()
 	return true
 }
-function itemSaveParams() {
-	var selected = viewModel.selectedItem
-	var params = ko.mapping.toJS(viewModel.selectedItem)
-	if ( params.xset !== undefined ) {
-		params.x = params.xset
+function itemsSaveSelected() {
+	var selected = viewModel.selectedItems
+	var params = ko.toJS(viewModel.selectedItems)
+	if ( params.ax !== undefined ) {
+		params.x = params.ax
 		params.dx = 0
 	}
-	if ( params.yset !== undefined ) {
-		params.y = params.yset
+	if ( params.ay !== undefined ) {
+		params.y = params.ay
 		params.dy = 0
 	}
 	cmds = []
@@ -183,8 +214,10 @@ function itemSaveParams() {
 			cmds.push( prepareCommand('item.set', clone(params)) )
 		}
 	}
+console.log("itemsSaveSelected")
+	viewModel.dirty.selectedItems.reset()
+
 	sendCommand(cmds)
-	
 	return true
 }
 function taskRunAll() {
@@ -199,8 +232,11 @@ function taskSave() {
 	var params = {
 		id: viewModel.profile.id(),
 		name: viewModel.profile.name(),
-		tasks: ko.mapping.toJS(viewModel.tasks)
+		tasks: ko.toJS(viewModel.tasks)
 	}
+	viewModel.dirty.profile.reset()
+	viewModel.dirty.tasks.reset()
+
 	sendCommand('profile.set', params)
 	return true
 }
@@ -266,28 +302,28 @@ function workY(y) {
 }
 
 function alignToOrigin() {
-	viewModel.selectedItem.xset(0); viewModel.selectedItem.yset(0)
-	viewModel.selectedItem.showAbs(true)
+	viewModel.selectedItems.ax(0); viewModel.selectedItems.ay(0)
+	viewModel.selectedItems.showAbs(true)
 }
 function alignAboveOfAxis() {
-	var delta = -viewModel.selectedItem.boundingBox()[1]
-	viewModel.selectedItem.dy(delta)
-	viewModel.selectedItem.showAbs(false)
+	var delta = -viewModel.selectedItems.boundingBox()[1]
+	viewModel.selectedItems.dy(delta)
+	viewModel.selectedItems.showAbs(false)
 }
 function alignUnderAxis() {
-	var delta = -viewModel.selectedItem.boundingBox()[3]
-	viewModel.selectedItem.dy(delta)
-	viewModel.selectedItem.showAbs(false)
+	var delta = -viewModel.selectedItems.boundingBox()[3]
+	viewModel.selectedItems.dy(delta)
+	viewModel.selectedItems.showAbs(false)
 }
 function alignLeftOfAxis() {
-	var delta = -viewModel.selectedItem.boundingBox()[2]
-	viewModel.selectedItem.dx(delta)
-	viewModel.selectedItem.showAbs(false)
+	var delta = -viewModel.selectedItems.boundingBox()[2]
+	viewModel.selectedItems.dx(delta)
+	viewModel.selectedItems.showAbs(false)
 }
 function alignRightOfAxis() {
-	var delta = -viewModel.selectedItem.boundingBox()[0]
-	viewModel.selectedItem.dx(delta)
-	viewModel.selectedItem.showAbs(false)
+	var delta = -viewModel.selectedItems.boundingBox()[0]
+	viewModel.selectedItems.dx(delta)
+	viewModel.selectedItems.showAbs(false)
 }
 
 
@@ -309,9 +345,8 @@ function sendCommand(cmd, params) {
 		data = prepareCommand(cmd, params)
 	}	
 	data.seqNr = viewModel.seqNr
-	viewModel.suppressUntil = Date.now() + 1000 // suppress updates for 1 Second
+	viewModel.expectedSeqNr = viewModel.seqNr +1
 	console.log("sending ...", data)
-// TODO	$.post('/command', JSON.stringify(data), updateStatus)
 	$.ajax({
 		type: 'POST',
 		url: '/command',
@@ -320,7 +355,7 @@ function sendCommand(cmd, params) {
 		timeout: 1000,
 		success: function(data) {},
 		error: function(xhr, type) {
-			viewModel.suppressUntil = 0
+			viewModel.expectedSeqNr = viewModel.seqNr
 		}
 	})
 	return true
@@ -364,6 +399,46 @@ function taskViewModel(data={}, task) {
 	}
 	return task
 }
+function itemViewModel(data={}, item) {
+	if ( !data.id )
+		data.id = uuid()
+	if ( typeof item == "object" ) {
+		item.id(data.id)
+		if ( data.name !== undefined )
+			item.name(data.name)
+		if ( data.color !== undefined )
+			item.color(data.color)
+		if ( data.x !== undefined )
+			item.x( parseFloat(data.x) )
+		if ( data.y !== undefined )
+			item.y( parseFloat(data.y) )
+		if ( data.width !== undefined )
+			item.width( parseFloat(data.width) )
+		if ( data.height !== undefined )
+			item.height( parseFloat(data.height) )
+		if ( data.viewBox !== undefined && JSON.stringify(data["viewBox"]) != JSON.stringify(item.viewBox())  )
+			item.viewBox( data.viewBox )
+		if ( data.boundingBox !== undefined  && JSON.stringify(data["boundingBox"]) != JSON.stringify(item.boundingBox()) )
+			item.boundingBox(data.boundingBox)
+		if ( data.url !== undefined )
+			item.url( data.url )
+	} else {
+		item = {
+			id: ko.observable(data.id),
+			name: ko.observable(data.name),
+			color: ko.observable(data.color),
+			x: ko.observable(parseFloat(data.x)),
+			y: ko.observable(parseFloat(data.y)),
+			width: ko.observable(parseFloat(data.width)),
+			height: ko.observable(parseFloat(data.height)),
+			viewBox: ko.observable(data.viewBox),
+			boundingBox: ko.observable(data.boundingBox),
+			url: ko.observable(data.url),
+			selected: ko.observable(true)
+		}
+	}
+	return item
+}
 
 function getStatus() {
 	$.ajax({
@@ -383,6 +458,12 @@ function getStatus() {
 	return true
 }
 function updateStatus(data) {
+
+	if ( viewModel.expectedSeqNr > data.seqNr ) {
+		// ignore status update (expect higher sequence number)
+		return
+	}
+
 	viewModel.instable = true
 
 	// update status
@@ -428,33 +509,51 @@ function updateStatus(data) {
 			viewModel.workspace.workspaceOrigin.x( data.workspace["workspaceOrigin"][0] )
 			viewModel.workspace.workspaceOrigin.y( data.workspace["workspaceOrigin"][1] )
 		}
+
 		if ( "indicator" in data.workspace)
 			viewModel.workspace.indicator( data.workspace["indicator"] )
 
-		if ( "viewBox" in data.workspace )
+		if ( "viewBox" in data.workspace && JSON.stringify(data.workspace["viewBox"]) != JSON.stringify(viewModel.workspace.viewBox()) )
 			viewModel.workspace.viewBox( data.workspace["viewBox"] )
-		
+
+
 		if ( data.workspace.items instanceof Array ) {
-			var selectedIDs = {}
-			// get previously selected items
-			for ( var i = 0; i < viewModel.workspace.items().length; i++ ) {
-				var item = viewModel.workspace.items()[i]
-				selectedIDs[item.id()] = item.selected() 
+			var items = viewModel.workspace.items()
+
+			// prepare items list
+			for ( var i = 0; i < items.length; i++ ) {
+				var item = items[i]
+				item.remove = true
 			}
-			
-			viewModel.workspace.items.removeAll()
-			// read itemsList
+
+			// update with received items
 			for ( var i = 0; i < data.workspace.items.length; i++ ) {
 				var json = data.workspace.items[i]
-				var item = {
-					selected: ko.observable( selectedIDs[json.id] === false ? false : true )	// set previously selected state, auto-select new items
+				for ( var i = 0; i < items.length; i++ )
+					if (items[i].id() == json.id) {
+						// item found -> update
+						var item = items[i]
+						itemViewModel(json, item)
+						item.remove = false
+						break
+					}
+				if ( i == items.length ) {
+					// new task -> append
+					var item = itemViewModel(json);
+					viewModel.workspace.items.push(item)
 				}
-				// set item values
-				for ( var key in json )
-					item[key] = ko.observable(json[key])
-				viewModel.workspace.items.push(item)
+			}
+
+			// clean-up
+			viewModel.workspace.items.remove((item)=>{ return item.remove })
+
+			// update selected items
+			if ( viewModel.dialog.itemsSettings() && viewModel.dirty.workspace() ) {
+				itemPrepareParams()
 			}
 		}
+
+		viewModel.dirty.workspace.reset()
 	}
 
 	// update profiles / tasks
@@ -522,12 +621,14 @@ function updateStatus(data) {
 				viewModel.tasks.remove((item)=>{ return item.remove })
 			}
 		}
+
+		viewModel.dirty.profile.reset()
+		viewModel.dirty.tasks.reset()
 	}
 
 	// update sequence as final step to avoid data races
 	// -> intermediate requests will be ignored due-to sequence error
-	if ( !viewModel.edit() )
-		viewModel.seqNr = data.seqNr
+	viewModel.seqNr = data.seqNr
 	viewModel.instable = false
 }
 function uploadFile() {
@@ -571,10 +672,9 @@ function sendFile() {
 // view model data
 var viewModel = {
 	instable: false,
-	edit: ko.pureComputed(function() { return viewModel.dialog.itemsSettings() || viewModel.dialog.taskSettings() }),
-	suppressUntil: 0,
 	touchMode: ko.observable(false),
 	seqNr: 0,
+	expectedSeqNr: 0,
 	status: {
 		laser: ko.observable(0),
 		usb: ko.observable(false),
@@ -631,12 +731,12 @@ var viewModel = {
 	},
 	tasks: ko.observableArray(),
 	selectedTask: ko.observable(),
-	selectedItem: {
+	selectedItems: {
 		name: ko.observable(""),
 		x: ko.observable(),
 		y: ko.observable(),
-		xset: ko.observable(),
-		yset: ko.observable(),
+		ax: ko.observable(),
+		ay: ko.observable(),
 		dx: ko.observable(0),
 		dy: ko.observable(0),
 		showAbs: ko.observable(true),
@@ -670,62 +770,44 @@ var viewModel = {
 		itemsSettings: ko.observable(false),
 		taskSettings: ko.observable(false),
 		wait: ko.observable(false)
-	}
+	},
+	dirty: {}
 };
 // view model functions
 viewModel.continue = function() { viewModel.dialog.wait(false) }
-viewModel.selectedItem.xset.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.dx(undefined) }, this)
-viewModel.selectedItem.yset.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.dy(undefined) }, this)
-viewModel.selectedItem.dx.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.xset(undefined) }, this)
-viewModel.selectedItem.dy.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItem.yset(undefined )}, this)
 
 viewModel.workspace.indicator.subscribe((val)=>{ sendCommand('workspace.indicator', val) }, this)
 viewModel.workspace.workspaceOrigin.x.subscribe(()=>{ sendCommand('workspace.origin', [parseFloat(viewModel.workspace.workspaceOrigin.x()), parseFloat(viewModel.workspace.workspaceOrigin.y())]) }, this)
 viewModel.workspace.workspaceOrigin.y.subscribe(()=>{ sendCommand('workspace.origin', [parseFloat(viewModel.workspace.workspaceOrigin.x()), parseFloat(viewModel.workspace.workspaceOrigin.y())]) }, this)
-viewModel.workspace.items.extend({ rateLimit: 100 })
+viewModel.dirty.workspace = ko.dirtyFlag(viewModel.workspace);
 
-viewModel.profile.name.subscribe(taskSave)
-viewModel.tasks.extend({ rateLimit: 100 })
+// make sure that either dx/y or x/yset is valid
+viewModel.selectedItems.ax.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItems.dx(undefined) }, this)
+viewModel.selectedItems.ay.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItems.dy(undefined) }, this)
+viewModel.selectedItems.dx.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItems.ax(undefined) }, this)
+viewModel.selectedItems.dy.subscribe((val)=>{ if ( val !== undefined ) viewModel.selectedItems.ay(undefined )}, this)
+viewModel.dirty.selectedItems = ko.dirtyFlag(viewModel.selectedItems);
+viewModel.dirty.selectedItems.onDirty( itemsSaveSelected )
+
+viewModel.dirty.profile = ko.dirtyFlag(viewModel.profile);
+viewModel.dirty.profile.onDirty( taskSave )
+viewModel.dirty.tasks = ko.dirtyFlag(viewModel.tasks);
+viewModel.dirty.tasks.onDirty( taskSave )
+
+viewModel.dialog.itemsList.subscribe((val)=>{
+	if ( val ) {
+		var itemsList = viewModel.workspace.items()
+		if ( itemsList.length == 1 ) {
+			// skip items list, if we have only one item
+			itemsList[0].selected(true)
+			itemPrepareParams()
+			viewModel.dialog.itemsList(false)
+			viewModel.dialog.itemsSettings(true)
+		}
+	}
+})
 
 function init() {
-
-/* TODO remove
-	// add pressed / released events for buttons
-	var eventPressed = null
-	$('button, .button').on('touchstart', function(e) {
-		if ( eventPressed ) {
-			if ( eventPressed.target == e.target )		// ignore multiple events on same target
-				return;
-			$(eventPressed.target).trigger('released');	// release previous element
-		}
-		eventPressed = e
-		$(e.target).trigger('pressed', e)
-	})
-	$(document).on('touchend', function(ex) {
-		if ( !eventPressed )
-			return;
-		$(eventPressed.target).trigger('released', ex)
-		eventPressed = null;
-	})
-	$('button, .button').on('mousedown', function(e) {
-		if ( eventPressed ) {
-			if ( eventPressed.target == e.target )		// ignore multiple events on same target
-				return;
-			$(eventPressed.target).trigger('released');	// release previous element
-		}
-		eventPressed = e
-		if ( e.button == 0 ) {$(e.target).trigger('pressed', e)} // react on left mouse button
-	})
-	$(document).on('mouseup', function(ex) {
-		if ( !eventPressed )
-			return
-		$(eventPressed.target).trigger('released', ex)
-		eventPressed = null
-	})
-	$('button, .button').on('keypress', function(e) { if ( e.key == ' ' || e.keyCode == 32 ) {$(e.target).trigger('pressed', e);} })
-	$('button, .button').on('keyup', function(e) { if ( e.key == ' ' || e.keyCode == 32 ) {$(e.target).trigger('released', e);} })
-*/
-
 	// init messages
 	init_msg()
 
@@ -737,18 +819,7 @@ function init() {
 	$("#uploadFile").on("change", ()=>{
 		$("#uploadSubmit").click()
 	})
-	$("#dialog_itemsList").on("change", (event)=>{
-		if ( event.target.checked ) {
-			var itemsList = viewModel.workspace.items()
-			if ( itemsList.length == 1 ) {
-				// skip items list, if we have only one item
-				itemsList[0].selected(true)
-				itemPrepareParams()
-				$("#dialog_itemSettings").prop("checked", true)
-				$("#dialog_itemsList").prop("checked", false)
-			}
-		}
-	})
+
 	
 	// periodic status request
 	getStatus()

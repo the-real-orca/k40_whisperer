@@ -93,7 +93,6 @@
 		
 						<g clip-path="url(#clip)">
 							<use href="images/origin.svg#origin" data-bind="attr: {x: toX( workspace.workspaceOrigin.x ), y: toY( workspace.workspaceOrigin.y )}"></use>
-							<use href="images/home.svg#home" data-bind="attr: {x: toX(0), y: toY(0)}"></use>
 							<g data-bind="foreach: workspace.items">
 								<use data-bind="attr: {href: url()+'#root', x: workX( x ), y: workY( y )}"></use>
 							</g>
@@ -212,7 +211,7 @@
 		</div>
 
 		<!-- Process -->
-		<input id="Process" name="mainTabsGroup" type="radio" checked />
+		<input id="Process" name="mainTabsGroup" type="radio" />
 		<label class="title" for="Process"><i class="icon-flash"></i></label>
 		<div class="content center">
 			<div class="flex">
@@ -292,6 +291,10 @@
 		<input id="dialog_itemsList" type="checkbox" data-bind="checked: dialog.itemsList"/>
 		<label for="dialog_itemsList" class="overlay"></label>
 		<article class="itemsList">
+			<header>
+				<i class="icon-layers x-large"></i>
+				<label for="dialog_itemsList" class="close"><b class="large">&times;</b></label>
+			</header>
 			<section class="content">
 				<table class=""><tbody data-bind="foreach: workspace.items">
 					<tr>
@@ -308,36 +311,36 @@
 						<td class="remove"><button class="error icon-trash" data-bind="click: ()=>{workspaceRemoveItem($data.id())}"></button></td>
 					</tr>
 				</tbody></table>
-			</section>
-			<footer>
 				<div class="flex two">
 					<div>
-						<label ><input type="checkbox"  data-bind="checked: selectAllItems"/><span class="checkable">all</span></label>
+						<label ><input type="checkbox"  data-bind="checked: selectAllItems"/><span class="checkable"></span></label>
 
 						<span class="spacer"></span>
 						<label for="dialog_itemSettings" class="button icon-sliders" data-bind="click: ()=>{return itemPrepareParams()}"></label>
 					</div>
 					<div class="right">
-						<button class="icon-folder-open" data-bind="click: uploadFile"> Open</button>
-						<label for="dialog_itemsList" class="button icon-logout"> Exit</label>
+						<button class="icon-folder-open" data-bind="click: uploadFile"></button>
 					</div>
 				</div>
-			</footer>
+			</section>
 		</article>
 	</div>
 	<div class="modal">
 		<input id="dialog_itemSettings" type="checkbox" data-bind="checked: dialog.itemsSettings"/>
 		<label for="dialog_itemSettings" class="overlay"></label>
 		<article class="item settings">
+			<header>
+				<span class="name" data-bind="text: selectedItems.name" ></span>
+				<label for="dialog_itemSettings" class="close"><b class="large">&times;</b></label>
+			</header>
 			<section class="content">
-				<form data-bind="with: selectedItem">
-					<span class="name" data-bind="text: name" ></span>
+				<form data-bind="with: selectedItems">
 					<table>
 						<tr data-bind="visible: showAbs">
 							<td class="parameter">x</td>
-							<td><input type="number" class="abs" data-bind="numericValue: xset"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
+							<td><input type="number" class="abs" data-bind="numericValue: ax"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
 							<td class="parameter">y</td>
-							<td><input type="number" class="abs" data-bind="numericValue: yset"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
+							<td><input type="number" class="abs" data-bind="numericValue: ay"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
 							<td>
 								<input id="showAbs" type="checkbox" data-bind="checked: showAbs" />
 								<label class="toggleSwitch" for="showAbs">
@@ -414,16 +417,6 @@
 -->
 				</form>
 			</section>
-			<footer>
-				<div class="flex two">
-					<div>
-						<label for="dialog_itemSettings" class="button error">Cancel</label>
-					</div>
-					<div class="right">
-						<label for="dialog_itemSettings" class="button success" data-bind="click: itemSaveParams">OK</label>
-					</div>
-				</div>
-			</footer>
 		</article>
 	</div>
 
