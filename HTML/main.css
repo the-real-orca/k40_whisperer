@@ -49,10 +49,6 @@ body {
 	margin: 0 !important;
 }
 
-input {
-	margin: 0.2em;
-}
-
 input[type="number"] {
 	width: 5.5em;
 	text-align: right;
@@ -530,6 +526,10 @@ svg #workspaceRect {
 	margin: 0.5em auto;
 }
 
+.positionDisplay input {
+	margin: 0.2em;
+}
+
 .laserControl {
 }
 
@@ -721,8 +721,8 @@ button.move, .button.move  {
 }
 
 .settings .name {
-	margin: 0.5em 1em;
-	width: 95%;
+//	margin: 0.5em 1em;
+	width: calc(100% - 2em);
 	font-weight: bold;
 }
 .settings .toggleSwitch {
@@ -771,7 +771,7 @@ button.move, .button.move  {
 }
 
 .tabs.side-right > .title {
-	padding: 1em;
+	padding: 0.9em;
 	margin-left: -2px;
 }
 

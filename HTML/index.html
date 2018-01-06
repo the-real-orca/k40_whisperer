@@ -42,11 +42,11 @@
 			(<span data-bind="text: pos.x"></span>,<span data-bind="text: pos.y"></span>)
 		</div>
 		<div class="statusLine">
-			<span class="dangerous" data-bind="css: { ok: status.laser, error: alert.laser }"><i class="icon-laser"></i></span>
-			<span data-bind="css: { ok: status.airassist, error: alert.airassist }"><i class="icon-fan"></i> <span data-bind="text: status.airassist" class="unit percent"></span></span>
+			<span class="dangerous" data-bind="css: { ok: status.laser, error: alert.laser }"><i class="icon-flash"></i></span>
+			<span data-bind="css: { ok: status.airassist, error: alert.airassist }"><i class="icon-airassist"></i> <span data-bind="text: status.airassist" class="unit percent"></span></span>
 
 			<span data-bind="css: { ok: status.waterTemp, error: alert.waterTemp }"><i class="icon-thermometer"></i> <span data-bind="text: status.waterTemp" class="unit temp"></span></span>
-			<span data-bind="css: { ok: status.waterFlow, error: alert.waterFlow }"><i class="icon-air"></i> <span data-bind="text: status.waterFlow" class="unit flowrate"></span></span>
+			<span data-bind="css: { ok: status.waterFlow, error: alert.waterFlow }"><i class="icon-water"></i> <span data-bind="text: status.waterFlow" class="unit flowrate"></span></span>
 
 			<span data-bind="css: { ok: status.usb, error: alert.usb }" ><i class="icon-usb"></i></span>
 			<span data-bind="css: { ok: status.network, error: alert.network }" ><i data-bind="css: status.networkIcon"></i></span>
@@ -249,8 +249,13 @@
 			</div>
 		</div>
 
-		<span class="spacer"></span>
-		<span class="spacer"></span>
+		<!-- Placeholder -->
+		<input id="Placeholder" name="mainTabsGroup" type="radio" />
+		<label class="title" for="Placeholder"><i class="">&nbsp;&nbsp;&nbsp;</i></label>
+		<div class="content center">
+			<div class="flex">
+			</div>
+		</div>
 
 		<!-- Setup -->
 		<input id="Setup" name="mainTabsGroup" type="radio" />
@@ -328,13 +333,13 @@
 	<div class="modal">
 		<input id="dialog_itemSettings" type="checkbox" data-bind="checked: dialog.itemsSettings"/>
 		<label for="dialog_itemSettings" class="overlay"></label>
-		<article class="item settings">
+		<article class="item settings" data-bind="with: selectedItems">
 			<header>
-				<span class="name" data-bind="text: selectedItems.name" ></span>
+				<span class="name" data-bind="text: name" ></span>
 				<label for="dialog_itemSettings" class="close"><b class="large">&times;</b></label>
 			</header>
 			<section class="content">
-				<form data-bind="with: selectedItems">
+				<form >
 					<table>
 						<tr data-bind="visible: showAbs">
 							<td class="parameter">x</td>
@@ -424,10 +429,13 @@
 	<div class="modal">
 		<input id="dialog_taskSettings" type="checkbox" data-bind="checked: dialog.taskSettings"/>
 		<label for="dialog_taskSettings" class="overlay"></label>
-		<article class="task settings">
+		<article class="task settings" data-bind="with: selectedTask">
+			<header>
+				<input class="name" input="text" placeholder="Task Name" data-bind="value: name" />
+				<label for="dialog_taskSettings" class="close"><b class="large">&times;</b></label>
+			</header>
 			<section class="content">
-				<form data-bind="with: selectedTask">
-					<input class="name" input="text" placeholder="Task Name" data-bind="value: name" />
+				<form>
 					<table>
 						<tr>
 							<td class="parameter">color</td>
@@ -491,16 +499,6 @@
 -->					
 				</form>
 			</section>
-			<footer>
-				<div class="flex two">
-					<div>
-						<label for="dialog_taskSettings" class="button error">Cancel</label>
-					</div>
-					<div class="right">
-						<label for="dialog_taskSettings" class="button success" data-bind="click: taskSave">OK</label>
-					</div>
-				</div>
-			</footer>
 		</article>
 	</div>
 
@@ -510,7 +508,7 @@
 		<input id="wait_overlay" type="checkbox" data-bind="checked: dialog.wait" />
 		<div class="overlay"></div>
 		<div class="wait">
-			<div> <i class="icon-spin3 animate-spin"></i> </div>
+			<div> <i class="icon-spin animate-spin"></i> </div>
 			<div data-bind="html: dialog.wait, visible: dialog.wait()!==true"></div>
 		</div>
 	</div>
