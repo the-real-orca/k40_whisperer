@@ -91,10 +91,6 @@ form .parameter:after {
 	padding-right: 0.5em;
 }
 
-hr {
-	width: 80%
-}
-
 .footer {
 	position: absolute;
 	bottom: 0;
@@ -369,7 +365,7 @@ button.active, .button.active, button:active, .button:active {
 
 .unit {
 	font-size: 90%;
-	padding-left: 0.1em;
+	opacity: 0.75;
 }
 
 .percent:after {
@@ -408,6 +404,9 @@ button.active, .button.active, button:active, .button:active {
 	opacity: 0.75;
 }
 
+.grow {
+	flex-grow: 100;
+}
 
 .uploading > img.uploading {
 	display: inline-block;
@@ -428,38 +427,22 @@ svg #workspaceRect {
 	fill: white;
 }
 
-.itemsList {
+.workspaceItem {
+	display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.itemsList table {
-	width: 100%;
-	margin: auto;
+.workspaceItem button, .workspaceItem .button {
+	margin: 0.5em 0.75em;
 }
 
-.itemsList td {
-//	border: 1px solid black;
-	padding: 0.75em;
-	width: 2em;
-}
-
-.itemsList td > label {
-	width: 100%;
-	display: inline-block;;
-}
-
-.itemsList td > button {
-	margin: 0 0.5em;
-}
-
-.itemsList .name {
+.workspaceItem .name {
 	width: auto;
 	font-size: 110%;
 	font-weight: bold;
 	cursor: pointer;
-}
-
-.itemsList footer .button {
-	margin: 0 1em 0.5em 1em;
 }
 
 .workspaceControl {
@@ -467,7 +450,6 @@ svg #workspaceRect {
 	padding-left: 0;
 	width: 7em;
 }
-
 .workspaceControl > *:not(:first-child) {
 	margin-top: 4em;
 }
@@ -631,6 +613,7 @@ button.move, .button.move  {
 	margin: 0;
 	padding-left: 1em;
 	width: calc(100% - 10em);
+	min-width: 25em;
 	text-align: left;
 }
 
@@ -658,11 +641,11 @@ button.move, .button.move  {
 }
 
 .taskList .progress {
-    flex-grow: 10;
     border-radius: 0.25em;
     box-shadow: 0 0.1em 0.3em rgba(0, 0, 0, 0.25) inset;
     padding: 0 1em;
     height: 2.5em;
+    min-width: 6em;
     display: block;
     position: relative;
     z-index: 0;
@@ -709,56 +692,70 @@ button.move, .button.move  {
 
 .taskSidePanel > button {
 	height: calc(100% - 3.5em);
+    min-height: 3.5em;
+    width: 55%;
     font-size: 110%;
 }
 
-.settings {
+header {
+	font-size: 115%;
+}
+
+header > input {
+	max-width: calc(100% - 2em);
+}
+
+.parameterTable {
+	display: grid;
+	grid-template-columns: auto auto;
+	justify-content: stretch;
+	align-items: baseline;
+	margin-bottom: 0.6em;
 	font-size: 110%;
 }
 
-.settings section {
-	margin: 0.5em;
-}
-
-.settings .name {
-//	margin: 0.5em 1em;
-	width: calc(100% - 2em);
+.parameterName {
+	padding-right: 0.5em;
 	font-weight: bold;
-}
-.settings .toggleSwitch {
-	margin: 0 1em;
-}
-
-.settings .toggleSwitch *[class*="icon-toggle-"] {
-    vertical-align: middle;
-    font-size: 150%;
-}
-
-.settings .abs {
-}
-
-.settings .rel {
 	font-style: italic;
+	text-align: right;
+}
+.parameterName:after {
+	content: ":";
 }
 
-.settings .colorSelect {
+.parameterTable > div {
+	grid-column: 2;
+	padding: 0.5em;
+	text-align: left;
+}
+
+.parameterTable div {
+	display: inline-block;
+	width: auto;
+}
+
+.parameterTable button, .parameterTable .button {
 	margin-right: 1em;
-	margin-top: 0.6em;
+}
+
+.parameterTable .coordinate {
+	display: inline-block;
+	width: 2em;
+	text-align: right;
+}
+.parameterTable .coordinate:after {
+	content: ":";
+}
+
+.parameterTable .colorSelect {
+	margin-right: 1em;
 	display: inline-block;
 }
 
-.settings td label {
-	margin-right: 1.5em;
-}
-
-.settings td button {
-	margin-right: 1.25em;
-	font-size: 125%;
-	padding: 0.5em 0.8em;
-}
-
-.settings footer {
-	margin: 0.3em 1em !important;
+.parameterTable .typeSelect {
+	margin-right: 1em;
+	display: inline-block;
 }
 
 .tabs > * {

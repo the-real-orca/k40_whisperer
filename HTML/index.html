@@ -223,7 +223,7 @@
 					<div data-bind="foreach: tasks">
 						<div class="taskItem">
 							<div class="index"><span data-bind="text: $index()+1"></span></div>
-							<div class="progress">
+							<div class="progress grow">
 								<div data-bind="style: {width: progress()+'%', background: statusColor()}" ></div>
 								<label class="name" for="dialog_taskSettings" data-bind="text: name, click: ()=>{$root.selectedTask($data);return true}"></label>
 								<span class="status">
@@ -301,31 +301,33 @@
 				<label for="dialog_itemsList" class="close"><b class="large">&times;</b></label>
 			</header>
 			<section class="content">
-				<table class=""><tbody data-bind="foreach: workspace.items">
-					<tr>
-						<td>
-							<label>
-								<input type="checkbox" name="selected" data-bind="checked: selected"/><span class="checkable"></span>
-								<span class="index" data-bind="text: $index()+1"></span>.
-								<span data-bind="text: name"></span>
-							</label>
-						</td>
-						<td>
-							<label for="dialog_itemSettings" class="gray button icon-sliders" data-bind="click: ()=>{return itemPrepareParams($index())}"></label>
-						</td>
-						<td class="remove"><button class="error icon-trash" data-bind="click: ()=>{workspaceRemoveItem($data.id())}"></button></td>
-					</tr>
-				</tbody></table>
-				<div class="flex two">
-					<div>
-						<label ><input type="checkbox"  data-bind="checked: selectAllItems"/><span class="checkable"></span></label>
+				<div data-bind="foreach: workspace.items">
+					<div class="workspaceItem">
+						<label class="grow">
+							<input type="checkbox" name="selected" data-bind="checked: selected"/><span class="checkable"></span>
+							<span class="index" data-bind="text: $index()+1"></span>.
+							<span class="name" data-bind="text: name"></span>
+						</label>
 
-						<span class="spacer"></span>
-						<label for="dialog_itemSettings" class="button icon-sliders" data-bind="click: ()=>{return itemPrepareParams()}"></label>
+						<label for="dialog_itemSettings" class="gray button icon-sliders" data-bind="click: ()=>{return itemPrepareParams($index())}"></label>
+
+						<button class="error icon-trash" data-bind="click: ()=>{workspaceRemoveItem($data.id())}"></button>
 					</div>
-					<div class="right">
-						<button class="icon-folder-open" data-bind="click: uploadFile"></button>
-					</div>
+				</div>
+				<hr>
+				<div class="workspaceItem">
+					<label class="grow">
+						<input type="checkbox"  data-bind="checked: selectAllItems"/><span class="checkable"></span>
+						all / none
+					</label>
+
+					<span class="grow"></span>
+
+					<button class="icon-folder-open" data-bind="click: uploadFile"></button>
+
+					<label for="dialog_itemSettings" class="button icon-sliders" data-bind="click: ()=>{return itemPrepareParams()}"></label>
+
+					<button class="error icon-trash" data-bind="click: ()=>{workspaceRemoveItem()}"></button>
 				</div>
 			</section>
 		</article>
@@ -339,88 +341,107 @@
 				<label for="dialog_itemSettings" class="close"><b class="large">&times;</b></label>
 			</header>
 			<section class="content">
-				<form >
-					<table>
-						<tr data-bind="visible: showAbs">
-							<td class="parameter">x</td>
-							<td><input type="number" class="abs" data-bind="numericValue: ax"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
-							<td class="parameter">y</td>
-							<td><input type="number" class="abs" data-bind="numericValue: ay"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
-							<td>
-								<input id="showAbs" type="checkbox" data-bind="checked: showAbs" />
-								<label class="toggleSwitch" for="showAbs">
-									<span class="checkable"><b>abs</b> <i class="icon-toggle-left"></i> rel</span>
-								</label>
-							</td>
-						</tr>
-						<tr data-bind="visible: !showAbs()">
-							<td class="parameter">&Delta;x</td>
-							<td><input type="number" data-bind="numericValue: dx"></input> <span class="unit" class="rel" data-bind="text: $root.unit.pos"></span></td>
-							<td class="parameter">&Delta;y</td>
-							<td><input type="number" class="rel" data-bind="numericValue: dy"></input> <span class="unit" data-bind="text: $root.unit.pos"></span></td>
-							<td>
-								<label class="toggleSwitch" for="showAbs">
-									<span class="checkable">abs <i class="icon-toggle-right"></i> <b>rel</b></span>
-								</label>
-							</td>
-						</tr>
+				<div class="parameterTable" >
+					<span class="parameterName">pos</span>
+					<div data-bind="visible: showAbs()">
+						<div>
+							<span class="coordinate">X</span>
+							<input type="number" data-bind="numericValue: ax"></input>
+							<span class="unit" data-bind="text: $root.unit.pos"></span>
+						</div>
 
-						<tr>
-							<td class="parameter">align</td>
-							<td colspan="4">
-								<button data-bind="click: alignLeftOfAxis"><i class="icon-align-right"></i></button>
-								<button data-bind="click: alignRightOfAxis"><i class="icon-align-left"></i></button>
-								<button data-bind="click: alignToOrigin"><i class="icon-origin"></i></button>
-								<button data-bind="click: alignAboveOfAxis"><i class="icon-align-bottom"></i></button>
-								<button data-bind="click: alignUnderAxis"><i class="icon-align-top"></i></button>
-								<!--
-								<i class="spacing"></i>
-								<button><i class="icon-resize-horizontal"></i><i class="icon-ellipsis-horizontal"></i></button>
-								<button><i class="icon-resize-vertical"></i><i class="icon-ellipsis-vertical"></i></button>
-								-->
-							</td>
-						</tr>
-						<tr>
-							<td class="parameter">color</td>
-							<td colspan="4">
-								<label class="colorSelect" style="color: #222">
-									<input name="color" type="radio" value="black" data-bind="checked: color" />
-									<span class="checkable"><i class="icon-brush large"></i></span>
-								</label>
-								<label class="colorSelect" style="color: red">
-									<input name="color" type="radio" value="red" data-bind="checked: color" />
-									<span class="checkable"><i class="icon-brush large"></i></span>
-								</label>
-								<label class="colorSelect" style="color: green">
-									<input name="color" type="radio" value="green" data-bind="checked: color" />
-									<span class="checkable"><i class="icon-brush large"></i></span>
-								</label>
-								<label class="colorSelect" style="color: blue">
-									<input name="color" type="radio" value="blue" data-bind="checked: color" />
-									<span class="checkable"><i class="icon-brush large"></i></span>
-								</label>
-								<label class="colorSelect" style="color: orange">
-									<input name="color" type="radio" value="orange" data-bind="checked: color" />
-									<span class="checkable"><i class="icon-brush large"></i></span>
-								</label>
-								<label class="colorSelect" style="color: darkcyan">
-									<input name="color" type="radio" value="darkcyan" data-bind="checked: color" />
-									<span class="checkable"><i class="icon-brush large"></i></span>
-								</label>
-								<label class="colorSelect" style="color: magenta">
-									<input name="color" type="radio" value="magenta" data-bind="checked: color" />
-									<span class="checkable"><i class="icon-brush large"></i></span>
-								</label>
-							</td>
-						</tr>
-					</table>
+						<div>
+							<span class="coordinate">Y</span>
+							<input type="number" data-bind="numericValue: dy"></input>
+							<span class="unit" data-bind="text: $root.unit.pos"></span>
+						</div>
+
+						<span class="spacing"/>
+						<div>
+							<input id="showAbs" type="checkbox" data-bind="checked: showAbs" />
+							<label class="toggleSwitch" for="showAbs">
+								<span class="checkable"><b>abs</b> <i class="icon-toggle-left large"></i> rel</span>
+							</label>
+						</div>
+					</div>
+					<div data-bind="visible: !showAbs()">
+						<div>
+							<span class="coordinate">&Delta;X</span>
+							<input type="number" data-bind="numericValue: dx"></input>
+							<span class="unit" data-bind="text: $root.unit.pos"></span>
+						</div>
+
+						<div>
+							<span class="coordinate">&Delta;Y</span>
+							<input type="number" data-bind="numericValue: dy"></input>
+							<span class="unit" data-bind="text: $root.unit.pos"></span>
+						</div>
+
+						<span class="spacing"/>
+						<div>
+							<label class="toggleSwitch" for="showAbs">
+								<span class="checkable">abs <i class="icon-toggle-right large"></i> <b>rel</b></span>
+							</label>
+						</div>
+					</div>
+
+
+					<span class="parameterName">align</span>
+					<div>
+						<button data-bind="click: alignLeftOfAxis"><i class="icon-align-right large"></i></button>
+						<button data-bind="click: alignRightOfAxis"><i class="icon-align-left large"></i></button>
+						<button data-bind="click: alignToOrigin"><i class="icon-origin large"></i></button>
+						<button data-bind="click: alignAboveOfAxis"><i class="icon-align-bottom large"></i></button>
+						<button data-bind="click: alignUnderAxis"><i class="icon-align-top large"></i></button>
+					</div>
+
 <!--
-					<label>
-						<input type="checkbox" /><span class="checkable parameter">message before task</span>
-					</label>
-					<textarea class="" placeholder="Task Message ..."></textarea>
+					<span class="parameterName">size</span>
+					<div>
+						<input type="number"></input>
+						<span class="unit">%</span>
+					</div>
+
+					<span class="parameterName">arrange</span>
+					<div>
+						<button><i class="icon-resize-horizontal"></i></button>
+						<button><i class="icon-resize-vertical"></i></button>
+					</div>
 -->
-				</form>
+
+					<span class="parameterName">color</span>
+					<div>
+						<label class="colorSelect" style="color: #222">
+							<input name="color" type="radio" value="black" data-bind="checked: color" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: red">
+							<input name="color" type="radio" value="red" data-bind="checked: color" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: green">
+							<input name="color" type="radio" value="green" data-bind="checked: color" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: blue">
+							<input name="color" type="radio" value="blue" data-bind="checked: color" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: orange">
+							<input name="color" type="radio" value="orange" data-bind="checked: color" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: darkcyan">
+							<input name="color" type="radio" value="darkcyan" data-bind="checked: color" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: magenta">
+							<input name="color" type="radio" value="magenta" data-bind="checked: color" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+					</div>
+
+				</div>
 			</section>
 		</article>
 	</div>
@@ -429,75 +450,81 @@
 	<div class="modal">
 		<input id="dialog_taskSettings" type="checkbox" data-bind="checked: dialog.taskSettings"/>
 		<label for="dialog_taskSettings" class="overlay"></label>
-		<article class="task settings" data-bind="with: selectedTask">
+		<article class="taskSettings" data-bind="with: selectedTask">
 			<header>
 				<input class="name" input="text" placeholder="Task Name" data-bind="value: name" />
 				<label for="dialog_taskSettings" class="close"><b class="large">&times;</b></label>
 			</header>
 			<section class="content">
-				<form>
-					<table>
-						<tr>
-							<td class="parameter">color</td>
-							<td colspan="3">
-								<label class="colorSelect" style="color: #222">
-									<input type="checkbox" value="black" data-bind="checked: colors" />
-									<span class="checkable"><i class="icon-brush large"></i></span>
-								</label>
-								<label class="colorSelect" style="color: red">
-									<input type="checkbox" value="red" data-bind="checked: colors" />
-									<span class="checkable"><i class="icon-brush large"></i></span>
-								</label>
-								<label class="colorSelect" style="color: green">
-									<input type="checkbox" value="green" data-bind="checked: colors" />
-									<span class="checkable"><i class="icon-brush large"></i></span>
-								</label>
-								<label class="colorSelect" style="color: blue">
-									<input type="checkbox" value="blue" data-bind="checked: colors" />
-									<span class="checkable"><i class="icon-brush large"></i></span>
-								</label>
-								<label class="colorSelect" style="color: orange">
-									<input type="checkbox" value="orange" data-bind="checked: colors" />
-									<span class="checkable"><i class="icon-brush large"></i></span>
-								</label>
-								<label class="colorSelect" style="color: darkcyan">
-									<input type="checkbox" value="darkcyan" data-bind="checked: colors" />
-									<span class="checkable"><i class="icon-brush large"></i></span>
-								</label>
-								<label class="colorSelect" style="color: magenta">
-									<input type="checkbox" value="magenta" data-bind="checked: colors" />
-									<span class="checkable"><i class="icon-brush large"></i></span>
-								</label>
-							</td>
-						</tr>
-						<tr>
-							<td class="parameter">type</td>
-							<td>
-								<label class="typeSelect" >
-									<input name="typeSelect" type="radio" value="vector"  data-bind="checked: type"/>
-									<span class="checkable"><i class="icon-lines large"></i></span>
-								</label>
-								<label class="typeSelect" >
-									<input name="typeSelect" type="radio" value="raster" data-bind="checked: type"/>
-									<span class="checkable"><i class="icon-dots large"></i></span>
-								</label>
-							</td>
-						</tr>
+				<div class="parameterTable" >
+					<span class="parameterName">color</span>
+					<div>
+						<label class="colorSelect" style="color: #222">
+							<input name="color" type="checkbox" value="black" data-bind="checked: colors" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: red">
+							<input name="color" type="checkbox" value="red" data-bind="checked: colors" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: green">
+							<input name="color" type="checkbox" value="green" data-bind="checked: colors" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: blue">
+							<input name="color" type="checkbox" value="blue" data-bind="checked: colors" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: orange">
+							<input name="color" type="checkbox" value="orange" data-bind="checked: colors" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: darkcyan">
+							<input name="color" type="checkbox" value="darkcyan" data-bind="checked: colors" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: magenta">
+							<input name="color" type="checkbox" value="magenta" data-bind="checked: colors" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+					</div>
 
-						<tr>
-							<td class="parameter">speed</td>
-							<td><input type="number" placeholder="10" min="0" data-bind="value: speed"></input> <span class="unit" data-bind="text: $root.unit.speed"></span></td>
-							<td class="parameter">repeat</td>
-							<td><input type="number" placeholder="1" min="1" data-bind="value: repeat"></input> <i class="icon-retweet large"></i></td>
-						</tr>
-					</table>
+					<span class="parameterName">type</span>
+					<div>
+						<label class="typeSelect" >
+							<input name="typeSelect" type="radio" value="vector"  data-bind="checked: type"/>
+							<span class="checkable"><i class="icon-lines large"></i></span>
+						</label>
+						<label class="typeSelect" >
+							<input name="typeSelect" type="radio" value="raster" data-bind="checked: type"/>
+							<span class="checkable"><i class="icon-dots large"></i></span>
+						</label>
+					</div>
+
+					<span class="parameterName">speed</span>
+					<div>
+						<input type="number" placeholder="10" min="0" data-bind="value: speed"/> <span class="unit" data-bind="text: $root.unit.speed"></span>
+
+						<span class="spacing"/>
+						<div>
+							<span class="parameterName">repeat</span>
+							<div>
+								<input type="number" placeholder="1" min="1" data-bind="value: repeat"/> <i class="unit icon-retweet large"></i>
+							</div>
+						</div>
+					</div>
+
 <!--
-					<label>
-						<input type="checkbox" checked /><span class="checkable parameter">message before task</span>
-					</label>
-					<textarea class="" placeholder="Task Message ..."></textarea>
--->					
-				</form>
+					<span class="parameterName">message</span>
+					<div>
+						<label>
+							<input type="checkbox" />
+							<span class="checkable"><i class="icon-bell-alt"></i></span>
+						</label>
+						<textarea class="" placeholder="Task Message ..."></textarea>
+					</div>
+-->
+				</div>
 			</section>
 		</article>
 	</div>

@@ -164,18 +164,18 @@ function itemsMergeWithSelected(item, selected) {
 }
 function itemPrepareParams(index=undefined) {
 	var selected = viewModel.selectedItems;
+
+	// reset selected items display
 	selected.name('')
 	selected.x(null)
 	selected.y(null)
-	selected.dx(0)
-	selected.dy(0)
-	selected.showAbs(true)
 	selected.width(null)
 	selected.height(null)
 	selected.viewBox(null)
 	selected.boundingBox(null)
 	selected.color(null)	
 
+	// merge with selected items
 	for (var i=0; i < viewModel.workspace.items().length; i++) {
 		var item = viewModel.workspace.items()[i]
 		if ( index !== undefined )
@@ -185,8 +185,12 @@ function itemPrepareParams(index=undefined) {
 		}
 	}
 
+	// set helper data
 	selected.ax(selected.x())
 	selected.ay(selected.y())
+	selected.dx(undefined)
+	selected.dy(undefined)
+	selected.showAbs(true)
 
 console.log("itemPrepareParams")
 	viewModel.dirty.selectedItems.reset()
