@@ -12,12 +12,11 @@ function uuid() {
 
 ko.options.deferUpdates = true;
 ko.dirtyFlag = function(root) {
-	root = ko.utils.unwrapObservable(root)
 	var dirtyFlag = ko.computed(function() {
 		var state = ko.toJSON(root)
 		if ( dirtyFlag ) {
 			var dirty = dirtyFlag._initialState() != state
-			console.log("dirtyFlag:", dirty, root)
+console.log("dirtyFlag:", dirty, ko.utils.unwrapObservable(root))
 			if ( dirty && !dirtyFlag._dirtyCache && dirtyFlag._onDirty )
 				dirtyFlag._onDirty()
 			dirtyFlag._dirtyCache = dirty
@@ -368,7 +367,7 @@ function taskViewModel(data={}, task) {
 		task.id(data.id)
 		if ( data.name !== undefined )
 			task.name(data.name)
-		if ( data.colors !== undefined )
+		if ( data.colors !== undefined && JSON.stringify(data["colors"]) != JSON.stringify(task.colors()) ) // workaround: update on actual change only
 			task.colors(data.colors)
 		if ( data.speed !== undefined )
 			task.speed( parseFloat(data.speed) )
@@ -416,9 +415,9 @@ function itemViewModel(data={}, item) {
 			item.width( parseFloat(data.width) )
 		if ( data.height !== undefined )
 			item.height( parseFloat(data.height) )
-		if ( data.viewBox !== undefined && JSON.stringify(data["viewBox"]) != JSON.stringify(item.viewBox())  )
+		if ( data.viewBox !== undefined && JSON.stringify(data["viewBox"]) != JSON.stringify(item.viewBox()) ) // workaround: update on actual change only
 			item.viewBox( data.viewBox )
-		if ( data.boundingBox !== undefined  && JSON.stringify(data["boundingBox"]) != JSON.stringify(item.boundingBox()) )
+		if ( data.boundingBox !== undefined  && JSON.stringify(data["boundingBox"]) != JSON.stringify(item.boundingBox()) ) // workaround: update on actual change only
 			item.boundingBox(data.boundingBox)
 		if ( data.url !== undefined )
 			item.url( data.url )
@@ -457,9 +456,9 @@ function getStatus() {
 	})
 	return true
 }
-function updateStatus(data) {
+function updateStatus(received) {
 
-	if ( viewModel.expectedSeqNr > data.seqNr ) {
+	if ( viewModel.expectedSeqNr > received.seqNr ) {
 		// ignore status update (expect higher sequence number)
 		return
 	}
@@ -467,18 +466,18 @@ function updateStatus(data) {
 	viewModel.instable = true
 
 	// update status
-	if ( typeof data.status == "object" ) {
-		for ( var key in data.status )
-			viewModel.status[key]( data.status[key] )
+	if ( typeof received.status == "object" ) {
+		for ( var key in received.status )
+			viewModel.status[key]( received.status[key] )
 	}
-	if ( typeof data.alert == "object" ) {
-		for ( var key in data.alert )
-			viewModel.alert[key]( data.alert[key] )
+	if ( typeof received.alert == "object" ) {
+		for ( var key in received.alert )
+			viewModel.alert[key]( received.alert[key] )
 	}
 
 	// update position
-	if ( typeof data.pos == "object" ) {
-		var x = parseFloat(data.pos.x), y = parseFloat(data.pos.y)
+	if ( typeof received.pos == "object" ) {
+		var x = parseFloat(received.pos.x), y = parseFloat(received.pos.y)
 		if ( isNaN(x) || isNaN(y) ) {
 			viewModel.pos.valid(false)
 		} else {
@@ -490,34 +489,34 @@ function updateStatus(data) {
 
 /* TODO
 	// update message
-	if ( typeof data.message == "string" ) {
-		viewModel.message( data.message )
+	if ( typeof received.message == "string" ) {
+		viewModel.message( received.message )
 	}
 */
 
 	// update workspace
-	if ( typeof data.workspace == "object" ) {
-		if ( "width" in data.workspace )
-			viewModel.workspace.width( data.workspace["width"] )
-		if ( "height" in data.workspace )
-			viewModel.workspace.height( data.workspace["height"] )
-		if ( "homePos" in data.workspace ) {
-			viewModel.workspace.homePos.x( data.workspace["homePos"][0] )
-			viewModel.workspace.homePos.y( data.workspace["homePos"][1] )
+	if ( "workspace" in received ) {
+		if ( "width" in received.workspace )
+			viewModel.workspace.width( received.workspace["width"] )
+		if ( "height" in received.workspace )
+			viewModel.workspace.height( received.workspace["height"] )
+		if ( "homePos" in received.workspace ) {
+			viewModel.workspace.homePos.x( received.workspace["homePos"][0] )
+			viewModel.workspace.homePos.y( received.workspace["homePos"][1] )
 		}
-		if ( "workspaceOrigin" in data.workspace ) {
-			viewModel.workspace.workspaceOrigin.x( data.workspace["workspaceOrigin"][0] )
-			viewModel.workspace.workspaceOrigin.y( data.workspace["workspaceOrigin"][1] )
+		if ( "workspaceOrigin" in received.workspace ) {
+			viewModel.workspace.workspaceOrigin.x( received.workspace["workspaceOrigin"][0] )
+			viewModel.workspace.workspaceOrigin.y( received.workspace["workspaceOrigin"][1] )
 		}
 
-		if ( "indicator" in data.workspace)
-			viewModel.workspace.indicator( data.workspace["indicator"] )
+		if ( "indicator" in received.workspace)
+			viewModel.workspace.indicator( received.workspace["indicator"] )
 
-		if ( "viewBox" in data.workspace && JSON.stringify(data.workspace["viewBox"]) != JSON.stringify(viewModel.workspace.viewBox()) )
-			viewModel.workspace.viewBox( data.workspace["viewBox"] )
+		if ( "viewBox" in received.workspace && JSON.stringify(received.workspace["viewBox"]) != JSON.stringify(viewModel.workspace.viewBox()) )
+			viewModel.workspace.viewBox( received.workspace["viewBox"] )
 
 
-		if ( data.workspace.items instanceof Array ) {
+		if ( received.workspace.items instanceof Array ) {
 			var items = viewModel.workspace.items()
 
 			// prepare items list
@@ -527,8 +526,8 @@ function updateStatus(data) {
 			}
 
 			// update with received items
-			for ( var i = 0; i < data.workspace.items.length; i++ ) {
-				var json = data.workspace.items[i]
+			for ( var i = 0; i < received.workspace.items.length; i++ ) {
+				var json = received.workspace.items[i]
 				for ( var i = 0; i < items.length; i++ )
 					if (items[i].id() == json.id) {
 						// item found -> update
@@ -557,16 +556,16 @@ function updateStatus(data) {
 	}
 
 	// update profiles / tasks
-	if ( typeof data.profile == "object" ) {
-		if ( data.profile.profiles instanceof Array ) {
+	if ( "profile" in received ) {
+		if ( received.profile.profiles instanceof Array ) {
 			var profiles = viewModel.profile.list()
 			// prepare task list
 			for ( var i = 0; i < profiles.length; i++ )
 				profiles[i].remove = true
 
 			// update with received profiles
-			for ( var i = 0; i < data.profile.profiles.length; i++ ) {
-				var json = data.profile.profiles[i]
+			for ( var i = 0; i < received.profile.profiles.length; i++ ) {
+				var json = received.profile.profiles[i]
 				for ( var i = 0; i < profiles.length; i++ )
 					if ( profiles[i].id == json.id ) {
 						// task found -> update
@@ -584,8 +583,8 @@ function updateStatus(data) {
 			viewModel.profile.list.remove((item)=>{ return item.remove })
 		}
 
-		if ( "active" in data.profile ) {
-			var profile = data.profile.active
+		if ( "active" in received.profile ) {
+			var profile = received.profile.active
 
 			// active profile
 			viewModel.profile.id( profile["id"] )
@@ -620,15 +619,15 @@ function updateStatus(data) {
 				// clean-up
 				viewModel.tasks.remove((item)=>{ return item.remove })
 			}
-		}
+			viewModel.dirty.tasks.reset()
 
+		}
 		viewModel.dirty.profile.reset()
-		viewModel.dirty.tasks.reset()
 	}
 
 	// update sequence as final step to avoid data races
 	// -> intermediate requests will be ignored due-to sequence error
-	viewModel.seqNr = data.seqNr
+	viewModel.seqNr = received.seqNr
 	viewModel.instable = false
 }
 function uploadFile() {
