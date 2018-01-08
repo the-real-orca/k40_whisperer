@@ -395,7 +395,8 @@ function taskViewModel(data={}, task) {
 			type: ko.observable(data.type),
 			repeat: ko.observable(data.repeat),
 			status: ko.observable(data.status),
-			progress: ko.observable(data.progress)
+			progress: ko.observable(data.progress),
+			selected: ko.observable(true)
 		}
 		task.statusIcon = ko.pureComputed(function() { return taskStatusIcon(this.status()) }, task)
 		task.statusColor = ko.pureComputed(function() { return taskStatusColor(this.status()) }, task)
@@ -734,6 +735,24 @@ var viewModel = {
 	},
 	tasks: ko.observableArray(),
 	selectedTask: ko.observable(),
+	selectAllTasks: ko.pureComputed({
+		read: function() {
+			selectedCount=0
+			for ( var i = 0; i < viewModel.tasks().length; i++ ) {
+				var task = viewModel.tasks()[i]
+				if ( task.selected() )
+					selectedCount++
+			}
+			return ( selectedCount == viewModel.tasks().length )
+		},
+		write: function(val) {
+			for ( var i = 0; i < viewModel.tasks().length; i++ ) {
+				var task = viewModel.tasks()[i]
+				task.selected(val)
+			}
+		},
+		owner: this
+	}),
 	selectedItems: {
 		name: ko.observable(""),
 		x: ko.observable(),
@@ -771,6 +790,7 @@ var viewModel = {
 		fullscreen: ko.observable(false),
 		itemsList: ko.observable(false),
 		itemsSettings: ko.observable(false),
+		profilesList: ko.observable(false),
 		taskSettings: ko.observable(false),
 		wait: ko.observable(false)
 	},

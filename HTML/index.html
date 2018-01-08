@@ -211,18 +211,18 @@
 		</div>
 
 		<!-- Process -->
-		<input id="Process" name="mainTabsGroup" type="radio" />
+		<input id="Process" name="mainTabsGroup" type="radio" checked/>
 		<label class="title" for="Process"><i class="icon-flash"></i></label>
 		<div class="content center">
 			<div class="flex">
 				<div class="profile">
 					<input class="name" input="text" placeholder="Profile Name" data-bind="value: profile.name" />
-					<button class="icon-cubes"></button>
+					<label for="dialog_profilesList" class="button icon-tasks"></label>
 				</div>
 				<div class="taskList">
 					<div data-bind="foreach: tasks">
 						<div class="taskItem">
-							<div class="index"><span data-bind="text: $index()+1"></span></div>
+							<span class="index" data-bind="text: $index()+1"></span>
 							<div class="progress grow">
 								<div data-bind="style: {width: progress()+'%', background: statusColor()}" ></div>
 								<label class="name" for="dialog_taskSettings" data-bind="text: name, click: ()=>{$root.selectedTask($data);return true}"></label>
@@ -230,16 +230,23 @@
 									<span data-bind="css: statusIcon" class=""></span>
 								</span>
 							</div>
+
 							<div>
-								<label for="dialog_taskSettings" class="gray button icon-sliders" data-bind="click: ()=>{$root.selectedTask($data);return true}"></label>
+								<button class="icon-plus" data-bind="click: ()=>{tasks.push(taskViewModel()); taskSave()}"></button>
+
+								<button class="icon-up" ></button>
+
+								<button class="icon-down" ></button>
+
+								<label for="dialog_taskSettings" class="button icon-sliders" data-bind="click: ()=>{$root.selectedTask($data);return true}"></label>
+
+								<button class="icon-play" data-bind="click: ()=>{taskRun($data.id())}, enable: $root.status.usb && !$root.status.laser()"></button>
+
+								<button class="error icon-trash" ></button>
 							</div>
-							<div>
-								<button class="gray icon-play" data-bind="click: ()=>{taskRun($data.id())}, enable: $root.status.usb && !$root.status.laser()"></button>
-							</div>
+
+							<label class="button gray icon-ellipsis-horizontal"></label>
 						</div>
-					</div>
-					<div class="index">
-						<button class="gray icon-plus" data-bind="click: ()=>{tasks.push(taskViewModel()); taskSave()}"></button>
 					</div>
 				</div>
 				<div class="taskSidePanel">
@@ -297,7 +304,7 @@
 		<label for="dialog_itemsList" class="overlay"></label>
 		<article class="itemsList">
 			<header>
-				<i class="icon-layers x-large"></i>
+				<i class="icon-layers large"></i>
 				<label for="dialog_itemsList" class="close"><b class="large">&times;</b></label>
 			</header>
 			<section class="content">
@@ -305,7 +312,7 @@
 					<div class="workspaceItem">
 						<label class="grow">
 							<input type="checkbox" name="selected" data-bind="checked: selected"/><span class="checkable"></span>
-							<span class="index" data-bind="text: $index()+1"></span>.
+							<span class="index" data-bind="text: $index()+1"></span>
 							<span class="name" data-bind="text: name"></span>
 						</label>
 
@@ -316,7 +323,7 @@
 				</div>
 				<hr>
 				<div class="workspaceItem">
-					<label class="grow">
+					<label>
 						<input type="checkbox"  data-bind="checked: selectAllItems"/><span class="checkable"></span>
 						all / none
 					</label>
@@ -447,6 +454,33 @@
 	</div>
 
 	<!-- task dialog -->
+	<div class="modal">
+		<input id="dialog_profilesList" type="checkbox" data-bind="checked: dialog.profilesList"/>
+		<label for="dialog_profilesList" class="overlay"></label>
+		<article class="profilesList">
+			<header>
+				<i class="icon-tasks x-large"></i>
+				<label for="dialog_profilesList" class="close"><b class="large">&times;</b></label>
+			</header>
+			<section class="content">
+				<div data-bind="foreach: profile.list">
+					<div class="profileItem">
+						<label class="name grow" data-bind="text: name"></label>
+
+						<label for="dialog_itemSettings" class="button icon-folder-open" data-bind="click: ()=>{}"></label>
+
+						<button class="error icon-trash" data-bind="click: ()=>{profilesRemove($data.id())}"></button>
+					</div>
+				</div>
+				<hr>
+				<div class="profileItem">
+					<span class="grow"></span>
+
+					<button class="icon-plus" data-bind=""></button>
+				</div>
+			</section>
+		</article>
+	</div>
 	<div class="modal">
 		<input id="dialog_taskSettings" type="checkbox" data-bind="checked: dialog.taskSettings"/>
 		<label for="dialog_taskSettings" class="overlay"></label>

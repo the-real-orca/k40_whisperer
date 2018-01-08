@@ -438,6 +438,11 @@ svg #workspaceRect {
 	margin: 0.5em 0.75em;
 }
 
+.workspaceItem .index:after {
+	content: ".";
+	padding-right: 0.5em;
+}
+
 .workspaceItem .name {
 	width: auto;
 	font-size: 110%;
@@ -608,6 +613,25 @@ button.move, .button.move  {
 	flex-grow: 10;
 }
 
+.profileItem {
+	display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.profileItem button, .profileItem .button {
+	margin: 0.5em 0.75em;
+}
+
+.profileItem .name {
+	width: auto;
+	font-size: 110%;
+	font-weight: bold;
+	margin-left: 1em;
+	cursor: pointer;
+}
+
 .taskList {
     position: relative;
 	margin: 0;
@@ -636,7 +660,7 @@ button.move, .button.move  {
 }
 
 .taskItem .index:after {
-	content: ":";
+	content: ".";
 	padding-right: 0.5em;
 }
 
@@ -683,6 +707,10 @@ button.move, .button.move  {
     -webkit-transform: translateY(-50%);
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
+}
+
+.taskItem div, .taskItem button, .taskItem .button {
+	margin: 0.5em;
 }
 
 .taskSidePanel {
