@@ -66,29 +66,35 @@ input[type="file"] {
 	z-index: 1000000;
 }
 
-form > * {
-	margin-top: 0.3em;
-	margin-bottom: 0.3em;
+.popup {
+	position: relative;
+	margin: 0 !important;
 }
-form table {
-	width: 100%;
-	border-collapse: separate;
-	border-spacing: 0 0.6em;
+
+.popup > * {
+	visibility: hidden;
+	position: absolute;
 }
-form tr {
-	background: none !important;
+
+.popup > .content {
+	width: -moz-max-content;    /* Firefox/Gecko */
+	width: -webkit-max-content; /* Chrome */
+	width: max-content;
+	right: -0.5em;
+	bottom: -0.5em;
+	margin: 0;
+	z-index: 10;
+	background: #FAFAFA;
+	border: 2px solid #888;
+	border-radius: 0.3em
 }
-form td {
-	width: auto;
-	padding: 0.3em 0em;
+
+
+.popup > input[type="checkbox"] {
 }
-form td.parameter {
-	width: auto;
-	padding: 0.5em 1em;
-}
-form .parameter:after {
-	content: ":";
-	padding-right: 0.5em;
+
+.popup > input[type="checkbox"]:checked ~ * {
+	visibility: visible;
 }
 
 .footer {
@@ -394,10 +400,10 @@ button.active, .button.active, button:active, .button:active {
 
 .overlay {
 	background: gray;
-	height: 100%;
-	width: 100%;
+	height: 100vh;
+	width: 100vw;
 	display: inline-block;
-	position: absolute;
+	position: fixed;
 	top: 0;
 	left: 0;
 	z-index: 10;
@@ -648,7 +654,12 @@ button.move, .button.move  {
 	align-items: center;
 }
 
-.taskItem div {
+.taskItem > div {
+	display: inline-block;
+	margin: 1em;
+}
+
+.taskItem button, .taskItem .button {
 	display: inline-block;
 	width: auto;
 	margin: 0.5em;
@@ -709,7 +720,7 @@ button.move, .button.move  {
     transform: translateY(-50%);
 }
 
-.taskItem div, .taskItem button, .taskItem .button {
+.taskItem button, .taskItem .button {
 	margin: 0.5em;
 }
 
@@ -719,7 +730,7 @@ button.move, .button.move  {
 }
 
 .taskSidePanel > button {
-	height: calc(100% - 3.5em);
+	height: 90%;
     min-height: 3.5em;
     width: 55%;
     font-size: 110%;

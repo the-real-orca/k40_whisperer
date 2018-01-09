@@ -231,21 +231,20 @@
 								</span>
 							</div>
 
-							<div>
-								<button class="icon-plus" data-bind="click: ()=>{tasks.push(taskViewModel()); taskSave()}"></button>
+							<label class="popup button gray icon-ellipsis-horizontal">
+								<input type="checkbox" data-bind="attr: {id: 'taskItemMenu_' + $index()}"/>
+								<label class="overlay" data-bind="attr: {for: 'taskItemMenu_' + $index()}"></label>
+								<div class="content">
+									<button class="error icon-trash" ></button>
+									<button class="icon-plus" data-bind="click: ()=>{tasks.push(taskViewModel()); taskSave()}"></button>
+									<button class="icon-up" ></button>
+									<button class="icon-down" ></button>
+									<label for="dialog_taskSettings" class="button icon-sliders" data-bind="click: ()=>{$root.selectedTask($data);return true}"></label>
+									<button class="icon-play" data-bind="click: ()=>{taskRun($data.id())}, enable: $root.status.usb && !$root.status.laser()"></button>
+									<label class="gray button icon-logout" data-bind="attr: {for: 'taskItemMenu_' + $index()}"></label>
+								</div>
+							</label>
 
-								<button class="icon-up" ></button>
-
-								<button class="icon-down" ></button>
-
-								<label for="dialog_taskSettings" class="button icon-sliders" data-bind="click: ()=>{$root.selectedTask($data);return true}"></label>
-
-								<button class="icon-play" data-bind="click: ()=>{taskRun($data.id())}, enable: $root.status.usb && !$root.status.laser()"></button>
-
-								<button class="error icon-trash" ></button>
-							</div>
-
-							<label class="button gray icon-ellipsis-horizontal"></label>
 						</div>
 					</div>
 				</div>
