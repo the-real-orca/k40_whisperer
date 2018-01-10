@@ -66,9 +66,18 @@ input[type="file"] {
 	z-index: 1000000;
 }
 
+.vertical-ruler {
+	border-left: 1px solid #eee;
+    border-right: 1px solid #ccc;
+    width: 0;
+    margin: 0.25em;
+}
+
 .popup {
 	position: relative;
+	align-self: baseline;
 	margin: 0 !important;
+	width: 0 !important;
 }
 
 .popup > * {
@@ -82,8 +91,8 @@ input[type="file"] {
 	width: fit-content;;
 	max-width: 0;
 	overflow: hidden;
-	right: -0.5em;
-	bottom: -0.5em;
+	right: 0;
+	top: 0.5em;
 	margin: 0;
 	z-index: 10;
 	background: #FAFAFA;
@@ -93,15 +102,12 @@ input[type="file"] {
 	display: flex;
 }
 
-.popup > input[type="checkbox"] {
-}
-
-.popup > input[type="checkbox"]:checked ~ * {
+.popup.active > * {
 	opacity: 1;
 	visibility: visible;
 }
 
-.popup > input[type="checkbox"]:checked ~ .content {
+.popup.active > .content {
 	max-width: 75vw;
 }
 
@@ -727,10 +733,6 @@ button.move, .button.move  {
     transform: translateY(-50%);
 }
 
-.taskItem button, .taskItem .button {
-	margin: 0.5em;
-}
-
 .taskSidePanel {
 	width: auto;
 	margin: 0.5em 0;
@@ -748,7 +750,7 @@ header {
 }
 
 header > input {
-	max-width: calc(100% - 2em);
+	max-width: calc(100% - 4em);
 }
 
 .parameterTable {

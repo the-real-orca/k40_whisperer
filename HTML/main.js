@@ -44,6 +44,11 @@ ko.observableArray.fn.pushAll = function(valuesToPush) {
 	this.valueHasMutated()
 	return this  //optional
 };
+ko.observableArray.fn.move = function(from, to){
+    this.valueWillMutate();
+    this.peek().splice(to, 0, this.peek().splice(from, 1)[0]);
+    this.valueHasMutated();
+};
 ko.bindingHandlers.numericValue = {
 	init: function(element, valueAccessor) {
 		$(element).on("change", ()=>{
@@ -396,11 +401,13 @@ function taskViewModel(data={}, task) {
 			repeat: ko.observable(data.repeat),
 			status: ko.observable(data.status),
 			progress: ko.observable(data.progress),
-			selected: ko.observable(true),
-			showMenu: ko.observable(false)
+			selected: ko.observable(true)
 		}
-		task.statusIcon = ko.pureComputed(function() { return taskStatusIcon(this.status()) }, task)
-		task.statusColor = ko.pureComputed(function() { return taskStatusColor(this.status()) }, task)
+		task._ = ()=>{} // dummy function to hide private elements from JSON
+		task._.statusIcon = ko.pureComputed(function() { return taskStatusIcon(this.status()) }, task),
+		task._.statusColor = ko.pureComputed(function() { return taskStatusColor(this.status()) }, task),
+		task._.showMenu = ko.observable(false);
+		task._.toggleMenu = ()=>{ task._.showMenu(task._.showMenu()) }
 	}
 	return task
 }
@@ -626,7 +633,9 @@ function updateStatus(received) {
 				viewModel.tasks.remove((item)=>{ return item.remove })
 			}
 			viewModel.dirty.tasks.reset()
-
+			if ( viewModel.tasks().length == 0 ) {
+				viewModel.tasks.push( taskViewModel({}) )
+			}
 		}
 		viewModel.dirty.profile.reset()
 	}

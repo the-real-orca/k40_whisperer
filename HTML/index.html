@@ -211,7 +211,7 @@
 		</div>
 
 		<!-- Process -->
-		<input id="Process" name="mainTabsGroup" type="radio" checked/>
+		<input id="Process" name="mainTabsGroup" type="radio"/>
 		<label class="title" for="Process"><i class="icon-flash"></i></label>
 		<div class="content center">
 			<div class="flex">
@@ -224,26 +224,33 @@
 						<div class="taskItem">
 							<span class="index" data-bind="text: $index()+1"></span>
 							<div class="progress grow">
-								<div data-bind="style: {width: progress()+'%', background: statusColor()}" ></div>
+								<div data-bind="style: {width: progress()+'%', background: _.statusColor()}" ></div>
 								<label class="name" for="dialog_taskSettings" data-bind="text: name, click: ()=>{$root.selectedTask($data);return true}"></label>
 								<span class="status">
-									<span data-bind="css: statusIcon" class=""></span>
+									<span data-bind="css: _.statusIcon" class=""></span>
 								</span>
 							</div>
 
-							<label class="popup button gray icon-ellipsis-horizontal"  data-bind="attr: {for: 'taskItemMenu_' + $index()}">
-								<input type="checkbox" data-bind="attr: {id: 'taskItemMenu_' + $index()}"/>
-								<label class="overlay" data-bind="attr: {for: 'taskItemMenu_' + $index()}"></label>
+							<button class="gray icon-ellipsis-horizontal" data-bind="click: ()=>{_.showMenu(true)}"></button>
+							<div class="popup" data-bind="css: {active: _.showMenu}">
+								<div class="overlay" data-bind="click: ()=>{_.showMenu(false)}"></div>
 								<div class="content">
-									<button class="error icon-trash" data-bind="click: ()=>{tasks.push(taskViewModel()); taskSave(); showMenu(false)}"></button>
-									<button class="icon-plus" data-bind="click: ()=>{tasks.push(taskViewModel()); taskSave()}"></button>
-									<button class="icon-up" ></button>
-									<button class="icon-down" ></button>
-									<label for="dialog_taskSettings" class="button icon-sliders" data-bind="click: ()=>{$root.selectedTask($data);return true}"></label>
-									<button class="icon-play" data-bind="click: ()=>{taskRun($data.id())}, enable: $root.status.usb && !$root.status.laser()"></button>
-									<label class="gray button icon-logout" data-bind="attr: {for: 'taskItemMenu_' + $index()}"></label>
+									<button class="error icon-trash" data-bind="click: ()=>{$root.tasks.remove($data); _.showMenu(false)}"></button>
+									<!-- ko if: $index() > 0 -->
+										<button class="icon-up" data-bind="click: ()=>{$root.tasks.move($index(), $index()-1); _.showMenu(false)}"></button>
+									<!-- /ko -->
+									<!-- ko if: ($index()+1) < $root.tasks().length -->
+										<button class="icon-down" data-bind="click: ()=>{$root.tasks.move($index(), $index()+1); _.showMenu(false)}"></button>
+									<!-- /ko -->
+									<!-- ko if: ($index()+1) == $root.tasks().length -->
+										<button class="icon-plus" data-bind="click: ()=>{$root.tasks.push(taskViewModel()); _.showMenu(false)}"></button>
+									<!-- /ko -->
+									<div class="vertical-ruler"></div>
+									<button class="icon-sliders" data-bind="click: ()=>{$root.selectedTask($data); $root.dialog.taskSettings(true); _.showMenu(false)}"></button>
+									<button class="icon-play" data-bind="click: ()=>{taskRun($data.id()); _.showMenu(false)}, enable: $root.status.usb && !$root.status.laser()"></button>
+									<button class="gray icon-logout" data-bind="click: ()=>{_.showMenu(false)}"></button>
 								</div>
-							</label>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -303,7 +310,7 @@
 		<article class="itemsList">
 			<header>
 				<i class="icon-layers large"></i>
-				<label for="dialog_itemsList" class="close"><b class="large">&times;</b></label>
+				<label for="dialog_itemsList" class="close x-large icon-logout"></label>
 			</header>
 			<section class="content">
 				<div data-bind="foreach: workspace.items">
@@ -343,7 +350,7 @@
 		<article class="item settings" data-bind="with: selectedItems">
 			<header>
 				<span class="name" data-bind="text: name" ></span>
-				<label for="dialog_itemSettings" class="close"><b class="large">&times;</b></label>
+				<label for="dialog_itemSettings" class="close x-large icon-logout"></label>
 			</header>
 			<section class="content">
 				<div class="parameterTable" >
@@ -458,7 +465,7 @@
 		<article class="profilesList">
 			<header>
 				<i class="icon-tasks x-large"></i>
-				<label for="dialog_profilesList" class="close"><b class="large">&times;</b></label>
+				<label for="dialog_profilesList" class="close x-large icon-logout"></label>
 			</header>
 			<section class="content">
 				<div data-bind="foreach: profile.list">
@@ -485,7 +492,7 @@
 		<article class="taskSettings" data-bind="with: selectedTask">
 			<header>
 				<input class="name" input="text" placeholder="Task Name" data-bind="value: name" />
-				<label for="dialog_taskSettings" class="close"><b class="large">&times;</b></label>
+				<label for="dialog_taskSettings" class="close x-large icon-logout"></label>
 			</header>
 			<section class="content">
 				<div class="parameterTable" >
