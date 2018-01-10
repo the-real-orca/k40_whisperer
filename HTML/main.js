@@ -396,7 +396,8 @@ function taskViewModel(data={}, task) {
 			repeat: ko.observable(data.repeat),
 			status: ko.observable(data.status),
 			progress: ko.observable(data.progress),
-			selected: ko.observable(true)
+			selected: ko.observable(true),
+			showMenu: ko.observable(false)
 		}
 		task.statusIcon = ko.pureComputed(function() { return taskStatusIcon(this.status()) }, task)
 		task.statusColor = ko.pureComputed(function() { return taskStatusColor(this.status()) }, task)

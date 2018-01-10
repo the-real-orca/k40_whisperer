@@ -231,11 +231,11 @@
 								</span>
 							</div>
 
-							<label class="popup button gray icon-ellipsis-horizontal">
+							<label class="popup button gray icon-ellipsis-horizontal"  data-bind="attr: {for: 'taskItemMenu_' + $index()}">
 								<input type="checkbox" data-bind="attr: {id: 'taskItemMenu_' + $index()}"/>
 								<label class="overlay" data-bind="attr: {for: 'taskItemMenu_' + $index()}"></label>
 								<div class="content">
-									<button class="error icon-trash" ></button>
+									<button class="error icon-trash" data-bind="click: ()=>{tasks.push(taskViewModel()); taskSave(); showMenu(false)}"></button>
 									<button class="icon-plus" data-bind="click: ()=>{tasks.push(taskViewModel()); taskSave()}"></button>
 									<button class="icon-up" ></button>
 									<button class="icon-down" ></button>
@@ -244,7 +244,6 @@
 									<label class="gray button icon-logout" data-bind="attr: {for: 'taskItemMenu_' + $index()}"></label>
 								</div>
 							</label>
-
 						</div>
 					</div>
 				</div>

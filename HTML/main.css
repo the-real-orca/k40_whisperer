@@ -72,29 +72,37 @@ input[type="file"] {
 }
 
 .popup > * {
+	opacity: 0;
 	visibility: hidden;
 	position: absolute;
+	transition: all 0.3s;
 }
 
 .popup > .content {
-	width: -moz-max-content;    /* Firefox/Gecko */
-	width: -webkit-max-content; /* Chrome */
-	width: max-content;
+	width: fit-content;;
+	max-width: 0;
+	overflow: hidden;
 	right: -0.5em;
 	bottom: -0.5em;
 	margin: 0;
 	z-index: 10;
 	background: #FAFAFA;
-	border: 2px solid #888;
-	border-radius: 0.3em
+//	border: 2px solid #888;
+	border-radius: 0.2em;
+	overflow: hidden;
+	display: flex;
 }
-
 
 .popup > input[type="checkbox"] {
 }
 
 .popup > input[type="checkbox"]:checked ~ * {
+	opacity: 1;
 	visibility: visible;
+}
+
+.popup > input[type="checkbox"]:checked ~ .content {
+	max-width: 75vw;
 }
 
 .footer {
@@ -399,7 +407,7 @@ button.active, .button.active, button:active, .button:active {
 }
 
 .overlay {
-	background: gray;
+	background: #60606080;
 	height: 100vh;
 	width: 100vw;
 	display: inline-block;
@@ -407,7 +415,6 @@ button.active, .button.active, button:active, .button:active {
 	top: 0;
 	left: 0;
 	z-index: 10;
-	opacity: 0.75;
 }
 
 .grow {
