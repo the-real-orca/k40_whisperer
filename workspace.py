@@ -166,7 +166,9 @@ class Workspace:
 	def setParams(self, params):
 
 		# update indicator
-		self.setIndicator( params.get('indicator', self.indicator) )
+		indicator = params.get('indicator', self.indicator)
+		if indicator:
+			self.setIndicator( indicator )
 
 		# update workspace origin
 		self.setWorkspaceOrigin( params.get('workspaceOrigin', self.workspaceOrigin) )
@@ -207,9 +209,10 @@ class Workspace:
 
 	def setIndicator(self, params):
 		# update indicator location
-		self.indicator = params
-		self.update()
-		self.setWorkspaceOrigin(self.workspaceOrigin)
+		if params:
+			self.indicator = params
+			self.update()
+			self.setWorkspaceOrigin(self.workspaceOrigin)
 
 	def setWorkspaceOrigin(self, params):
 		# update workspace origin

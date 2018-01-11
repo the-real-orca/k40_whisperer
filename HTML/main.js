@@ -80,10 +80,14 @@ function fxSlideUpRemove(elem) {
 }
 
 // laser functions
-function moveWorkspaceOrigin(dx, dy) {
-	var x = parseFloat(viewModel.workspace.workspaceOrigin.x()) + parseFloat(dx)
-	var y = parseFloat(viewModel.workspace.workspaceOrigin.y()) + parseFloat(dy)
-	sendCommand('workspace.origin', [x,y])
+function moveWorkspaceOriginX(dx) {
+	var x = parseFloat(viewModel.workspace.workspaceOrigin.x()) + parseFloat(dx)*viewModel.config.stepSize()
+	viewModel.workspace.workspaceOrigin.x(x)
+	return true
+}
+function moveWorkspaceOriginY(dy) {
+	var y = parseFloat(viewModel.workspace.workspaceOrigin.y()) + parseFloat(dy)*viewModel.config.stepSize()
+	viewModel.workspace.workspaceOrigin.y(y)
 	return true
 }
 function resetWorkspaceOrigin() {
@@ -809,9 +813,9 @@ var viewModel = {
 // view model functions
 viewModel.continue = function() { viewModel.dialog.wait(false) }
 
-viewModel.workspace.indicator.subscribe((val)=>{ sendCommand('workspace.indicator', val) }, this)
-viewModel.workspace.workspaceOrigin.x.subscribe(()=>{ sendCommand('workspace.origin', [parseFloat(viewModel.workspace.workspaceOrigin.x()), parseFloat(viewModel.workspace.workspaceOrigin.y())]) }, this)
-viewModel.workspace.workspaceOrigin.y.subscribe(()=>{ sendCommand('workspace.origin', [parseFloat(viewModel.workspace.workspaceOrigin.x()), parseFloat(viewModel.workspace.workspaceOrigin.y())]) }, this)
+viewModel.workspace.indicator.subscribe((val)=>{ if (val && viewModel.dirty.workspace()) sendCommand('workspace.indicator', val) }, this)
+viewModel.workspace.workspaceOrigin.x.subscribe(()=>{ if (viewModel.dirty.workspace()) sendCommand('workspace.origin', [parseFloat(viewModel.workspace.workspaceOrigin.x()), parseFloat(viewModel.workspace.workspaceOrigin.y())]) }, this)
+viewModel.workspace.workspaceOrigin.y.subscribe(()=>{ if (viewModel.dirty.workspace()) sendCommand('workspace.origin', [parseFloat(viewModel.workspace.workspaceOrigin.x()), parseFloat(viewModel.workspace.workspaceOrigin.y())]) }, this)
 viewModel.dirty.workspace = ko.dirtyFlag(viewModel.workspace);
 
 // make sure that either dx/y or x/yset is valid

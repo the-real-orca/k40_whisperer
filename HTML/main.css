@@ -385,7 +385,7 @@ button.active, .button.active, button:active, .button:active {
 
 .unit {
 	font-size: 90%;
-	opacity: 0.75;
+	opacity: 0.85;
 }
 
 .percent:after {
@@ -588,10 +588,8 @@ button.move, .button.move  {
 }
 
 .indicator > input:checked ~ button, .indicator > input:checked ~ .button  {
-	background: white;
-    color: mediumvioletred;
-    text-shadow: 0 0 2em red;
-	box-shadow: .05em .05em .3em rgba(0, 0, 0, 0.5) inset
+    background: #2ecc40;
+	box-shadow: 0 0 .3em rgba(0, 0, 0, 0.5) inset
 }
 
 .toUp {

@@ -123,7 +123,7 @@
 					<table class="move">
 						<tr>
 							<td></td><td></td><td></td>
-							<td><button class="move" data-bind="click: moveWorkspaceOrigin.bind($data, 0, $root.config.stepSize()*10 ), enable: status.usb() && !status.laser()"><i class="toUp icon-move_fast"></i></button></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginY.bind($data, 10), enable: status.usb() && !status.laser()"><i class="toUp icon-move_fast"></i></button></td>
 							<td></td><td></td><td></td>
 						</tr>
 						<tr>
@@ -133,7 +133,7 @@
 									<i class="button icon-top-left"></i>
 								</label>
 							</td><td></td>
-							<td><button class="move" data-bind="click: moveWorkspaceOrigin.bind($data, 0, $root.config.stepSize() ), enable: status.usb() && !status.laser()"><i class="toUp icon-move_std"></i></button></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginY.bind($data, 1), enable: status.usb() && !status.laser()"><i class="toUp icon-move_std"></i></button></td>
 							<td></td><td>
 								<label class="indicator">
 									<input type="radio" value="top-right" name="indicator" data-bind="checked: workspace.indicator"></input>
@@ -143,13 +143,13 @@
 						</tr>
 						<tr>
 							<td></td><td></td><td></td>
-							<td><button class="move" data-bind="click: moveWorkspaceOrigin.bind($data, 0, $root.config.stepSize()/10 ), enable: status.usb() && !status.laser()"><i class="toUp icon-move_slow"></i></button></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginY.bind($data, 0.1), enable: status.usb() && !status.laser()"><i class="toUp icon-move_slow"></i></button></td>
 							<td></td><td></td><td></td>
 						</tr>
 						<tr>
-							<td><button class="move" data-bind="click: moveWorkspaceOrigin.bind($data, -$root.config.stepSize()*10, 0), enable: status.usb() && !status.laser()"><i class="toLeft icon-move_fast"></i></button></td>
-							<td><button class="move" data-bind="click: moveWorkspaceOrigin.bind($data, -$root.config.stepSize(), 0), enable: status.usb() && !status.laser()"><i class="toLeft icon-move_std"></i></button></td>
-							<td><button class="move" data-bind="click: moveWorkspaceOrigin.bind($data, -$root.config.stepSize()/10, 0), enable: status.usb() && !status.laser()"><i class="toLeft icon-move_slow"></i></button></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginX.bind($data, -10), enable: status.usb() && !status.laser()"><i class="toLeft icon-move_fast"></i></button></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginX.bind($data, -1), enable: status.usb() && !status.laser()"><i class="toLeft icon-move_std"></i></button></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginX.bind($data, -0.1), enable: status.usb() && !status.laser()"><i class="toLeft icon-move_slow"></i></button></td>
 							
 							<td>
 								<label class="indicator">
@@ -158,13 +158,13 @@
 								</label>
 							</td>
 							
-							<td><button class="move" data-bind="click: moveWorkspaceOrigin.bind($data, $root.config.stepSize()/10, 0), enable: status.usb() && !status.laser()"><i class="toRight icon-move_slow"></i></button></td>
-							<td><button class="move" data-bind="click: moveWorkspaceOrigin.bind($data, $root.config.stepSize(), 0), enable: status.usb() && !status.laser()"><i class="toRight icon-move_std"></i></button></td>
-							<td><button class="move" data-bind="click: moveWorkspaceOrigin.bind($data, $root.config.stepSize()*10, 0), enable: status.usb() && !status.laser()"><i class="toRight icon-move_fast"></i></button></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginX.bind($data, 0.1), enable: status.usb() && !status.laser()"><i class="toRight icon-move_slow"></i></button></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginX.bind($data, 1), enable: status.usb() && !status.laser()"><i class="toRight icon-move_std"></i></button></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginX.bind($data, 10), enable: status.usb() && !status.laser()"><i class="toRight icon-move_fast"></i></button></td>
 						</tr>
 						<tr>
 							<td></td><td></td><td></td>
-							<td><button class="move" data-bind="click: moveWorkspaceOrigin.bind($data, 0, -$root.config.stepSize()/10 ), enable: status.usb() && !status.laser()"><i class="toDown icon-move_slow"></i></button></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginY.bind($data, -0.1), enable: status.usb() && !status.laser()"><i class="toDown icon-move_slow"></i></button></td>
 							<td></td><td></td><td></td>
 						</tr>
 						<tr>
@@ -174,7 +174,7 @@
 									<i class="button icon-bottom-left"></i>
 								</label>
 							</td><td></td>
-							<td><button class="move" data-bind="click: moveWorkspaceOrigin.bind($data, 0, -$root.config.stepSize() ), enable: status.usb() && !status.laser()"><i class="toDown icon-move_std"></i></button></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginY.bind($data, -1), enable: status.usb() && !status.laser()"><i class="toDown icon-move_std"></i></button></td>
 							<td></td><td>
 								<label class="indicator">
 									<input type="radio" value="bottom-right" name="indicator" data-bind="checked: workspace.indicator"></input>
@@ -184,7 +184,7 @@
 						</tr>
 						<tr>
 							<td></td><td></td><td></td>
-							<td><button class="move" data-bind="click: moveWorkspaceOrigin.bind($data, 0, -$root.config.stepSize()*10 ), enable: status.usb() && !status.laser()"><i class="toDown icon-move_fast"></i></button></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginY.bind($data, -10), enable: status.usb() && !status.laser()"><i class="toDown icon-move_fast"></i></button></td>
 							<td></td><td></td><td></td>
 						</tr>
 					</table>
