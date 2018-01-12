@@ -20,7 +20,7 @@ configWorkspace(workspace)
 
 # init task manager
 taskmanager = TaskManager(laser, workspace)
-configTasks(taskmanager)
+loadProfiles(taskmanager)
 
 
 def getStatus():
@@ -67,8 +67,8 @@ def dispatchCommand(cmd, params = None):
 		"workspace.indicator": workspace.setIndicator,
 		"workspace.origin": workspace.setWorkspaceOrigin,
 		"item.set": workspace.setParams,
-		"profile.setactive": taskmanager.setActiveProfile,
-		"profile.remove": taskmanager.removeProfile,
+		"profile.setactive": lambda params: taskmanager.setActiveProfile(params) or saveProfiles(taskmanager),
+		"profile.remove": lambda params: taskmanager.removeProfile(params) or saveProfiles(taskmanager),
 		"profile.run": taskmanager.run
 	}
 

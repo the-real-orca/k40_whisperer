@@ -1,5 +1,7 @@
 from task_manager import Profile, Task
 import design_utils as design
+from distutils.dir_util import mkpath
+import json as json_tools
 
 # import laser communication
 import k40_wrapper
@@ -9,6 +11,7 @@ import laser_emulator
 HTML_FOLDER = 'HTML'
 UPLOAD_FOLDER = HTML_FOLDER + '/uploads'
 COMPUTED_FOLDER = HTML_FOLDER + '/computed'
+CONFIG_FOLDER = HTML_FOLDER + '/config'
 ALLOWED_EXTENSIONS = set(['dxf']) # TODO set(['svg', 'dxf', 'png', 'jpg', 'jpeg'])
 MAX_CONTENT_LENGTH = 64 * 1024 * 1024
 
@@ -18,19 +21,14 @@ config = {
 			'homeOff': [0,0],
 			'size': [300, 200]
 		},
+		# sample profiles
 		'profiles': [
 			{
 				'id': "sample",
-				'name': "sample",
+				'name': "sample profile",
 				'tasks': [
-					{'id': "sample", 'name': "sample", 'colors': [design.BLUE], 'speed': 50, 'type': Task.VECTOR}
-				]
-			}, {
-				'id': "test_1",
-				'name': "test 3mm",
-				'tasks': [
-					{'id': "engrave", 'name': "engrave", 'colors': [design.BLUE], 'speed': 50, 'type': Task.VECTOR},
-					{'id': "cut", 'name': "cut", 'colors': [design.BLACK, design.RED], 'speed': 5, 'type': Task.VECTOR, 'repeat': 1}
+					{'id': "engrave", 'name': "engrave", 'colors': [design.BLUE], 'speed': 30, 'type': Task.VECTOR},
+					{'id': "cut", 'name': "cut", 'colors': [design.BLACK, design.RED], 'speed': 10, 'type': Task.VECTOR, 'repeat': 1}
 				]
 			}
 		],
@@ -48,13 +46,29 @@ def configFileManager(filemanager):
 	# nothing to do
 	pass
 
-def configTasks(taskmanager):
+def loadProfiles(taskmanager):
 	try:
+		with open(CONFIG_FOLDER+"/profiles.json") as f:
+			data = json_tools.load(f)
 		taskmanager.profiles.clear()
-		for profile in config['profiles']:
+		for profile in data:
 			taskmanager.setActiveProfile( profile )
-	except:
-		print("task config error")
+	except IOError as e:
+		# init with sample profiles
+		for profile in config['profiles']:
+			taskmanager.setActiveProfile(profile)
+	except StandardError as e:
+		print("load profiles error", e)
+
+def saveProfiles(taskmanager):
+	try:
+		print("saveProfiles")
+		mkpath(CONFIG_FOLDER)
+		data = taskmanager.toJson()['profiles']
+		with open(CONFIG_FOLDER+"/profiles.json", 'wt') as f:
+			json_tools.dump(data, f, sort_keys=True, indent=2)
+	except StandardError as e:
+		print("save profiles error", e)
 
 def configWorkspace(workspace):
 	try:
@@ -65,3 +79,5 @@ def configWorkspace(workspace):
 		workspace.reset()
 	except:
 		print("workspace config error")
+
+

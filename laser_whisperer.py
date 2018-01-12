@@ -6,7 +6,6 @@ import gevent
 
 import os
 # import system tools
-import sys
 from distutils.dir_util import mkpath
 
 # import web framework

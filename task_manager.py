@@ -96,7 +96,6 @@ class TaskManager:
 				task.status = "---"
 				task.progress = 0.0
 
-
 	def setActiveProfile(self, params):
 		id = params.get('id', None)
 		if not(id): return
