@@ -232,6 +232,22 @@ console.log("itemsSaveSelected")
 	sendCommand(cmds)
 	return true
 }
+
+function setActiveProfile(id) {
+	id = ko.utils.unwrapObservable(id)
+	if ( !id ) {
+		// create new profile
+		id = uuid()
+	}
+	sendCommand('profile.setactive', {id: id})
+	// close dialog
+	viewModel.dialog.profilesList(false)
+}
+function removeProfile(id) {
+	id = ko.utils.unwrapObservable(id)
+	sendCommand('profile.remove', id)
+}
+
 function taskRunAll() {
 	sendCommand('profile.run')
 	return true
@@ -249,7 +265,7 @@ function taskSave() {
 	viewModel.dirty.profile.reset()
 	viewModel.dirty.tasks.reset()
 
-	sendCommand('profile.set', params)
+	sendCommand('profile.setactive', params)
 	return true
 }
 function taskStatusIcon(status) {
@@ -372,6 +388,21 @@ function sendCommand(cmd, params) {
 	})
 	return true
 
+}
+function profileViewModel(data={}, profile) {
+	if ( !data.id )
+		data.id = uuid()
+	if ( typeof profile == "object" ) {
+		profile.id(data.id)
+		if ( profile.name !== undefined )
+			profile.name(data.name)
+	} else {
+		profile = {
+			id: ko.observable(data.id),
+			name: ko.observable(data.name),
+		}
+	}
+	return profile
 }
 function taskViewModel(data={}, task) {
 	if ( !data.id )
@@ -584,15 +615,17 @@ function updateStatus(received) {
 			for ( var i = 0; i < received.profile.profiles.length; i++ ) {
 				var json = received.profile.profiles[i]
 				for ( var i = 0; i < profiles.length; i++ )
-					if ( profiles[i].id == json.id ) {
-						// task found -> update
-						profiles[i].name = json.name
-						profiles[i].remove = false
+					if ( profiles[i].id() == json.id ) {
+						// profile found -> update
+						var profile = profiles[i]
+						profileViewModel(json, profile)
+						profile.remove = false
 						break
 					}
 				if ( i == profiles.length ) {
 					// new profile -> append
-					viewModel.profile.list.push({ id: json.id, name: json.name })
+					var profile = profileViewModel(json)
+					viewModel.profile.list.push(profile)
 				}
 			}
 
@@ -602,6 +635,14 @@ function updateStatus(received) {
 
 		if ( "active" in received.profile ) {
 			var profile = received.profile.active
+
+			if ( !profile ) {
+				profile = {
+					id: uuid(),
+					name: "",
+					tasks: []
+				}
+			}
 
 			// active profile
 			viewModel.profile.id( profile["id"] )
@@ -628,7 +669,7 @@ function updateStatus(received) {
 						}
 					if ( i == tasks.length ) {
 						// new task -> append
-						var task = taskViewModel(json);
+						var task = taskViewModel(json)
 						viewModel.tasks.push(task)
 					}
 				}
@@ -898,6 +939,6 @@ function exitFullscreen() {
 	} else if(document.mozCancelFullScreen) {
 		document.mozCancelFullScreen();
 	} else if(document.webkitExitFullscreen) {
+}
 		document.webkitExitFullscreen();
 	}
-}

@@ -52,7 +52,7 @@ def configTasks(taskmanager):
 	try:
 		taskmanager.profiles.clear()
 		for profile in config['profiles']:
-			taskmanager.setProfile( profile )
+			taskmanager.setActiveProfile( profile )
 	except:
 		print("task config error")
 

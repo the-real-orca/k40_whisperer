@@ -67,7 +67,8 @@ def dispatchCommand(cmd, params = None):
 		"workspace.indicator": workspace.setIndicator,
 		"workspace.origin": workspace.setWorkspaceOrigin,
 		"item.set": workspace.setParams,
-		"profile.set": taskmanager.setProfile,
+		"profile.setactive": taskmanager.setActiveProfile,
+		"profile.remove": taskmanager.removeProfile,
 		"profile.run": taskmanager.run
 	}
 

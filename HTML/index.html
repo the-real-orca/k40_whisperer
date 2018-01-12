@@ -39,6 +39,7 @@
 			<h1 data-bind="click: getStatus"><i class="icon-hazard-laser"></i> Laser Whisperer</h1>
 		</div>
 		<div>
+			<!-- TODO -->
 			(<span data-bind="text: pos.x"></span>,<span data-bind="text: pos.y"></span>)
 		</div>
 		<div class="statusLine">
@@ -86,7 +87,7 @@
 	-->				
 					<svg data-bind="attr: {viewBox: (-workspace.margin()) +' '+ (-workspace.margin()) +' '+ (workspace.width()+workspace.margin()*2) +' '+ (workspace.height()+workspace.margin()*2) }"  width="100%" height="100%" preserveAspectRatio="xMidYMin meet">
 						<rect data-bind="attr: {width: workspace.width()+workspace.margin()*2, height: workspace.height()+workspace.margin()*2, x:-workspace.margin(), y: -workspace.margin()}" id="canvasRect" />
-						
+
 						<rect data-bind="attr: {width: workspace.width(), height: workspace.height(), x: 0, y: 0}" id="workspaceRect" />
 						
 						<defs><clipPath id="clip"><use xlink:href="#canvasRect"/></clipPath></defs>
@@ -216,7 +217,7 @@
 		<div class="content center">
 			<div class="flex">
 				<div class="profile">
-					<input class="name" input="text" placeholder="Profile Name" data-bind="value: profile.name" />
+					<input class="name" input="text" placeholder="profile name" data-bind="value: profile.name" />
 					<label for="dialog_profilesList" class="button icon-tasks"></label>
 				</div>
 				<div class="taskList">
@@ -472,16 +473,16 @@
 					<div class="profileItem">
 						<label class="name grow" data-bind="text: name"></label>
 
-						<label for="dialog_itemSettings" class="button icon-folder-open" data-bind="click: ()=>{}"></label>
+						<label for="dialog_itemSettings" class="button icon-folder-open" data-bind="click: setActiveProfile.bind($data,id)"></label>
 
-						<button class="error icon-trash" data-bind="click: ()=>{profilesRemove($data.id())}"></button>
+						<button class="error icon-trash" data-bind="click: removeProfile.bind($data,id)"></button>
 					</div>
 				</div>
 				<hr>
 				<div class="profileItem">
 					<span class="grow"></span>
 
-					<button class="icon-plus" data-bind=""></button>
+					<button class="icon-plus" data-bind="click: setActiveProfile.bind($data,null)"></button>
 				</div>
 			</section>
 		</article>
@@ -491,7 +492,7 @@
 		<label for="dialog_taskSettings" class="overlay"></label>
 		<article class="taskSettings" data-bind="with: selectedTask">
 			<header>
-				<input class="name" input="text" placeholder="Task Name" data-bind="value: name" />
+				<input class="name" input="text" placeholder="task name" data-bind="value: name" />
 				<label for="dialog_taskSettings" class="close x-large icon-logout"></label>
 			</header>
 			<section class="content">
@@ -553,14 +554,14 @@
 						</div>
 					</div>
 
-<!--
+<!-- TODO
 					<span class="parameterName">message</span>
 					<div>
 						<label>
 							<input type="checkbox" />
 							<span class="checkable"><i class="icon-bell-alt"></i></span>
 						</label>
-						<textarea class="" placeholder="Task Message ..."></textarea>
+						<textarea class="" placeholder="task message ..."></textarea>
 					</div>
 -->
 				</div>

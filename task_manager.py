@@ -83,11 +83,12 @@ class TaskManager:
 		# active profile
 		if self._activeProfile:
 			json['active'] = self._activeProfile.toJson()
-
+		else:
+			json['active'] = None
 		return json
 
 
-	def updated(self):
+	def update(self):
 		# reset tasks
 		self._activeTask = None
 		if self._activeProfile:
@@ -96,7 +97,7 @@ class TaskManager:
 				task.progress = 0.0
 
 
-	def setProfile(self, params):
+	def setActiveProfile(self, params):
 		id = params.get('id', None)
 		if not(id): return
 
@@ -108,10 +109,24 @@ class TaskManager:
 			profile = self.profiles[id]
 			profile.name = params.get('name', profile.name)
 			if 'tasks' in params:
-				profile.setTasks( params.get('tasks', []) )
+				profile.setTasks(params.get('tasks', profile.tasks))
 
 		self._activeProfile = profile
-		self.updated()
+		self._activeTask = None
+		self.update()
+
+
+	def removeProfile(self, id):
+		del self.profiles[id]
+		if id == self._activeProfile.id:
+			# removed active profile -> switch to another profile
+			for key in self.profiles:
+				self._activeProfile = self.profiles[key]
+				break
+			else:
+				self._activeProfile = None
+				self._activeTask = None
+		self.update()
 
 
 	def run(self, id = None):

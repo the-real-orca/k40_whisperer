@@ -25,9 +25,17 @@ body {
 	height: 100%;
 }
 
-.TODO {
-	box-shadow: 0 0 1ex red, 0 0 1ex red inset;
-//	visibility: hidden;
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+	color: #ccc;
+}
+::-moz-placeholder { /* Firefox 19+ */
+	color: #ccc;
+}
+:-moz-placeholder { /* Firefox 18- */
+	color: #ccc;
+}
+:-ms-input-placeholder { /* IE 10+ */
+	color: #ccc;
 }
 
 .flex  {
