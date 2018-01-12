@@ -1,12 +1,18 @@
 
+var updateInterval = 200
+
 function clone(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
 
+function roundTo(val, fraction=0.01) {
+    return Math.round(val / fraction) * fraction
+}
+
 function uuid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
+	var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+	return v.toString(16);
   });
 }
 
@@ -16,7 +22,6 @@ ko.dirtyFlag = function(root) {
 		var state = ko.toJSON(root)
 		if ( dirtyFlag ) {
 			var dirty = dirtyFlag._initialState() != state
-console.log("dirtyFlag:", dirty, ko.utils.unwrapObservable(root))
 			if ( dirty && !dirtyFlag._dirtyCache && dirtyFlag._onDirty )
 				dirtyFlag._onDirty()
 			dirtyFlag._dirtyCache = dirty
@@ -45,9 +50,9 @@ ko.observableArray.fn.pushAll = function(valuesToPush) {
 	return this  //optional
 };
 ko.observableArray.fn.move = function(from, to){
-    this.valueWillMutate();
-    this.peek().splice(to, 0, this.peek().splice(from, 1)[0]);
-    this.valueHasMutated();
+	this.valueWillMutate();
+	this.peek().splice(to, 0, this.peek().splice(from, 1)[0]);
+	this.valueHasMutated();
 };
 ko.bindingHandlers.numericValue = {
 	init: function(element, valueAccessor) {
@@ -381,8 +386,12 @@ function sendCommand(cmd, params) {
 		data: JSON.stringify(data),
 		dataType: 'application/json',
 		timeout: 1000,
-		success: function(data) {},
+		success: function(data) {
+			updateStatus(data)
+		},
 		error: function(xhr, type) {
+			viewModel.status.network(false)
+			viewModel.alert.network(true)
 			viewModel.expectedSeqNr = viewModel.seqNr
 		}
 	})
@@ -506,6 +515,9 @@ function getStatus() {
 }
 function updateStatus(received) {
 
+	if ( typeof received == "string" )
+		received = JSON.parse(received)
+
 	if ( viewModel.expectedSeqNr > received.seqNr ) {
 		// ignore status update (expect higher sequence number)
 		return
@@ -543,7 +555,7 @@ function updateStatus(received) {
 */
 
 	// update workspace
-	if ( "workspace" in received ) {
+	if ( "workspace" in received.workspace ) {
 		if ( "width" in received.workspace )
 			viewModel.workspace.width( received.workspace["width"] )
 		if ( "height" in received.workspace )
@@ -759,7 +771,7 @@ var viewModel = {
 		flow: ko.observable("l/min")
 	},
 	config: {
-		stepSize: ko.observable(2)
+		stepSize: ko.observable(1)
 	},
 	workspace: {
 		margin: ko.observable(3),
@@ -885,6 +897,7 @@ viewModel.dialog.itemsList.subscribe((val)=>{
 	}
 })
 
+
 function init() {
 	// init messages
 	init_msg()
@@ -898,10 +911,45 @@ function init() {
 		$("#uploadSubmit").click()
 	})
 
-	
+	// init controllers
+	gamepad.dx = 0; gamepad.dy = 0
+	gamepad.init((gp, buttons, axes)=>{
+		var mult = 4
+
+		// implement dead-zone around neutral position
+		var dead = 0.1
+		var x = axes[0]
+		var sign = x < 0 ? -1 : 1
+		var dx = (sign*x) - dead
+		if ( dx > 0 ) {
+			dx = Math.pow(dx, 1.5) * mult * sign
+		} else
+			dx = 0
+		var y = axes[1]
+		sign = y < 0 ? -1 : 1
+		var dy = (sign*y) - dead
+		if ( dy > 0 ) {
+			dy = -Math.pow(dy, 1.5) * mult * sign
+		} else
+			dy = 0
+		gamepad.dx = dx
+		gamepad.dy = dy
+
+		if ( buttons[0] )
+    		resetWorkspaceOrigin()
+	})
+	setInterval(()=>{
+		if ( gamepad.dx || gamepad.dy ) {
+			console.log(gamepad.dx, gamepad.dy)
+			viewModel.workspace.workspaceOrigin.x( roundTo(viewModel.workspace.workspaceOrigin.x() + gamepad.dx, 0.1) )
+			viewModel.workspace.workspaceOrigin.y( roundTo(viewModel.workspace.workspaceOrigin.y() + gamepad.dy, 0.1) )
+		}
+	}, 250)
+
+
 	// periodic status request
 	getStatus()
-	setInterval(getStatus, 1000)
+	setInterval(getStatus, updateInterval)
 
 	// determine to switch to fullscreen mode
 	document.addEventListener('fullscreenchange', fullscreenEventHandler, false);
