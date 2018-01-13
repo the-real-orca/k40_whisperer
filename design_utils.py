@@ -104,6 +104,7 @@ class Drawing:
 	def __init__(self, polylines, name=None, position=[0,0]):
 		self.id = int(time.time()*10)
 		self.name = name
+		self.sortIndex = None
 		if len(polylines) > 0:
 			for line in polylines:
 				print("line", line)

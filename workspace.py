@@ -108,6 +108,7 @@ class Workspace:
 			pass
 
 		# add to workspace
+		drawing.sortIndex = time.time()
 		self._drawings[drawing.id] = drawing
 		self.update()
 
@@ -140,9 +141,9 @@ class Workspace:
 			"items": []
 
 		}
-		for id in self._drawings:
-			item = self._drawings[id]
-			viewBox = item
+
+		drawings = sorted(self._drawings.values(), key=lambda(item): item.sortIndex)
+		for item in drawings:
 			itemJson = {
 				"id": item.id,
 				"name": item.name,
@@ -160,7 +161,7 @@ class Workspace:
 			else:
 				itemJson['color'] = design.COLOR_MIXED
 			json["items"].append(itemJson)
-		
+
 		return json
 				
 	def setParams(self, params):

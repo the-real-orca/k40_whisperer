@@ -23,6 +23,7 @@ class Profile:
 	def __init__(self, id, name="", tasks=[]):
 		self.id = id
 		self.name = name
+		self.sortIndex = None
 		self.tasks = []
 		self.setTasks(tasks)
 
@@ -76,8 +77,8 @@ class TaskManager:
 
 		# add profiles list
 		json['profiles'] = []
-		for key in self.profiles:
-			profile = self.profiles[key]
+		profiles = sorted(self.profiles.values(), key=lambda(item): item.sortIndex)
+		for profile in profiles:
 			json['profiles'].append(profile.toJson())
 
 		# active profile
@@ -102,7 +103,9 @@ class TaskManager:
 
 		# update profile
 		if id not in self.profiles:
+			# add new profile
 			profile = Profile(id, name=params.get('name', ""), tasks=params.get('tasks', []))
+			profile.sortIndex = time.time()
 			self.profiles[id] = profile
 		else:
 			profile = self.profiles[id]

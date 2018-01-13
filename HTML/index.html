@@ -473,7 +473,7 @@
 			<section class="content">
 				<div data-bind="foreach: profile.list">
 					<div class="profileItem">
-						<label class="name grow" data-bind="text: name"></label>
+						<label class="name grow" data-bind="text: name, click: setActiveProfile.bind($data,id)"></label>
 
 						<label for="dialog_itemSettings" class="button icon-folder-open" data-bind="click: setActiveProfile.bind($data,id)"></label>
 

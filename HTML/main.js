@@ -555,7 +555,7 @@ function updateStatus(received) {
 */
 
 	// update workspace
-	if ( "workspace" in received.workspace ) {
+	if ( "workspace" in received ) {
 		if ( "width" in received.workspace )
 			viewModel.workspace.width( received.workspace["width"] )
 		if ( "height" in received.workspace )
@@ -594,17 +594,22 @@ function updateStatus(received) {
 						var item = items[i]
 						itemViewModel(json, item)
 						item.remove = false
+						item.index = i;
 						break
 					}
 				if ( i == items.length ) {
 					// new task -> append
 					var item = itemViewModel(json);
+					item.index = i;
 					viewModel.workspace.items.push(item)
 				}
 			}
 
 			// clean-up
 			viewModel.workspace.items.remove((item)=>{ return item.remove })
+
+            // sort by index
+            viewModel.workspace.items.sort((left, right)=>{ return left.index < right.index ? -1 : 1 })
 
 			// update selected items
 			if ( viewModel.dialog.itemsSettings() && viewModel.dirty.workspace() ) {
@@ -632,17 +637,22 @@ function updateStatus(received) {
 						var profile = profiles[i]
 						profileViewModel(json, profile)
 						profile.remove = false
+						profile.index = i;
 						break
 					}
 				if ( i == profiles.length ) {
 					// new profile -> append
 					var profile = profileViewModel(json)
+					profile.index = i;
 					viewModel.profile.list.push(profile)
 				}
 			}
 
 			// clean-up
 			viewModel.profile.list.remove((item)=>{ return item.remove })
+
+            // sort by index
+            viewModel.profile.list.sort((left, right)=>{ return left.index < right.index ? -1 : 1 })
 		}
 
 		if ( "active" in received.profile ) {
