@@ -38,9 +38,7 @@ class Workspace:
 		else: # unknown
 			self.home = [ self.size[0]/2, self.size[1]/2 ]
 			print("ERROR: unknown home location")
-		self.homePos[0] += self.homeOff[0]
-		self.homePos[1] += self.homeOff[1]
-			
+
 		if self.defaultOrigin == 'top-left':
 			self.workspaceOrigin = [ 0, self.size[1] ]
 		elif self.defaultOrigin == 'top-right':
@@ -82,6 +80,10 @@ class Workspace:
 			dx = 0
 			dy = 0
 		self.indicatorOff = [dx,dy]
+
+		# move laser to indicator position
+		if self.indicator and self.laser:
+			self.laser.moveTo(self.workspaceOrigin[0]+self.indicatorOff[0], self.workspaceOrigin[1]+self.indicatorOff[1])
 
 			
 	def add(self, drawing):
@@ -165,14 +167,19 @@ class Workspace:
 		return json
 				
 	def setParams(self, params):
+		changed = False
 
 		# update indicator
 		indicator = params.get('indicator', self.indicator)
 		if indicator:
-			self.setIndicator( indicator )
+			self.setIndicator( indicator, False )
+			changed = True
 
 		# update workspace origin
-		self.setWorkspaceOrigin( params.get('workspaceOrigin', self.workspaceOrigin) )
+		workspaceOrigin = params.get('workspaceOrigin')
+		if workspaceOrigin:
+			self.setWorkspaceOrigin( workspaceOrigin, False )
+			changed = True
 
 		# find drawing by id
 		id = params.get('id', None)
@@ -180,9 +187,6 @@ class Workspace:
 		drawing = self._drawings.get(id, None)
 		if not(drawing): return
 
-		# set drawing params
-		changed = False
-		
 		# position
 		x = params.get('x', drawing.position[0]); y = params.get('y', drawing.position[1])
 		dx = params.get('dx', 0); dy = params.get('dy', 0)
@@ -208,17 +212,17 @@ class Workspace:
 			drawing.url = urlForceReload(drawing.url)
 			self.update()
 
-	def setIndicator(self, params):
+	def setIndicator(self, params, update=True):
 		# update indicator location
 		if params:
 			self.indicator = params
-			self.update()
-			self.setWorkspaceOrigin(self.workspaceOrigin)
 
-	def setWorkspaceOrigin(self, params):
+		if update:
+			self.update()
+
+	def setWorkspaceOrigin(self, params, update=True):
 		# update workspace origin
 		self.workspaceOrigin = params
 
-		# move laser to indicator position
-		if self.indicator and self.laser:
-			self.laser.moveTo(self.workspaceOrigin[0]+self.indicatorOff[0], self.workspaceOrigin[1]+self.indicatorOff[1])
+		if update:
+			self.update()

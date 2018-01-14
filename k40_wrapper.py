@@ -43,6 +43,7 @@ class LASER_CLASS:
 		self.scale = 0
 		self.x = False
 		self.y = False
+		self.endstopPos = [0,0]
 		self.msg = ""
 		self.active = False
 		self.repeat = 0
@@ -84,6 +85,10 @@ class LASER_CLASS:
 			return
 		self.home()
 
+	def setEndstopPos(self, endstopPos):
+		self.endstopPos = endstopPos
+
+
 	def isInit(self):
 		return ( self.nano.dev != None )
 
@@ -114,15 +119,17 @@ class LASER_CLASS:
 
 	def _internalHome(self):
 		print("home")
-		self.x = 0
-		self.y = 0
+		self.x = self.endstopPos[0]
+		self.y = self.endstopPos[1]
 		self._stop_flag[0] = False
 		self.nano.home_position()
 		self._waitForHome()
+		self.moveTo(0,0)
+
 
 	def home(self):
 		if not( self.isInit() ) or self.isActive(): return
-		return self._internalHome()
+		self._internalHome()
 
 
 	""" move relative to current position """
@@ -237,8 +244,8 @@ class LASER_CLASS:
 			egv_inst = egv(target=lambda s:data.append(s))
 			egv_inst.make_egv_data(
 				ecoords,								\
-				startX = -originX,					\
-				startY = -originY,					\
+				startX = -(originX-self.endstopPos[0]),					\
+				startY = -(originY-self.endstopPos[1]),					\
 				units = 'mm',							\
 				Feed = feedRate ,					\
 				board_name = self.board_name,	\

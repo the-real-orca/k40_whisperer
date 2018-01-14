@@ -277,10 +277,13 @@
 		<label class="title" for="Setup"><i class="icon-wrench"></i></label>
 		<div class="content center">
 			<div class="flex">
-				<div class="">
-					<span class="name">Full Screen Mode</span>
+				<div >
+					<span class="">Full Screen Mode</span>
 					<button class="pseudo icon-toggle-off large" data-bind="visible: !status.fullscreen(), click: ()=>{enterFullscreen(); return true}"></button>
 					<button class="pseudo icon-toggle-on large" data-bind="visible: status.fullscreen(), click: ()=>{exitFullscreen(); return true}"></button>
+				</div>
+				<div >
+					<button data-bind="click: ()=>{location.reload(true)}">Reload</button>
 				</div>
 			</div>
 		</div>

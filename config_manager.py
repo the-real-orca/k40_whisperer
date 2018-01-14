@@ -18,7 +18,6 @@ MAX_CONTENT_LENGTH = 64 * 1024 * 1024
 config = {
 		'workspace': {
 			'home': 'top-left', # top-left, top-right, bottom-left, bottom-right
-			'homeOff': [0,0],
 			'size': [300, 200]
 		},
 		# sample profiles
@@ -33,6 +32,7 @@ config = {
 			}
 		],
 		'laser': {
+					'endstopPos': [0,5],	# TODO use home offset
 					'type': k40_wrapper		# K40 China Laser
 #					'type': laser_emulator	# Simulated Laser for Testing
 				}
@@ -40,6 +40,7 @@ config = {
 
 def configLaser():
 	laser = config['laser']['type'].LASER_CLASS()
+	laser.setEndstopPos(config['laser']['endstopPos'])
 	return laser
 		
 def configFileManager(filemanager):
@@ -73,7 +74,6 @@ def saveProfiles(taskmanager):
 def configWorkspace(workspace):
 	try:
 		workspace.home = config['workspace']['home']
-		workspace.homeOff = config['workspace']['homeOff']
 		workspace.size = config['workspace']['size']
 		workspace.defaultOrigin = config['workspace']['home']
 		workspace.reset()

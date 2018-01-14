@@ -967,7 +967,7 @@ function init() {
 	document.addEventListener('mozfullscreenchange', fullscreenEventHandler, false);
 	document.addEventListener('MSFullscreenChange', fullscreenEventHandler, false);
 	viewModel.touchMode('ontouchstart' in window || navigator.msMaxTouchPoints || window.screen.width <= 1024)
-// TODO	if ( viewModel.touchMode() ) viewModel.dialog.fullscreen(true)
+    if ( viewModel.touchMode() ) viewModel.dialog.fullscreen(true)
 }
 
 function isFullscreen() {
