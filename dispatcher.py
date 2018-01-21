@@ -4,6 +4,7 @@ from config_manager import *
 from file_manager import FileManager
 from task_manager import TaskManager
 from workspace import Workspace
+from sensor_arduino import Sensor
 
 def NullFunc():
 	return
@@ -22,22 +23,26 @@ configWorkspace(workspace)
 taskmanager = TaskManager(laser, workspace)
 loadProfiles(taskmanager)
 
+# init sensor
+sensor = Sensor(config['sensor']['config']['port'], config['sensor']['config']['baud'], indexMap=config['sensor']['indexMap'])
+
 
 def getStatus():
+	sensor.update()
 	payload = {
 		"status": {
 			"laser": laser.isActive(),
 			"usb": laser.isInit(),
-			"airassist": 0,
-			"waterTemp": 0,
-			"waterFlow": 0,
+			"airAssist": sensor.airAssist.val,
+			"waterTemp": sensor.waterTemp.val,
+			"waterFlow": sensor.waterFlow.val
 		},
 		"alert": {
-			"laser": False,
+			"laser": sensor.general.alert,
 			"usb": not(laser.isInit()),
-			"airassist": False,
-			"waterTemp": False,
-			"waterFlow": False
+			"airAssist": False,
+			"waterTemp": sensor.waterTemp.alert,
+			"waterFlow": sensor.waterFlow.alert
 		},
 		"message": laser.msg,
 		"pos": {

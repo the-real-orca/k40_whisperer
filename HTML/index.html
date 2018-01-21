@@ -45,14 +45,14 @@
 			(<span data-bind="text: pos.x"></span>,<span data-bind="text: pos.y"></span>)
 		</div>
 		<div class="statusLine">
-			<span class="dangerous" data-bind="css: { ok: status.laser, error: alert.laser }"><i class="icon-flash"></i></span>
-			<span data-bind="css: { ok: status.airassist, error: alert.airassist }"><i class="icon-airassist"></i> <span data-bind="text: status.airassist" class="unit percent"></span></span>
+			<span class="dangerous" data-bind="css: { ok: status.laser, error: alert.laser }"><i class="icon-flash"></i></span>&nbsp;
+			<span data-bind="css: { ok: status.airAssist, error: alert.airAssist }"><i class="icon-airassist"></i><span data-bind="numericValue: status.airAssist, precision: 0" class="unit"></span><span class="unit">%</span>&nbsp;
 
-			<span data-bind="css: { ok: status.waterTemp, error: alert.waterTemp }"><i class="icon-thermometer"></i> <span data-bind="text: status.waterTemp" class="unit temp"></span></span>
-			<span data-bind="css: { ok: status.waterFlow, error: alert.waterFlow }"><i class="icon-water"></i> <span data-bind="text: status.waterFlow" class="unit flowrate"></span></span>
+			<span data-bind="css: { ok: status.waterTemp, error: alert.waterTemp }"><i class="icon-thermometer"></i><span data-bind="numericValue: status.waterTemp, precision: 0" class="unit"></span><span class="unit" data-bind="text: unit.temp"></span>&nbsp;
+			<span data-bind="css: { ok: status.waterFlow, error: alert.waterFlow }"><i class="icon-water"></i><span data-bind="numericValue: status.waterFlow, precision: 1" class="unit"></span><span class="unit" data-bind="text: unit.flow"></span>&nbsp;
 
-			<span data-bind="css: { ok: status.usb, error: alert.usb }" ><i class="icon-usb"></i></span>
-			<span data-bind="css: { ok: status.network, error: alert.network }" ><i data-bind="css: status.networkIcon"></i></span>
+			<span data-bind="css: { ok: status.usb, error: alert.usb }" ><i class="icon-usb"></i></span>&nbsp;
+			<span data-bind="css: { ok: status.network, error: alert.network }" ><i data-bind="css: status.networkIcon"></i></span>&nbsp;
 		</div>
 	</div>
 

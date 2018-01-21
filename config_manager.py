@@ -35,7 +35,19 @@ config = {
 					'endstopPos': [0,5],	# TODO use home offset
 					'type': k40_wrapper		# K40 China Laser
 #					'type': laser_emulator	# Simulated Laser for Testing
-				}
+				},
+		'sensor': {
+			'config': {
+				'port': "/dev/ttyUSB0",
+				'baud': 115200,
+			},
+            'indexMap': {
+				'waterFlow': { 'val': 0, 'alert': 1 },
+				'waterTemp': {'val': 2, 'alert': 3},
+				'PSUTemp': {'val': 4, 'alert': 5},
+				'general': {'alert': 6}
+			}
+		}
 }
 
 def configLaser():

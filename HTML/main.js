@@ -63,11 +63,13 @@ ko.bindingHandlers.numericValue = {
 	},
 	update: function(element, valueAccessor, allBindingsAccessor) {
 		var value = parseFloat(ko.utils.unwrapObservable(valueAccessor()))
-		var precision = ko.utils.unwrapObservable(allBindingsAccessor().precision) || ko.bindingHandlers.numericValue.defaultPrecision
+		var precision = ko.utils.unwrapObservable(allBindingsAccessor().precision)
+		if (precision === undefined)
+			precision = ko.bindingHandlers.numericValue.defaultPrecision
 		try {
-			element.value = value.toFixed(precision)
+			element.textContent = value.toFixed(precision)
 		} catch (e) {
-			element.value = false;
+			element.textContent = "";
 		}
 	},
 	defaultPrecision: 2
@@ -759,7 +761,7 @@ var viewModel = {
 	status: {
 		laser: ko.observable(0),
 		usb: ko.observable(false),
-		airassist: ko.observable(0),
+		airAssist: ko.observable(0),
 		waterTemp: ko.observable(0),
 		waterFlow: ko.observable(0),
 		network: ko.observable(false),
@@ -769,7 +771,7 @@ var viewModel = {
 	alert: {
 		laser: ko.observable(false),
 		usb: ko.observable(false),
-		airassist: ko.observable(false),
+		airAssist: ko.observable(false),
 		waterTemp: ko.observable(false),
 		waterFlow: ko.observable(false),
 		network: ko.observable(false)

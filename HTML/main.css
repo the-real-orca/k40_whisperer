@@ -392,6 +392,7 @@ button.active, .button.active, button:active, .button:active {
 }
 
 .unit {
+	padding-left: 0.15em;
 	font-size: 90%;
 	opacity: 0.85;
 }
