@@ -4,9 +4,8 @@
 from gevent import monkey; monkey.patch_all()
 import gevent
 
-import os
 # import system tools
-from distutils.dir_util import mkpath
+import os
 
 # import web framework
 from flask import Flask, request, redirect, json
