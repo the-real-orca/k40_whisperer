@@ -1,5 +1,9 @@
 import time
-import serial
+
+try:
+	import serial
+except ImportError:
+	print("pyserial Module not found -> disable Sensors")
 
 class Monitored:
 	def __init__(self, name, val=0.0, alert=False, map={}):
@@ -19,7 +23,10 @@ class Monitored:
 
 class Sensor:
 	def __init__(self, port, baud, indexMap={}):
-		self._ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=10)
+		try:
+			self._ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=10)
+		except:
+			self._ser = None
 		self._buf = ""
 		self.general = Monitored('general', map=indexMap.get('general', {}))
 		self.airAssist = Monitored('airAssist', map=indexMap.get('airAssist', {}))
@@ -29,7 +36,7 @@ class Sensor:
 
 
 	def update(self):
-		if self._ser.is_open:
+		if self._ser and self._ser.is_open:
 			n = self._ser.in_waiting
 			if n > 0:
 				self._buf += self._ser.read(n)

@@ -72,9 +72,7 @@ class FileManager:
 			return False
 
 
-	def saveSVG(self, drawing, filename, path = None):
-		if not(path): path = self.rootPath
-		
+	def saveSVG(self, drawing, filename=None, path=None):
 		# compute canvas size
 		[xMin, yMin, width, height], strokeWidth = drawing.getViewBox()
 
@@ -96,10 +94,19 @@ class FileManager:
 		svg.append(g)
 
 		# save generated SVG files
-		filename = re.sub(r"[^(a-zA-Z0-9\-_)]+", "_", filename)+".svg"	# make sure that only safe characters are used for filename
+		if not(path):
+			path = self.rootPath
+		if not(filename):
+			filename = drawing.filename
+
+		filename = re.sub(r"[^(a-zA-Z0-9\-_)]+", "_", filename)	# make sure that only safe characters are used for filename
 		mkpath(path)
-		drawing.path = os.path.join(path, filename)
-		drawing.url = self.pathToURL(drawing.path)
-		svg.save(drawing.path)
+		filepath = os.path.join(path, filename)+".svg"
+		drawing.filename = filename
+		drawing.path = path
+		drawing.url = self.pathToURL(filepath)
+		print("drawing.path", drawing.path) #TODO
+		print("drawing.url", drawing.url)
+		svg.save(filepath)
 
 		

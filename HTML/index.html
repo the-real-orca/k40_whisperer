@@ -46,12 +46,12 @@
 		</div>
 		<div class="statusLine">
 			<span class="dangerous" data-bind="css: { ok: status.laser, error: alert.laser }"><i class="icon-flash"></i></span>&nbsp;
-			<span data-bind="css: { ok: status.airAssist, error: alert.airAssist }"><i class="icon-airassist"></i><span data-bind="numericValue: status.airAssist, precision: 0" class="unit"></span><span class="unit">%</span>&nbsp;
+			<span data-bind="css: { ok: status.airAssist, error: alert.airAssist }"><i class="icon-airassist"></i><span data-bind="numericValue: status.airAssist, precision: 0" class="unit"></span><span class="unit">%</span></span>&nbsp;
 
-			<span data-bind="css: { ok: status.waterTemp, error: alert.waterTemp }"><i class="icon-thermometer"></i><span data-bind="numericValue: status.waterTemp, precision: 0" class="unit"></span><span class="unit" data-bind="text: unit.temp"></span>&nbsp;
-			<span data-bind="css: { ok: status.waterFlow, error: alert.waterFlow }"><i class="icon-water"></i><span data-bind="numericValue: status.waterFlow, precision: 1" class="unit"></span><span class="unit" data-bind="text: unit.flow"></span>&nbsp;
+			<span data-bind="css: { ok: status.waterTemp, error: alert.waterTemp }"><i class="icon-thermometer"></i><span data-bind="numericValue: status.waterTemp, precision: 0" class="unit"></span><span class="unit" data-bind="text: unit.temp"></span></span>&nbsp;
+			<span data-bind="css: { ok: status.waterFlow, error: alert.waterFlow }"><i class="icon-water"></i><span data-bind="numericValue: status.waterFlow, precision: 1" class="unit"></span><span class="unit" data-bind="text: unit.flow"></span></span>&nbsp;
 
-			<span data-bind="css: { ok: status.usb, error: alert.usb }" ><i class="icon-usb"></i></span>&nbsp;
+				<span data-bind="css: { ok: status.usb, error: alert.usb }" ><i class="icon-usb"></i></span>&nbsp;
 			<span data-bind="css: { ok: status.network, error: alert.network }" ><i data-bind="css: status.networkIcon"></i></span>&nbsp;
 		</div>
 	</div>
@@ -220,6 +220,7 @@
 			<div class="flex">
 				<div class="profile">
 					<input class="name" input="text" placeholder="profile name" data-bind="value: profile.name" />
+					<button class="TODO icon-floppy disabled"></button>
 					<label for="dialog_profilesList" class="button icon-tasks"></label>
 				</div>
 				<div class="taskList">
@@ -258,8 +259,9 @@
 					</div>
 				</div>
 				<div class="taskSidePanel">
-					<button class="success" data-bind="click: taskRunAll, enable: status.usb(), visible: !status.laser()"><i class="icon-play x-large"></i></button>
-					<button class="error" data-bind="click: stop, enable: status.usb(), visible: status.laser()"><i class="icon-close-octagon xx-large"></i></button>
+					<button class="success" data-bind="click: taskRunAll, visible: !status.laser() && status.usb()"><i class="icon-play x-large"></i></button>
+					<button class="error" data-bind="click: stop, visible: status.laser() && status.usb()"><i class="icon-close-octagon x-large"></i></button>
+					<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off x-large"></i></button>
 				</div>
 			</div>
 		</div>
@@ -283,7 +285,10 @@
 					<button class="pseudo icon-toggle-on large" data-bind="visible: status.fullscreen(), click: ()=>{exitFullscreen(); return true}"></button>
 				</div>
 				<div >
-					<button data-bind="click: ()=>{location.reload(true)}">Reload</button>
+					<button data-bind="click: ()=>{location.reload(true)}" class="TODO">Reload</button>
+				</div>
+				<div >
+					<button data-bind="click: releaseLaser" class="TODO">Reset USB</button>
 				</div>
 			</div>
 		</div>
@@ -361,7 +366,7 @@
 			<section class="content">
 				<div class="parameterTable" >
 					<span class="parameterName">pos</span>
-					<div data-bind="visible: showAbs()">
+					<div data-bind="visible: showAbs()" class="TODO">
 						<div>
 							<span class="coordinate">X</span>
 							<input type="number" data-bind="numericValue: ax"></input>
@@ -382,7 +387,7 @@
 							</label>
 						</div>
 					</div>
-					<div data-bind="visible: !showAbs()">
+					<div data-bind="visible: !showAbs()" class="TODO">
 						<div>
 							<span class="coordinate">&Delta;X</span>
 							<input type="number" data-bind="numericValue: dx"></input>
@@ -406,12 +411,13 @@
 
 					<span class="parameterName">align</span>
 					<div>
-						<button data-bind="click: alignLeftOfAxis"><i class="icon-align-right large"></i></button>
-						<button data-bind="click: alignRightOfAxis"><i class="icon-align-left large"></i></button>
-						<button data-bind="click: alignToOrigin"><i class="icon-origin large"></i></button>
-						<button data-bind="click: alignAboveOfAxis"><i class="icon-align-bottom large"></i></button>
-						<button data-bind="click: alignUnderAxis"><i class="icon-align-top large"></i></button>
+						<button data-bind="click: alignLeftOfAxis" class="icon-align-right large"></button>
+						<button data-bind="click: alignRightOfAxis" class="icon-align-left large"></button>
+						<button data-bind="click: alignToOrigin" class="icon-origin large"></button>
+						<button data-bind="click: alignAboveOfAxis" class="icon-align-bottom large"></button>
+						<button data-bind="click: alignUnderAxis" class="icon-align-top large"></button>
 					</div>
+
 
 <!--
 					<span class="parameterName">size</span>
@@ -422,10 +428,19 @@
 
 					<span class="parameterName">arrange</span>
 					<div>
-						<button><i class="icon-resize-horizontal"></i></button>
-						<button><i class="icon-resize-vertical"></i></button>
+						<button class="icon-resize-horizontal">/button>
+						<button class="icon-resize-vertical">/button>
 					</div>
 -->
+
+					<span class="parameterName">edit</span>
+					<div>
+						<button class="icon-rotate-left large" data-bind="click: itemsRotateSelected.bind($data,90)"></button>
+						<button class="icon-rotate-right large" data-bind="click: itemsRotateSelected.bind($data,-90)"></button>
+						<span class="spacing"></span>
+						<button class="icon-mirror-x large" data-bind="click: itemsMirrorSelected.bind($data,'X')"></button>
+						<button class="icon-mirror-y large" data-bind="click: itemsMirrorSelected.bind($data,'Y')"></button>
+					</div>
 
 					<span class="parameterName">color</span>
 					<div>

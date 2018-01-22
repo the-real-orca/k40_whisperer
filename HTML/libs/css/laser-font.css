@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'laser-font';
-  src: url('../font/laser-font.eot?51480758');
-  src: url('../font/laser-font.eot?51480758#iefix') format('embedded-opentype'),
-       url('../font/laser-font.woff2?51480758') format('woff2'),
-       url('../font/laser-font.woff?51480758') format('woff'),
-       url('../font/laser-font.ttf?51480758') format('truetype'),
-       url('../font/laser-font.svg?51480758#laser-font') format('svg');
+  src: url('../font/laser-font.eot?44185328');
+  src: url('../font/laser-font.eot?44185328#iefix') format('embedded-opentype'),
+       url('../font/laser-font.woff2?44185328') format('woff2'),
+       url('../font/laser-font.woff?44185328') format('woff'),
+       url('../font/laser-font.ttf?44185328') format('truetype'),
+       url('../font/laser-font.svg?44185328#laser-font') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -15,7 +15,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'laser-font';
-    src: url('../font/laser-font.svg?51480758#laser-font') format('svg');
+    src: url('../font/laser-font.svg?44185328#laser-font') format('svg');
   }
 }
 */
@@ -141,17 +141,28 @@
 .icon-volume:before { content: '\e853'; } /* '' */
 .icon-archive:before { content: '\e854'; } /* '' */
 .icon-intensity:before { content: '\e855'; } /* '' */
+.icon-file-code-1:before { content: '\e856'; } /* '' */
+.icon-monitor:before { content: '\e857'; } /* '' */
+.icon-star:before { content: '\e858'; } /* '' */
+.icon-edit-alt:before { content: '\e859'; } /* '' */
 .icon-top-left:before { content: '\e861'; } /* '' */
 .icon-top-right:before { content: '\e862'; } /* '' */
 .icon-bottom-left:before { content: '\e863'; } /* '' */
 .icon-bottom-right:before { content: '\e864'; } /* '' */
 .icon-airassist:before { content: '\e865'; } /* '' */
+.icon-rotate-right:before { content: '\e868'; } /* '' */
+.icon-rotate-left:before { content: '\e869'; } /* '' */
+.icon-mirror-x:before { content: '\e86a'; } /* '' */
+.icon-mirror-y:before { content: '\e86b'; } /* '' */
 .icon-move:before { content: '\f047'; } /* '' */
 .icon-tasks:before { content: '\f0ae'; } /* '' */
+.icon-docs:before { content: '\f0c5'; } /* '' */
 .icon-menu:before { content: '\f0c9'; } /* '' */
+.icon-lightbulb:before { content: '\f0eb'; } /* '' */
 .icon-bell-alt:before { content: '\f0f3'; } /* '' */
 .icon-reply:before { content: '\f112'; } /* '' */
 .icon-gamepad:before { content: '\f11b'; } /* '' */
+.icon-crop:before { content: '\f125'; } /* '' */
 .icon-lock-open-alt:before { content: '\f13e'; } /* '' */
 .icon-ellipsis-horizontal:before { content: '\f141'; } /* '' */
 .icon-ellipsis-vertical:before { content: '\f142'; } /* '' */
@@ -174,4 +185,6 @@
 .icon-hourglass:before { content: '\f254'; } /* '' */
 .icon-usb:before { content: '\f287'; } /* '' */
 .icon-thermometer:before { content: '\f2c7'; } /* '' */
+.icon-window:before { content: '\f2d0'; } /* '' */
 .icon-microchip:before { content: '\f2db'; } /* '' */
+.icon-snowflake-o:before { content: '\f2dc'; } /* '' */

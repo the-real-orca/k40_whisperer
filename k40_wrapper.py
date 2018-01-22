@@ -50,7 +50,7 @@ class LASER_CLASS:
 		self.mode = ""
 		self.progress = 0
 		self.nano = K40_CLASS()
-		self.nano.n_timeouts = 10
+		self.nano.n_timeouts = 30
 		self.nano.timeout = 1000   # Time in milliseconds
 		self.board_name = board_name
 		self._stop_flag = [True]
@@ -100,11 +100,14 @@ class LASER_CLASS:
 		print("LASER_CLASS released")
 		try:
 			self.unlock()
-			time.sleep(0.1)
+			time.sleep(0.2)
+			self.nano.reset_usb()
+			time.sleep(0.2)
 			self.nano.release_usb()
 		finally:
 			self.nano.dev = None
 			self.mode = ""
+			self.active = False
 			print("self.nano.dev", self.nano.dev)
 
 
@@ -197,10 +200,12 @@ class LASER_CLASS:
 		idle()
 
 	def _waitWhileBussy(self, timeout=0):
-		DELAY = 0.1
+		DELAY = 0.05
 		timeremaining = float(timeout)
 		status = 0
 		while status != self.COMPLETED:
+			if status != self.OK:
+				print("status", status)
 			time.sleep(DELAY)
 			status = self.nano.say_hello()
 			timeremaining -= DELAY
@@ -277,13 +282,16 @@ class LASER_CLASS:
 
 				# send data to laser
 				self._endStop()
+				time.sleep(2)   #TODO
 				self._internalMoveTo(originX, originY)
-				time.sleep(1)   #TODO
+				time.sleep(2)   #TODO
 				idle()
+				print("send_data ...")
 				self.nano.send_data(data, self._updateCallback, self._stop_flag, passes=1, preprocess_crc=False)
-
+				print("send_data finished")
 				# wait for laser to finish
 				self._waitWhileBussy()
+				print("buffer empty")
 				# decrease repeat counter
 				repeat = int(repeat) - 1
 

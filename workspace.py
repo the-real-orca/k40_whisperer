@@ -5,11 +5,14 @@ import time
 def urlForceReload(url):
 	params = []
 	parts=url.split('?')
+	print("url",url)
 	if len(parts) > 1:
 		params = parts[1].split('&')
 		params = list(filter(lambda x: not(x.startswith("reload=")), params))
 	params.append( "reload=" + str(int(time.time()*10)) )
+	print(params)
 	url = parts[0] + "?" + "&".join(params)
+	print("url",url) # TODO
 	return url
 
 
@@ -166,20 +169,8 @@ class Workspace:
 
 		return json
 				
-	def setParams(self, params):
+	def itemSetParams(self, params):
 		changed = False
-
-		# update indicator
-		indicator = params.get('indicator', self.indicator)
-		if indicator:
-			self.setIndicator( indicator, False )
-			changed = True
-
-		# update workspace origin
-		workspaceOrigin = params.get('workspaceOrigin')
-		if workspaceOrigin:
-			self.setWorkspaceOrigin( workspaceOrigin, False )
-			changed = True
 
 		# find drawing by id
 		id = params.get('id', None)
@@ -208,8 +199,78 @@ class Workspace:
 		# update drawing and workspace
 		if changed:
 			drawing.update()
-			self.filemanager.saveSVG(drawing, drawing.path)
+			self.filemanager.saveSVG(drawing)
 			drawing.url = urlForceReload(drawing.url)
+			self.update()
+
+	def itemRotate(self, params):
+		changed = False
+
+		# find drawing by id
+		id = params.get('id', None)
+		if not (id): return
+		drawing = self._drawings.get(id, None)
+		if not (drawing): return
+
+		# rotate
+		angle = params.get('angle', None)
+		if angle == 90:
+			drawing.rotateLeft()
+			changed = True
+		if angle == -90:
+			drawing.rotateRight()
+			changed = True
+
+		# update drawing and workspace
+		if changed:
+			drawing.update()
+			self.filemanager.saveSVG(drawing)
+			drawing.url = urlForceReload(drawing.url)
+			self.update()
+
+	def itemMirror(self, params):
+		changed = False
+
+		# find drawing by id
+		id = params.get('id', None)
+		if not (id): return
+		drawing = self._drawings.get(id, None)
+		if not (drawing): return
+
+		# rotate
+		mirror = params.get('mirror', None)
+		if mirror == "X":
+			drawing.flipY()
+			changed = True
+		if mirror == "Y":
+			drawing.flipX()
+			changed = True
+
+		# update drawing and workspace
+		if changed:
+			drawing.update()
+			self.filemanager.saveSVG(drawing)
+			drawing.url = urlForceReload(drawing.url)
+			self.update()
+
+
+	def setParams(self, params):
+		changed = False
+
+		# update indicator
+		indicator = params.get('indicator', self.indicator)
+		if indicator:
+			self.setIndicator(indicator, False)
+			changed = True
+
+		# update workspace origin
+		workspaceOrigin = params.get('workspaceOrigin')
+		if workspaceOrigin:
+			self.setWorkspaceOrigin(workspaceOrigin, False)
+			changed = True
+
+		# update drawing and workspace
+		if changed:
 			self.update()
 
 	def setIndicator(self, params, update=True):

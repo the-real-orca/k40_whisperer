@@ -223,21 +223,36 @@ function itemsSaveSelected() {
 		params.y = params.ay
 		params.dy = 0
 	}
-	cmds = []
+	viewModel.dirty.selectedItems.reset()
+
+	itemsSendCmdToSelected('items.set', params)
+
+console.log("itemsSaveSelected")
+	return true
+}
+
+function itemsRotateSelected(angle) {
+	itemsSendCmdToSelected('items.rotate', {angle: angle})
+	return true
+}
+
+function itemsMirrorSelected(line) {
+	itemsSendCmdToSelected('items.mirror', {mirror: line})
+	return true
+}
+
+function itemsSendCmdToSelected(cmd, params) {
+	var cmds = []
 	var itemsList = viewModel.workspace.items()
 	for (var i=0; i<itemsList.length; i++) {
 		var item = itemsList[i]
 		if ( item.selected() ) {
 			params.id = item.id()
 			params.name = item.name()
-			cmds.push( prepareCommand('item.set', clone(params)) )
+			cmds.push( prepareCommand(cmd, clone(params)) )
 		}
 	}
-console.log("itemsSaveSelected")
-	viewModel.dirty.selectedItems.reset()
-
-	sendCommand(cmds)
-	return true
+	return sendCommand(cmds)
 }
 
 function setActiveProfile(id) {

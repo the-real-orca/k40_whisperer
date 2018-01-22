@@ -26,6 +26,9 @@ class LASER_CLASS:
 		print("LASER_CLASS init")
 		self._init = True
 
+	def setEndstopPos(self, endstopPos):
+		pass
+
 	def isInit(self):
 		return self._init
 

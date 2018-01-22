@@ -17,7 +17,8 @@ MAX_CONTENT_LENGTH = 64 * 1024 * 1024
 
 config = {
 		'workspace': {
-			'home': 'top-left', # top-left, top-right, bottom-left, bottom-right
+			'home': 'top-left', # top-left, top-right, bottom-left, bottom-right, center
+#			'home': 'center', # top-left, top-right, bottom-left, bottom-right, center
 			'size': [300, 200]
 		},
 		# sample profiles
@@ -32,7 +33,7 @@ config = {
 			}
 		],
 		'laser': {
-					'endstopPos': [0,5],	# TODO use home offset
+					'endstopPos': [0,5],
 					'type': k40_wrapper		# K40 China Laser
 #					'type': laser_emulator	# Simulated Laser for Testing
 				},

@@ -15,7 +15,7 @@ MAGENTA = "magenta"  #(255, 0, 255)
 COLOR_MIXED = "mix"
 
 class Polyline:
-	def __init__(self, points = [], color = BLACK):
+	def __init__(self, points = dict(), color = BLACK):
 		self.color = color
 		self._points = np.array(points)
 
@@ -99,6 +99,21 @@ class Polyline:
 			self._points[:,1] = -self._points[:,1]
 		return self
 
+	def rotateRight(self):
+		if len(self._points)>0:
+			# invert X
+			self._points[:,0] = -self._points[:,0]
+			# swap X <-> Y
+			self._points[:, 0], self._points[:, 1] = self._points[:, 1], self._points[:, 0].copy()
+		return self
+
+	def rotateLeft(self):
+		if len(self._points)>0:
+			# invert Y
+			self._points[:,1] = -self._points[:,1]
+			# swap X <-> Y
+			self._points[:,0], self._points[:,1] = self._points[:,1], self._points[:,0].copy()
+		return self
 
 class Drawing:
 	def __init__(self, polylines, name=None, position=[0,0]):
@@ -149,6 +164,16 @@ class Drawing:
 	def flipY(self):
 		for line in self.polylines:
 			line.flipY()
+		return self
+
+	def rotateLeft(self):
+		for line in self.polylines:
+			line.rotateLeft()
+		return self
+
+	def rotateRight(self):
+		for line in self.polylines:
+			line.rotateRight()
 		return self
 
 	def optimize(self, ignoreColor=False):
