@@ -83,6 +83,7 @@ class LASER_CLASS:
 		if self.nano.say_hello() != self.OK:
 			self.release()
 			return
+		time.sleep(1)
 		self.home()
 
 	def setEndstopPos(self, endstopPos):
@@ -96,19 +97,25 @@ class LASER_CLASS:
 		return self.active
 
 	def release(self):
-		if not( self.isInit() ) or self.isActive(): return
-		print("LASER_CLASS released")
+		if not( self.isInit() ): return
 		try:
+			self.stop()
+			time.sleep(0.5)
 			self.unlock()
 			time.sleep(0.2)
-			self.nano.reset_usb()
-			time.sleep(0.2)
-			self.nano.release_usb()
 		finally:
-			self.nano.dev = None
-			self.mode = ""
-			self.active = False
-			print("self.nano.dev", self.nano.dev)
+			print("LASER_CLASS released")
+			try:
+				self.nano.reset_usb()
+				time.sleep(0.2)
+			finally:
+				try:
+					self.nano.release_usb()
+				finally:
+					self.nano.dev = None
+					self.mode = ""
+					self.active = False
+					print("self.nano.dev", self.nano.dev)
 
 
 
@@ -121,29 +128,38 @@ class LASER_CLASS:
 		self.mode = "unlocked"
 
 	def _endStop(self):
-		print("home")
+		print("_endStop ...")
 		self.x = self.endstopPos[0]
 		self.y = self.endstopPos[1]
 		self.nano.home_position()
 		self._waitForEndstop()
+		print("_endStop OK")
 
 
 	def home(self):
 		if not( self.isInit() ) or self.isActive(): return
+		print("home ...")
+		self.active = True
 		self._stop_flag[0] = False
 		self._endStop()
 		self._internalMoveTo(0,0)
+		self.active = False
+		print("home OK")
 
 	""" move relative to current position """
 	def move(self, dx, dy):
 		if not( self.isInit() ) or self.isActive(): return
+		print("move ...")
+		self.active = True
 		self._internalMove(dx, dy)
+		self.active = False
+		print("move OK")
 
 	""" move relative to current position """
 	def _internalMove(self, dx, dy):
 		if self.x is False or self.y is False: return
 		if dx == 0 and dy == 0: return
-		print("move: " + str(dx) + "/" + str(dy))
+		print("_internalMove: " + str(dx) + "/" + str(dy) + " ...")
 # TODO check movement area
 		dxmils = round(dx*self.scale)
 		dymils = round(dy*self.scale)
@@ -151,25 +167,31 @@ class LASER_CLASS:
 		self.x += dxmils/self.scale
 		self.y += dymils/self.scale
 		idle()
+		print("_internalMove OK")
 
 
 	""" go to absolute position """
 	def moveTo(self, x, y):
 		if not (self.isInit()) or self.isActive(): return
+		print("moveTo ...")
+		self.active = True
 		self._internalMoveTo(x, y)
+		self.active = False
+		print("moveTo OK")
 
 	""" go to absolute position """
 	def _internalMoveTo(self, x, y):
+		print("_internalMoveTo: " + str(x) + "/" + str(y) + " ...")
 		if self.x is False or self.y is False:
 			self._endStop()
 		if x == self.x and y == self.y: return
-		print("goto: " + str(x) + "/" + str(y))
 # TODO check movement area
 		dxmils = round( (x-self.x) *self.scale)
 		dymils = round( (y-self.y) *self.scale)
 		self.nano.rapid_move(dxmils, dymils)
 		self.x += dxmils/self.scale
 		self.y += dymils/self.scale
+		print("_internalMoveTo: OK")
 
 
 	def stop(self):
@@ -197,32 +219,40 @@ class LASER_CLASS:
 				if m.group(1) == "Sending":
 					self.mode = "running"
 					self.progress = f
-		idle()
+		time.sleep(0.5)
 
 	def _waitWhileBussy(self, timeout=0):
+		print("_waitWhileBussy ...")
 		DELAY = 0.05
 		timeremaining = float(timeout)
 		status = 0
 		while status != self.COMPLETED:
-			if status != self.OK:
-				print("status", status)
 			time.sleep(DELAY)
 			status = self.nano.say_hello()
+			if status != self.OK:
+				print("status", status)
 			timeremaining -= DELAY
 			if timeout and timeremaining < 0:
+				print("_waitWhileBussy TIMEOUT")
 				return False
+		print("_waitWhileBussy OK")
 		return True
 
 	def _waitForEndstop(self, timeout=0):
-		DELAY = 0.1
+		print("_waitForEndstop ...")
+		DELAY = 0.05
 		timeremaining = float(timeout)
 		status = 0
 		while status != self.HOMED:
 			time.sleep(DELAY)
 			status = self.nano.say_hello()
+			if status != self.OK:
+				print("status", status)
 			timeremaining -= DELAY
 			if timeout and timeremaining < 0:
+				print("_waitForEndstop TIMEOUT")
 				return False
+		print("_waitForEndstop OK")
 		return True
 
 
@@ -231,7 +261,7 @@ class LASER_CLASS:
 		try:
 			self.msg = "prepare data..."
 			self.mode = "prepare"
-			print("processVector")
+			print("processVector ...")
 			self.active = True
 			self.progress = 0
 			self.repeat = repeat
@@ -258,7 +288,7 @@ class LASER_CLASS:
 			data = []
 			egv_inst = egv(target=lambda s:data.append(s))
 # TODO			startX = -(originX - self.endstopPos[0]),
-#			startY = -(originY - self.endstopPos[1]),
+# TODO			startY = -(originY - self.endstopPos[1]),
 			egv_inst.make_egv_data(
 				ecoords,
 				startX=0,
@@ -276,15 +306,17 @@ class LASER_CLASS:
 			# run laser
 			self.mode = "running"
 			while repeat > 0:
+				print("repeat", repeat)
+
 				if self._stop_flag[0]:
 					raise  RuntimeError("stopped")
 				idle()
 
 				# send data to laser
 				self._endStop()
-				time.sleep(2)   #TODO
+				idle()
+				print("goto origin: " + str(originX) + " / " + str(originY))
 				self._internalMoveTo(originX, originY)
-				time.sleep(2)   #TODO
 				idle()
 				print("send_data ...")
 				self.nano.send_data(data, self._updateCallback, self._stop_flag, passes=1, preprocess_crc=False)
@@ -301,6 +333,7 @@ class LASER_CLASS:
 # TODO			self._internalHome()
 
 		except Exception as e:
+			print("processVector ERROR: " + str(e))
 			self.msg = str(e)
 			if self._stop_flag[0]:
 				self.mode = "stopped"
@@ -308,6 +341,8 @@ class LASER_CLASS:
 				self.mode = "error"
 		finally:
 			self.active = False
+			print("processVector OK")
+
 
 	def processRaster(self, raster, feedRate, originX = 0, originY = 0, repeat = 1):
 		return

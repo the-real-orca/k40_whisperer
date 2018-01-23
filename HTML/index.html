@@ -40,9 +40,9 @@
 		<div class="title">
 			<h1 data-bind="click: getStatus"><i class="icon-hazard-laser"></i> Laser Whisperer</h1>
 		</div>
-		<div>
+		<div class="TODO">
 			<!-- TODO -->
-			(<span data-bind="text: pos.x"></span>,<span data-bind="text: pos.y"></span>)
+			(<span data-bind="numericValue: pos.x"></span>,<span data-bind="numericValue: pos.y"></span>)
 		</div>
 		<div class="statusLine">
 			<span class="dangerous" data-bind="css: { ok: status.laser, error: alert.laser }"><i class="icon-flash"></i></span>&nbsp;
@@ -228,7 +228,9 @@
 						<div class="taskItem">
 							<span class="index" data-bind="text: $index()+1"></span>
 							<div class="progress grow">
-								<div data-bind="style: {width: progress()+'%', background: _.statusColor()}" ></div>
+								<div data-bind="style: {width: progress()+'%', backgroundColor: _.statusColor()}" >
+									<span data-bind="text: progress()+'%'" class="TODO"></span>
+								</div>
 								<label class="name" for="dialog_taskSettings" data-bind="text: name, click: ()=>{$root.selectedTask($data);return true}"></label>
 								<span class="status">
 									<span data-bind="css: _.statusIcon" class=""></span>
@@ -271,6 +273,7 @@
 		<label class="title" for="Placeholder"><i class="">&nbsp;&nbsp;&nbsp;</i></label>
 		<div class="content center">
 			<div class="flex">
+				<pre data-bind="text: debug"></pre>
 			</div>
 		</div>
 
@@ -285,10 +288,10 @@
 					<button class="pseudo icon-toggle-on large" data-bind="visible: status.fullscreen(), click: ()=>{exitFullscreen(); return true}"></button>
 				</div>
 				<div >
-					<button data-bind="click: ()=>{location.reload(true)}" class="TODO">Reload</button>
+					<button data-bind="click: releaseLaser" class="TODO">Reset USB</button>
 				</div>
 				<div >
-					<button data-bind="click: releaseLaser" class="TODO">Reset USB</button>
+					<button data-bind="click: ()=>{location.reload(true)}" class="TODO">Reload</button>
 				</div>
 			</div>
 		</div>

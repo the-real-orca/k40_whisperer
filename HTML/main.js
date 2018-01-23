@@ -68,8 +68,10 @@ ko.bindingHandlers.numericValue = {
 			precision = ko.bindingHandlers.numericValue.defaultPrecision
 		try {
 			element.textContent = value.toFixed(precision)
+			element.value = element.textContent
 		} catch (e) {
-			element.textContent = "";
+			element.textContent = ""
+			element.value = ""
 		}
 	},
 	defaultPrecision: 2
@@ -315,17 +317,18 @@ function taskStatusColor(status) {
 		case 'prepare':
 		case 'running':
 		case 'stopped':
-			return "#0074d980"
+			return "#20a0ff"
 		case 'finished':
-			return "#2ecc4080"
+			return "#40dc55"
 		case 'error':
-			return "#ff413680"
+			return "#ff5146"
 		case 'wait':
 		case 'empty':
 		default:
 			return "#cccccc"
 	}
 }
+
 function workspaceClear() {
 	sendCommand('workspace.clear')
 	return true
@@ -724,6 +727,11 @@ function updateStatus(received) {
 		viewModel.dirty.profile.reset()
 	}
 
+
+	// update debug messages
+	if ( "debug" in received )
+		viewModel.debug( received.debug )
+
 	// update sequence as final step to avoid data races
 	// -> intermediate requests will be ignored due-to sequence error
 	viewModel.seqNr = received.seqNr
@@ -888,7 +896,8 @@ var viewModel = {
 		taskSettings: ko.observable(false),
 		wait: ko.observable(false)
 	},
-	dirty: {}
+	dirty: {},
+	debug: ko.observable()
 };
 // view model functions
 viewModel.continue = function() { viewModel.dialog.wait(false) }
