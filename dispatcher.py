@@ -1,4 +1,6 @@
 
+import logging
+
 # import laser application modules
 from config_manager import *
 from file_manager import FileManager
@@ -52,6 +54,7 @@ def getStatus():
 		"workspace": workspace.toJson(),
 		"profile": taskmanager.toJson()
 	}
+	payload['debug'] = laser.msg # TODO log.getHistory(10)
 	return payload
 
 
@@ -83,10 +86,10 @@ def dispatchCommand(cmd, params = None):
 	try:
 		# execute command
 		cmdName = str(cmd.lower())
-		print(cmdName, params)
+		logging.info("dispatchCommand: " + cmdName + " -> " + str(params))
 		if params is None:
 			commands[cmdName]()
 		else:
 			commands[cmdName](params)
 	except Exception as e:
-		print("Exception", e)
+		logging.error("Exception: " + str(e))

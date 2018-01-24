@@ -2,6 +2,7 @@ from task_manager import Profile, Task
 import design_utils as design
 from distutils.dir_util import mkpath
 import json as json_tools
+import logging
 
 # import laser communication
 import k40_wrapper
@@ -34,8 +35,8 @@ config = {
 		],
 		'laser': {
 					'endstopPos': [0,5],
-					'type': k40_wrapper		# K40 China Laser
-#					'type': laser_emulator	# Simulated Laser for Testing
+#					'type': k40_wrapper		# K40 China Laser
+					'type': laser_emulator	# Simulated Laser for Testing
 				},
 		'sensor': {
 			'config': {
@@ -62,6 +63,7 @@ def configFileManager(filemanager):
 
 def loadProfiles(taskmanager):
 	try:
+		logging.info("loadProfiles from: " + CONFIG_FOLDER)
 		with open(CONFIG_FOLDER+"/profiles.json") as f:
 			data = json_tools.load(f)
 		taskmanager.profiles.clear()
@@ -71,18 +73,18 @@ def loadProfiles(taskmanager):
 		# init with sample profiles
 		for profile in config['profiles']:
 			taskmanager.setActiveProfile(profile)
-	except StandardError as e:
-		print("load profiles error", e)
+	except Exception as e:
+		logging.error("load profiles error: " + str(e))
 
 def saveProfiles(taskmanager):
 	try:
-		print("saveProfiles")
+		logging.info("saveProfiles to: " + CONFIG_FOLDER)
 		mkpath(CONFIG_FOLDER)
 		data = taskmanager.toJson()['profiles']
 		with open(CONFIG_FOLDER+"/profiles.json", 'wt') as f:
 			json_tools.dump(data, f, sort_keys=True, indent=2)
-	except StandardError as e:
-		print("save profiles error", e)
+	except Exception as e:
+		logging.error("load profiles error: " + str(e))
 
 def configWorkspace(workspace):
 	try:
@@ -90,7 +92,7 @@ def configWorkspace(workspace):
 		workspace.size = config['workspace']['size']
 		workspace.defaultOrigin = config['workspace']['home']
 		workspace.reset()
-	except:
-		print("workspace config error")
+	except Exception as e:
+		logging.error("workspace config error: " + str(e))
 
 

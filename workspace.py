@@ -1,18 +1,17 @@
 import re
 import design_utils as design
 import time
+import logging
 
 def urlForceReload(url):
 	params = []
 	parts=url.split('?')
-	print("url",url)
+	logging.debug("urlForceReload: " + url)
 	if len(parts) > 1:
 		params = parts[1].split('&')
 		params = list(filter(lambda x: not(x.startswith("reload=")), params))
 	params.append( "reload=" + str(int(time.time()*10)) )
-	print(params)
 	url = parts[0] + "?" + "&".join(params)
-	print("url",url) # TODO
 	return url
 
 
@@ -40,7 +39,7 @@ class Workspace:
 			self.homePos = [ self.size[0], 0 ]
 		else: # unknown
 			self.home = [ self.size[0]/2, self.size[1]/2 ]
-			print("ERROR: unknown home location")
+			logging.error("ERROR: unknown home location")
 
 		if self.defaultOrigin == 'top-left':
 			self.workspaceOrigin = [ 0, self.size[1] ]
@@ -58,7 +57,7 @@ class Workspace:
 		self.indicator = False
 
 	def update(self):
-		print("workspace has been updated -> reload")
+		logging.info("workspace has been updated -> reload")
 		if len(self._drawings) > 0:
 			boundingBoxes = []
 			for id in self._drawings:

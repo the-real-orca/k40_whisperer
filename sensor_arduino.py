@@ -1,9 +1,9 @@
-import time
+import logging
 
 try:
 	import serial
 except ImportError:
-	print("pyserial Module not found -> disable Sensors")
+	logging.warning("pyserial Module not found -> disable Sensors")
 
 class Monitored:
 	def __init__(self, name, val=0.0, alert=False, map={}):

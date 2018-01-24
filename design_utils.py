@@ -1,7 +1,7 @@
 import time
 import numpy as np
 import matplotlib.path as path
-
+import logging
 
 
 BLACK = "black"      #(0, 0, 0)
@@ -122,7 +122,7 @@ class Drawing:
 		self.sortIndex = None
 		if len(polylines) > 0:
 			for line in polylines:
-				print("line", line)
+				logging.debug("drawing.line: " + str(line))
 				if not(isinstance(line, Polyline)):
 					raise Exception("TYPE ERROR should be: Polyline, is: " + line.__class__.__name__)
 		self.polylines = polylines
@@ -227,26 +227,24 @@ class Drawing:
 		# sort polylines by X coordinate of start point
 		self.polylines = sorted(self.polylines, key=lambda line: line.getPoint(0)[0])
 			
-		print("build polyline tree +++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 		baseGroup = []
 		for polyline in self.polylines:
 			group = baseGroup
-			print("test", polyline,"-----------------------------------")
 			# recursively test if polyline is inside any element of the current group
 			while ( group != None):
-				print("group", [a.data for a in group])
+				logging.debug("group: " + str([a.data for a in group]))
 				for node in group:
 					# test if current polyline is inside of nodes polyline
 					if node.data.contains(polyline):
 						# dive recursively into node
-						print("dive into", node.data)
+						logging.debug("dive into: " + str(node.data))
 						group = node.children
 						break
 
 					# test if nodes polyline is inside of current polyline
 					if polyline.contains(node.data):
 						# created node for current polyline and wrap surronded nodes
-						print("envelop", node.data)
+						logging.debug("envelop: " + str(node.data))
 
 						n = Node(polyline)
 						n.children = [x for x in group if polyline.contains(x.data)]
@@ -255,14 +253,14 @@ class Drawing:
 							group.remove(x)
 						group.append(n)
 
-						print("new group", [a.data for a in group])
+						logging.debug("new group: " + str([a.data for a in group]))
 						# exit
 						group = None
 						break
 				else:
 					# add new element to group
 					group.append( Node(polyline) )
-					print("append", polyline,"to", group[0].data)
+					logging.debug("append " + str(polyline) + "to" + str(group[0].data))
 					group = None
 					break
 
@@ -272,9 +270,7 @@ class Drawing:
 		node.children = baseGroup
 		childIndex = 0
 		stack = []
-		print("walk through tree +++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 		while True:
-			print("node", node.data, len(node.children), childIndex)
 			# append polyline if all children have been processed
 			if len(node.children) <= childIndex:
 				if node.data:
@@ -291,8 +287,8 @@ class Drawing:
 			childIndex = 0
 			node = next
 
-		print("optimized polylines")
-		for p in polylines: print(p)
+		logging.info("optimized polylines")
+		for p in polylines: logging.debug(p)
 		self.polylines = polylines
 		return self
 

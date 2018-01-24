@@ -1,5 +1,6 @@
 import datetime
 import os
+import logging
 import time
 from distutils.dir_util import mkpath
 
@@ -8,7 +9,6 @@ def idle():
 
 class LASER_CLASS:
 	def __init__(self):
-		print ("LASER_CLASS __init__")
 		self.x = False
 		self.y = False
 		self.msg = ""
@@ -18,12 +18,11 @@ class LASER_CLASS:
 		self.mode = ""
 
 	def __del__(self):
-		print ("LASER_CLASS __del__")
 		self.release()
 
 	""" connect to laser controller board """
 	def init(self, unit="mm"):
-		print("LASER_CLASS init")
+		logging.info("LASER_CLASS init")
 		self._init = True
 
 	def setEndstopPos(self, endstopPos):
@@ -37,7 +36,7 @@ class LASER_CLASS:
 
 	def release(self):
 		if not( self.isInit() ) or self.isActive(): return
-		print("LASER_CLASS release")
+		logging.info("LASER_CLASS release")
 		self._init = False
 		self.x = False
 		self.y = False
@@ -46,7 +45,7 @@ class LASER_CLASS:
 
 	def unlock(self):
 		if not( self.isInit() ) or self.isActive(): return
-		print("LASER_CLASS unlock")
+		logging.info("LASER_CLASS unlock")
 		self.x = False
 		self.y = False
 		self.mode = "unlocked"
@@ -54,7 +53,7 @@ class LASER_CLASS:
 
 	def home(self):
 		if not( self.isInit() ) or self.active: return
-		print("LASER_CLASS home")
+		logging.info("LASER_CLASS home")
 		time.sleep(2)
 		self.x = 0
 		self.y = 0
@@ -64,7 +63,7 @@ class LASER_CLASS:
 	def move(self, dx, dy):
 		if not( self.isInit() ) or self.active: return
 		if dx == 0 and dy == 0: return
-		print("LASER_CLASS move", dx, dy)
+		logging.debug("move: " + str(dx) + "/" + str(dy) + " ...")
 		time.sleep(1)
 		self.x += dx
 		self.y += dy
@@ -74,7 +73,7 @@ class LASER_CLASS:
 	def moveTo(self, x, y):
 		if not( self.isInit() ) or self.active: return
 		if x == self.x and y == self.y: return
-		print("LASER_CLASS moveTo", x, y)
+		logging.debug("move to: " + str(x) + "/" + str(y) + " ...")
 		time.sleep(1)
 		self.x = x
 		self.y = y
@@ -82,19 +81,19 @@ class LASER_CLASS:
 
 	def stop(self):
 		if not( self.isInit() ): return
-		print("LASER_CLASS stop")
+		logging.info("LASER_CLASS stop")
 		self.active = False
 		self.mode = "stopped"
 
 	def enable(self):
 		if not( self.isInit() ): return
-		print("LASER_CLASS enable")
+		logging.info("LASER_CLASS enable")
 		self.mode = "enable"
 		
 	def processVector(self, polylines, feedRate, originX = 0, originY = 0, repeat = 1):
 		if not( self.isInit() ) or self.active: return
 		try:
-			print("LASER_CLASS processVector")
+			logging.info("LASER_CLASS processVector")
 			self.active = True
 			self.progress = 0
 			self.mode = "prepare"
@@ -132,7 +131,7 @@ class LASER_CLASS:
 			time.sleep(5)
 
 			# simulate cutting time
-			print("simulate cutting time ...")
+			logging.debug("simulate cutting time ...")
 			self.mode = "running"
 			for i in range(0,10):
 				self.progress = i*10
@@ -158,6 +157,6 @@ class LASER_CLASS:
 
 	def processRaster(self, raster, feedRate, originX = 0, originY = 0, repeat = 1):
 		if not( self.isInit() ) or self.active: return
-		print("LASER_CLASS processRaster")
+		logging.info("LASER_CLASS processRaster")
 		#TODO
-		print("!!!!!!!!! NOT IMPLEMENTED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+		logging.error("!!!!!!!!! NOT IMPLEMENTED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")

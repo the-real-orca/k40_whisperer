@@ -5,7 +5,7 @@ from dxf import DXF_CLASS
 import svgutils.transform as sg
 from lxml import etree
 import design_utils as design
-
+import logging
 
 class FileManager:
 	def __init__(self, rootPath = ".", webRootPath = "."):
@@ -22,16 +22,16 @@ class FileManager:
 			dxf_import.GET_DXF_DATA(fd, tol_deg=1)
 			fd.close()
 		except StandardError as e:
-			print("DXF Load Failed:", e)
+			logging.error("DXF Load Failed: " + str(e))
 			return False
 		except:
-			print("Unable To open Drawing Exchange File (DXF) file.")
+			logging.error("Unable To open Drawing Exchange File (DXF) file.")
 			return False
 
 #		dxf_lines=dxf_import.DXF_COORDS_GET(new_origin=False)
 		dxf_lines=dxf_import.DXF_COORDS_GET_TYPE(new_origin=False, engrave=False)
 		if dxf_import.dxf_messages != "":
-			print("DXF Import:",dxf_import.dxf_messages)
+			logging.info("DXF Import: " + str(dxf_import.dxf_messages))
 
 		dxf_units = dxf_import.units
 		if dxf_units=="Inches":
@@ -49,7 +49,7 @@ class FileManager:
 		elif dxf_units=="Meters":
 			dxf_scale = 100
 		else:
-			print("DXF Import: unknown unit '%s'", dxf_units)
+			logging.warning("DXF Import: unknown unit: " + str(dxf_units))
 			return False
 
 		color=design.RED
@@ -105,8 +105,8 @@ class FileManager:
 		drawing.filename = filename
 		drawing.path = path
 		drawing.url = self.pathToURL(filepath)
-		print("drawing.path", drawing.path) #TODO
-		print("drawing.url", drawing.url)
+		logging.info("drawing.path: " + drawing.path)
+		logging.info("drawing.url: " + drawing.url)
 		svg.save(filepath)
 
 		

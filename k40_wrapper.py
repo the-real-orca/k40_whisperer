@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 import time
 import numpy as np
 import re as regex
+import logging
 
 ##############################################################################
 
@@ -38,7 +39,6 @@ def idle():
 
 class LASER_CLASS:
 	def __init__(self, board_name="LASER-M2"):
-		print ("LASER_CLASS __init__")
 		self.unit = ""
 		self.scale = 0
 		self.x = False
@@ -61,7 +61,6 @@ class LASER_CLASS:
 		self.HOMED = 238
 
 	def __del__(self):
-		print ("LASER_CLASS __del__")
 		self.release()
 
 	""" connect to laser controller board """
@@ -104,7 +103,7 @@ class LASER_CLASS:
 			self.unlock()
 			time.sleep(0.2)
 		finally:
-			print("LASER_CLASS released")
+			logging.info("released")
 			try:
 				self.nano.reset_usb()
 				time.sleep(0.2)
@@ -115,51 +114,49 @@ class LASER_CLASS:
 					self.nano.dev = None
 					self.mode = ""
 					self.active = False
-					print("self.nano.dev", self.nano.dev)
-
 
 
 	def unlock(self):
 		if not( self.isInit() ) or self.isActive(): return
-		print("unlock")
+		logging.info("unlock")
 		self.x = False
 		self.y = False
 		self.nano.unlock_rail()
 		self.mode = "unlocked"
 
 	def _endStop(self):
-		print("_endStop ...")
+		logging.debug("_endStop ...")
 		self.x = self.endstopPos[0]
 		self.y = self.endstopPos[1]
 		self.nano.home_position()
 		self._waitForEndstop()
-		print("_endStop OK")
+		logging.debug("_endStop OK")
 
 
 	def home(self):
 		if not( self.isInit() ) or self.isActive(): return
-		print("home ...")
+		logging.debug("home ...")
 		self.active = True
 		self._stop_flag[0] = False
 		self._endStop()
 		self._internalMoveTo(0,0)
 		self.active = False
-		print("home OK")
+		logging.debug("home OK")
 
 	""" move relative to current position """
 	def move(self, dx, dy):
 		if not( self.isInit() ) or self.isActive(): return
-		print("move ...")
+		logging.debug("move ...")
 		self.active = True
 		self._internalMove(dx, dy)
 		self.active = False
-		print("move OK")
+		logging.debug("move OK")
 
 	""" move relative to current position """
 	def _internalMove(self, dx, dy):
 		if self.x is False or self.y is False: return
 		if dx == 0 and dy == 0: return
-		print("_internalMove: " + str(dx) + "/" + str(dy) + " ...")
+		logging.debug("_internalMove: " + str(dx) + "/" + str(dy) + " ...")
 # TODO check movement area
 		dxmils = round(dx*self.scale)
 		dymils = round(dy*self.scale)
@@ -167,21 +164,21 @@ class LASER_CLASS:
 		self.x += dxmils/self.scale
 		self.y += dymils/self.scale
 		idle()
-		print("_internalMove OK")
+		logging.debug("_internalMove OK")
 
 
 	""" go to absolute position """
 	def moveTo(self, x, y):
 		if not (self.isInit()) or self.isActive(): return
-		print("moveTo ...")
+		logging.debug("moveTo ...")
 		self.active = True
 		self._internalMoveTo(x, y)
 		self.active = False
-		print("moveTo OK")
+		logging.debug("moveTo OK")
 
 	""" go to absolute position """
 	def _internalMoveTo(self, x, y):
-		print("_internalMoveTo: " + str(x) + "/" + str(y) + " ...")
+		logging.debug("_internalMoveTo: " + str(x) + "/" + str(y) + " ...")
 		if self.x is False or self.y is False:
 			self._endStop()
 		if x == self.x and y == self.y: return
@@ -191,19 +188,18 @@ class LASER_CLASS:
 		self.nano.rapid_move(dxmils, dymils)
 		self.x += dxmils/self.scale
 		self.y += dymils/self.scale
-		print("_internalMoveTo: OK")
+		logging.debug("_internalMoveTo: OK")
 
 
 	def stop(self):
 		if not( self.isInit() ): return
-		print("stop")
+		logging.info("stop")
 		self._stop_flag[0] = True
 		self.nano.e_stop()
 		self.mode = "stopped"
 
 	def enable(self):
 		if not( self.isInit() ): return
-		print("enable")
 		self._stop_flag[0] = False
 		self.mode = "enable"
 
@@ -222,7 +218,7 @@ class LASER_CLASS:
 		time.sleep(0.5)
 
 	def _waitWhileBussy(self, timeout=0):
-		print("_waitWhileBussy ...")
+		logging.debug("_waitWhileBussy ...")
 		DELAY = 0.05
 		timeremaining = float(timeout)
 		status = 0
@@ -230,16 +226,16 @@ class LASER_CLASS:
 			time.sleep(DELAY)
 			status = self.nano.say_hello()
 			if status != self.OK:
-				print("status", status)
+				logging.debug("status: " + str(status))
 			timeremaining -= DELAY
 			if timeout and timeremaining < 0:
-				print("_waitWhileBussy TIMEOUT")
+				logging.warning("_waitWhileBussy TIMEOUT")
 				return False
-		print("_waitWhileBussy OK")
+		logging.debug("_waitWhileBussy OK")
 		return True
 
 	def _waitForEndstop(self, timeout=0):
-		print("_waitForEndstop ...")
+		logging.debug("_waitForEndstop ...")
 		DELAY = 0.05
 		timeremaining = float(timeout)
 		status = 0
@@ -247,12 +243,12 @@ class LASER_CLASS:
 			time.sleep(DELAY)
 			status = self.nano.say_hello()
 			if status != self.OK:
-				print("status", status)
+				logging.debug("status" + str(status))
 			timeremaining -= DELAY
 			if timeout and timeremaining < 0:
-				print("_waitForEndstop TIMEOUT")
+				logging.warning("_waitForEndstop TIMEOUT")
 				return False
-		print("_waitForEndstop OK")
+		logging.debug("_waitForEndstop OK")
 		return True
 
 
@@ -261,7 +257,7 @@ class LASER_CLASS:
 		try:
 			self.msg = "prepare data..."
 			self.mode = "prepare"
-			print("processVector ...")
+			logging.info("processVector ...")
 			self.active = True
 			self.progress = 0
 			self.repeat = repeat
@@ -306,8 +302,6 @@ class LASER_CLASS:
 			# run laser
 			self.mode = "running"
 			while repeat > 0:
-				print("repeat", repeat)
-
 				if self._stop_flag[0]:
 					raise  RuntimeError("stopped")
 				idle()
@@ -315,25 +309,25 @@ class LASER_CLASS:
 				# send data to laser
 				self._endStop()
 				idle()
-				print("goto origin: " + str(originX) + " / " + str(originY))
+				logging.debug("goto origin: " + str(originX) + " / " + str(originY))
 				self._internalMoveTo(originX, originY)
 				idle()
-				print("send_data ...")
-				self.nano.send_data(data, self._updateCallback, self._stop_flag, passes=1, preprocess_crc=False)
-				print("send_data finished")
+				logging.debug("send_data ...")
+				self.nano.send_data(data, self._updateCallback, self._stop_flag, passes=repeat, preprocess_crc=False)
+				logging.debug("send_data finished")
 				# wait for laser to finish
 				self._waitWhileBussy()
-				print("buffer empty")
+				logging.debug("buffer empty")
 				# decrease repeat counter
-				repeat = int(repeat) - 1
+				repeat = 0 # TODOint(repeat) - 1
 
-			print("laser finished")
+			logging.debug("laser finished")
 			self.progress = 100
 			self.mode = "finished"
 # TODO			self._internalHome()
 
 		except Exception as e:
-			print("processVector ERROR: " + str(e))
+			logging.error("processVector ERROR: " + str(e))
 			self.msg = str(e)
 			if self._stop_flag[0]:
 				self.mode = "stopped"
@@ -341,7 +335,6 @@ class LASER_CLASS:
 				self.mode = "error"
 		finally:
 			self.active = False
-			print("processVector OK")
 
 
 	def processRaster(self, raster, feedRate, originX = 0, originY = 0, repeat = 1):

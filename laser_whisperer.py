@@ -6,18 +6,18 @@ import gevent
 
 # import system tools
 import os
+import logging
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 # import web framework
 from flask import Flask, request, redirect, json
 from werkzeug.utils import secure_filename
-import logging
 
 # import laser application config and dispatcher
 from config_manager import *
 import dispatcher
 	
 # application
-print("init application")
 mkpath(UPLOAD_FOLDER)
 server = Flask(__name__, static_url_path='', static_folder=HTML_FOLDER)
 server.app_context()
@@ -58,7 +58,7 @@ def handleCommand():
 		# check request sequence
 		if data.get("seqNr", False) != seqNr:
 			# sqeuence error -> ignore request and resend status
-			print("sqeuence error -> ignore request")
+			logging.warning("sqeuence error -> ignore request")
 			raise ValueError("sqeuence error -> ignore request")
 
 		# handle command
@@ -82,10 +82,9 @@ def handleCommand():
 		# return error
 		return str(e), 500
 
-print("start webserver")
+logging.info("start webserver")
 if __name__ == '__main__':
-	log = logging.getLogger('werkzeug')
-	log.setLevel(logging.ERROR)
+	logging.getLogger('werkzeug').setLevel(logging.ERROR)
 	server.debug=False
 	server.run(host='0.0.0.0', port=8080)
-	print("SHUTDOWN")
+	logging.info("SHUTDOWN")
