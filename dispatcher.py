@@ -11,6 +11,26 @@ from sensor_arduino import Sensor
 def NullFunc():
 	return
 
+# create custom buffered memory logger
+class HistoryHandler(logging.Handler):
+	def __init__(self, maxSize=10):
+		logging.Handler.__init__(self)
+		self.history = []
+		self.maxSize = maxSize
+
+	def emit(self, record):
+		log_entry = self.format(record)
+		if len(self.history) >= self.maxSize:
+			self.history.pop(0)
+		self.history.append(log_entry)
+
+
+logHistory = HistoryHandler(maxSize=50)
+format = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+logHistory.setFormatter(format)
+logHistory.setLevel(logging.DEBUG)
+logging.getLogger('').addHandler(logHistory)
+
 laser = configLaser()
 
 # init file manager
@@ -54,7 +74,7 @@ def getStatus():
 		"workspace": workspace.toJson(),
 		"profile": taskmanager.toJson()
 	}
-	payload['debug'] = laser.msg # TODO log.getHistory(10)
+	payload['debug'] = '\n'.join(logHistory.history)
 	return payload
 
 

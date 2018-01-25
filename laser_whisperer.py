@@ -6,15 +6,32 @@ import gevent
 
 # import system tools
 import os
+import sys
+
+# import laser application config
+from config_manager import *
+
+# set up logging
 import logging
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+#logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+logging.getLogger('').setLevel(logging.DEBUG)   # enable general logging
+format = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+# create console handler with a higher log level
+logConsole = logging.StreamHandler(sys.stdout)
+logConsole.setFormatter(format)
+logConsole.setLevel(logging.INFO)
+logging.getLogger('').addHandler(logConsole)
+# create file handler
+logFile = logging.FileHandler(COMPUTED_FOLDER + "/laser_whisperer.log")
+logFile.setFormatter(format)
+logFile.setLevel(logging.DEBUG)
+logging.getLogger('').addHandler(logFile)
 
 # import web framework
 from flask import Flask, request, redirect, json
 from werkzeug.utils import secure_filename
 
-# import laser application config and dispatcher
-from config_manager import *
+# import laser  dispatcher
 import dispatcher
 	
 # application
@@ -84,6 +101,7 @@ def handleCommand():
 
 logging.info("start webserver")
 if __name__ == '__main__':
+
 	logging.getLogger('werkzeug').setLevel(logging.ERROR)
 	server.debug=False
 	server.run(host='0.0.0.0', port=8080)
