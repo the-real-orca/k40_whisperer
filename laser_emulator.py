@@ -3,6 +3,7 @@ import os
 import logging
 import time
 from distutils.dir_util import mkpath
+import messages as msg
 
 def idle():
 	time.sleep(0.1)
@@ -11,8 +12,7 @@ class LASER_CLASS:
 	def __init__(self):
 		self.x = False
 		self.y = False
-		self.msg = ""
-		self._init = True
+		self._init = False
 		self.active = False
 		self.progress = 0
 		self.mode = ""
@@ -21,8 +21,9 @@ class LASER_CLASS:
 		self.release()
 
 	""" connect to laser controller board """
-	def init(self, unit="mm"):
+	def init(self):
 		logging.info("LASER_CLASS init")
+		msg.send('success', "Laser Emulator connected")
 		self._init = True
 
 	def setEndstopPos(self, endstopPos):
@@ -37,6 +38,7 @@ class LASER_CLASS:
 	def release(self):
 		if not( self.isInit() ) or self.isActive(): return
 		logging.info("LASER_CLASS release")
+		msg.send('prime', "Laser Emulator released")
 		self._init = False
 		self.x = False
 		self.y = False
@@ -99,9 +101,9 @@ class LASER_CLASS:
 			self.mode = "prepare"
 			path = "HTML/emulator"
 			mkpath(path)
-			filename = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S.txt")
-			filename = "testcut.gcode" # TODO
-			self.msg = "save to: " + filename
+			filename = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S.gcode")
+			logging.info("EMULATOR save to: " + filename)
+			msg.send('prime', "EMULATOR save to: " + filename)
 			path = os.path.join(path, filename)
 
 			# save G-code
@@ -135,21 +137,20 @@ class LASER_CLASS:
 			self.mode = "running"
 			for i in range(0,10):
 				self.progress = i*10
-				self.msg = "simulate: " + str(self.progress) + "%"
 				time.sleep(1)
 				if not self.active:
 					raise RuntimeError("stopped")
 				idle()
 			self.progress = 100
 			self.mode = "finished"
-			self.msg = "finished"
+			logging.info("LASER_CLASS processVector finished")
 
 		except Exception as e:
 			if self.active:
 				self.mode = "stopped"
 			else:
 				self.mode = "error"
-			self.msg = str(e)
+				logging.error("LASER_CLASS processVector ERROR: " + str(e))
 		finally:
 			self.active = False
 

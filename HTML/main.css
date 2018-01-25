@@ -194,15 +194,6 @@ input[type="file"] {
 	}
 }
 
-.timeout {
-	display: inline-block;
-	vertical-align: 0.3em;
-	width: 5em;
-	height: 0.25em;
-	background: rgba(100, 100, 100, 0.1);
-	animation: slideLeft linear both;
-}
-
 @keyframes slideLeft {
 	0% {width: 5em; content: "\025CB";}
 	100% {width: 0; content: "\025CF";}

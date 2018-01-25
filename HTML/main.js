@@ -567,12 +567,17 @@ function updateStatus(received) {
 		}
 	}
 
-/* TODO
 	// update message
-	if ( typeof received.message == "string" ) {
-		viewModel.message( received.message )
+	if ( received.messages instanceof Array )  {
+		for ( var i = 0; i < received.messages.length; i++ ) {
+			var msg = received.messages[i]
+			if ( msg.timestamp > viewModel.lastMessageTime ) {
+				add_msg(msg.type, msg.header, msg.text)
+				viewModel.lastMessageTime = msg.timestamp
+			}
+		}
+
 	}
-*/
 
 	// update workspace
 	if ( "workspace" in received ) {
@@ -781,6 +786,7 @@ var viewModel = {
 	touchMode: ko.observable(false),
 	seqNr: 0,
 	expectedSeqNr: 0,
+	lastMessageTime: 0,
 	status: {
 		laser: ko.observable(0),
 		usb: ko.observable(false),

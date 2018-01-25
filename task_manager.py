@@ -2,6 +2,7 @@ import design_utils as design
 
 import time
 import logging
+import messages as msg
 
 def idle():
 	time.sleep(0.1)
@@ -169,15 +170,16 @@ class TaskManager:
 			if task.status == "error" or task.status == "stopped":
 				break
 		self.laser.home()
+		msg.send('success', profile.name + " finished")
 
 	def runVectorTask(self, task):
 		try:
-			logging.info("runninc task: " + task.name)
+			logging.info("TaskManager runninc task: " + task.name)
 
 			# get polylines from all drawings in workspace and apply offset to drawing
 			drawings = self.workspace.getItems()
 			polylines = [ polyline.applyOffset(drawings[k].position) for k in drawings for polyline in drawings[k].polylines]
-			logging.debug("drawingPolylines: " + str(polylines))
+			logging.debug("TaskManager drawingPolylines: " + str(polylines))
 
 			# filter polylines by task color
 			logging.debug("task.colors " + str(task.colors))
@@ -188,12 +190,12 @@ class TaskManager:
 				return
 
 			# connect segmented polylines and reorder from inner to outer
-			logging.debug("optimize polylines: " + str(polylines))
+			logging.debug("TaskManager optimize polylines: " + str(polylines))
 			draw = design.Drawing(polylines, name=task.name)
 			draw.optimize(ignoreColor=True)
 
 			# to laser
-			logging.debug("send to laser")
+			logging.debug("TaskManager send to laser")
 			self.laser.processVector(draw.polylines,
 				originX=self.workspace.homeOff[0]+self.workspace.workspaceOrigin[0],
 				originY=self.workspace.homeOff[1]+self.workspace.workspaceOrigin[1],

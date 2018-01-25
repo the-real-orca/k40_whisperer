@@ -1,12 +1,6 @@
 
 import logging
-
-# import laser application modules
-from config_manager import *
-from file_manager import FileManager
-from task_manager import TaskManager
-from workspace import Workspace
-from sensor_arduino import Sensor
+import messages as msg
 
 def NullFunc():
 	return
@@ -24,12 +18,22 @@ class HistoryHandler(logging.Handler):
 			self.history.pop(0)
 		self.history.append(log_entry)
 
+	def __str__(self):
+		return '\n'.join( self.history )
 
-logHistory = HistoryHandler(maxSize=50)
-format = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-logHistory.setFormatter(format)
-logHistory.setLevel(logging.DEBUG)
-logging.getLogger('').addHandler(logHistory)
+logDebug = HistoryHandler(maxSize=50)
+logDebug.setLevel(logging.DEBUG)
+logging.getLogger('').addHandler(logDebug)
+
+
+# import laser application modules
+from config_manager import *
+from file_manager import FileManager
+from task_manager import TaskManager
+from workspace import Workspace
+from sensor_arduino import Sensor
+
+
 
 laser = configLaser()
 
@@ -66,7 +70,7 @@ def getStatus():
 			"waterTemp": sensor.waterTemp.alert,
 			"waterFlow": sensor.waterFlow.alert
 		},
-		"message": laser.msg,
+		"messages": msg.get_list(),
 		"pos": {
 			"x": laser.x,
 			"y": laser.y
@@ -74,7 +78,7 @@ def getStatus():
 		"workspace": workspace.toJson(),
 		"profile": taskmanager.toJson()
 	}
-	payload['debug'] = '\n'.join(logHistory.history)
+	payload['debug'] = str(logDebug)
 	return payload
 
 

@@ -4,6 +4,7 @@ from distutils.dir_util import mkpath
 import json as json_tools
 import logging
 
+
 # import laser communication
 import k40_wrapper
 import laser_emulator

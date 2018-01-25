@@ -60,12 +60,15 @@
 	<div class="flex">
 		<div id="stack" class="right message-stack half-700 third-1000" data-bind="template: {foreach: msgList, afterAdd: fxFadeIn, beforeRemove: fxSlideUpRemove}">
 			<article class="card message" data-bind="css: type">
-			  <header><span data-bind="html: header"></span><span class="close">
+			  <header>
+				  <span data-bind="html: header"></span>
+				  <span class="close">
 					<span data-bind="visible: timeoutHandle, click: removeTimeout">
 						<span class="timeout" data-bind="style: { animationDuration: timeout+'s'}"></span> <b>&#9684;</b>
 					</span>
-					&nbsp; <b data-bind="click: remove">&times;</b>
-				</span></header>
+					<b data-bind="click: remove">&times;</b>
+				</span>
+			  </header>
 			  <section data-bind="html: text"></section>
 			</article>
 		</div>

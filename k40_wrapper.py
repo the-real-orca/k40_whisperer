@@ -23,6 +23,8 @@ import time
 import numpy as np
 import re as regex
 import logging
+import messages as msg
+
 
 ##############################################################################
 
@@ -44,7 +46,6 @@ class LASER_CLASS:
 		self.x = False
 		self.y = False
 		self.endstopPos = [0,0]
-		self.msg = ""
 		self.active = False
 		self.repeat = 0
 		self.mode = ""
@@ -84,6 +85,7 @@ class LASER_CLASS:
 			return
 		time.sleep(1)
 		self.home()
+		msg.send('success', "K40 Laser connected")
 
 	def setEndstopPos(self, endstopPos):
 		self.endstopPos = endstopPos
@@ -103,7 +105,6 @@ class LASER_CLASS:
 			self.unlock()
 			time.sleep(0.2)
 		finally:
-			logging.info("released")
 			try:
 				self.nano.reset_usb()
 				time.sleep(0.2)
@@ -114,49 +115,52 @@ class LASER_CLASS:
 					self.nano.dev = None
 					self.mode = ""
 					self.active = False
+					logging.info("LASER_CLASS released")
+					msg.send('prime', "K40 Laser released")
+
 
 
 	def unlock(self):
 		if not( self.isInit() ) or self.isActive(): return
-		logging.info("unlock")
+		logging.info("LASER_CLASS unlock")
 		self.x = False
 		self.y = False
 		self.nano.unlock_rail()
 		self.mode = "unlocked"
 
 	def _endStop(self):
-		logging.debug("_endStop ...")
+		logging.debug("LASER_CLASS _endStop ...")
 		self.x = self.endstopPos[0]
 		self.y = self.endstopPos[1]
 		self.nano.home_position()
 		self._waitForEndstop()
-		logging.debug("_endStop OK")
+		logging.debug("LASER_CLASS _endStop OK")
 
 
 	def home(self):
 		if not( self.isInit() ) or self.isActive(): return
-		logging.debug("home ...")
+		logging.debug("LASER_CLASS home ...")
 		self.active = True
 		self._stop_flag[0] = False
 		self._endStop()
 		self._internalMoveTo(0,0)
 		self.active = False
-		logging.debug("home OK")
+		logging.debug("LASER_CLASS home OK")
 
 	""" move relative to current position """
 	def move(self, dx, dy):
 		if not( self.isInit() ) or self.isActive(): return
-		logging.debug("move ...")
+		logging.debug("LASER_CLASS move ...")
 		self.active = True
 		self._internalMove(dx, dy)
 		self.active = False
-		logging.debug("move OK")
+		logging.debug("LASER_CLASS move OK")
 
 	""" move relative to current position """
 	def _internalMove(self, dx, dy):
 		if self.x is False or self.y is False: return
 		if dx == 0 and dy == 0: return
-		logging.debug("_internalMove: " + str(dx) + "/" + str(dy) + " ...")
+		logging.debug("LASER_CLASS _internalMove: " + str(dx) + "/" + str(dy) + " ...")
 # TODO check movement area
 		dxmils = round(dx*self.scale)
 		dymils = round(dy*self.scale)
@@ -164,21 +168,21 @@ class LASER_CLASS:
 		self.x += dxmils/self.scale
 		self.y += dymils/self.scale
 		idle()
-		logging.debug("_internalMove OK")
+		logging.debug("LASER_CLASS _internalMove OK")
 
 
 	""" go to absolute position """
 	def moveTo(self, x, y):
 		if not (self.isInit()) or self.isActive(): return
-		logging.debug("moveTo ...")
+		logging.debug("LASER_CLASS moveTo ...")
 		self.active = True
 		self._internalMoveTo(x, y)
 		self.active = False
-		logging.debug("moveTo OK")
+		logging.debug("LASER_CLASS moveTo OK")
 
 	""" go to absolute position """
 	def _internalMoveTo(self, x, y):
-		logging.debug("_internalMoveTo: " + str(x) + "/" + str(y) + " ...")
+		logging.debug("LASER_CLASS _internalMoveTo: " + str(x) + "/" + str(y) + " ...")
 		if self.x is False or self.y is False:
 			self._endStop()
 		if x == self.x and y == self.y: return
@@ -188,7 +192,7 @@ class LASER_CLASS:
 		self.nano.rapid_move(dxmils, dymils)
 		self.x += dxmils/self.scale
 		self.y += dymils/self.scale
-		logging.debug("_internalMoveTo: OK")
+		logging.debug("LASER_CLASS _internalMoveTo: OK")
 
 
 	def stop(self):
@@ -205,7 +209,7 @@ class LASER_CLASS:
 
 	def _updateCallback(self, msg = ""):
 		if msg:
-			self.msg = msg
+			logging.debug("LASER_CLASS callback: " + msg)
 			m = regex.match("(\w+) \D*([\d.]+)%", msg)
 			if m:
 				f = float(m.group(2))
@@ -218,7 +222,7 @@ class LASER_CLASS:
 		time.sleep(0.5)
 
 	def _waitWhileBussy(self, timeout=0):
-		logging.debug("_waitWhileBussy ...")
+		logging.debug("LASER_CLASS _waitWhileBussy ...")
 		DELAY = 0.05
 		timeremaining = float(timeout)
 		status = 0
@@ -226,16 +230,16 @@ class LASER_CLASS:
 			time.sleep(DELAY)
 			status = self.nano.say_hello()
 			if status != self.OK:
-				logging.debug("status: " + str(status))
+				logging.debug("LASER_CLASS _waitWhileBussy status: " + str(status))
 			timeremaining -= DELAY
 			if timeout and timeremaining < 0:
-				logging.warning("_waitWhileBussy TIMEOUT")
+				logging.error("LASER_CLASS _waitWhileBussy TIMEOUT")
 				return False
-		logging.debug("_waitWhileBussy OK")
+		logging.debug("LASER_CLASS _waitWhileBussy OK")
 		return True
 
 	def _waitForEndstop(self, timeout=0):
-		logging.debug("_waitForEndstop ...")
+		logging.debug("LASER_CLASS _waitForEndstop ...")
 		DELAY = 0.05
 		timeremaining = float(timeout)
 		status = 0
@@ -243,21 +247,20 @@ class LASER_CLASS:
 			time.sleep(DELAY)
 			status = self.nano.say_hello()
 			if status != self.OK:
-				logging.debug("status" + str(status))
+				logging.debug("LASER_CLASS _waitForEndstop status" + str(status))
 			timeremaining -= DELAY
 			if timeout and timeremaining < 0:
-				logging.warning("_waitForEndstop TIMEOUT")
+				logging.error("LASER_CLASS _waitForEndstop TIMEOUT")
 				return False
-		logging.debug("_waitForEndstop OK")
+		logging.debug("LASER_CLASS _waitForEndstop OK")
 		return True
 
 
 	def processVector(self, polylines, feedRate, originX = 0, originY = 0, repeat = 1):
 		if not( self.isInit() ) or self.isActive(): return
 		try:
-			self.msg = "prepare data..."
 			self.mode = "prepare"
-			logging.info("processVector ...")
+			logging.info("LASER_CLASS processVector ...")
 			self.active = True
 			self.progress = 0
 			self.repeat = repeat
@@ -321,18 +324,17 @@ class LASER_CLASS:
 				# decrease repeat counter
 				repeat = 0 # TODOint(repeat) - 1
 
-			logging.debug("laser finished")
 			self.progress = 100
 			self.mode = "finished"
+			logging.info("LASER_CLASS processVector finished")
 # TODO			self._internalHome()
 
 		except Exception as e:
-			logging.error("processVector ERROR: " + str(e))
-			self.msg = str(e)
 			if self._stop_flag[0]:
 				self.mode = "stopped"
 			else:
 				self.mode = "error"
+				logging.error("processVector ERROR: " + str(e))
 		finally:
 			self.active = False
 

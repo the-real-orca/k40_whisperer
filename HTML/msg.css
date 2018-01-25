@@ -44,6 +44,16 @@
 	padding: 0.1em 0.6em;
 	z-index: 99;
 }
+
+.timeout {
+	display: inline-block;
+	vertical-align: 0.3em;
+	width: 5em;
+	height: 0.25em;
+	background: rgba(100, 100, 100, 0.1);
+	animation: slideLeft linear both;
+}
+
 @media all and (max-width: 700px) {
 	.message-stack {
 		position: static;
