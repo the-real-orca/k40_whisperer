@@ -36,8 +36,8 @@ class MessagePoolSingletone(object):
 		self.cleanup()
 
 	def cleanup(self):
-		t = time.time() - 60
-		self.list = filter(lambda msg: msg.get('timestamp', 0) > t, self.list)
+		t = int( (time.time() - 60)*1000 )
+		self.list = filter(lambda msg: (msg.get('timestamp', 0) > t), self.list)
 
 # singeltone instance
 _messagePool = MessagePoolSingletone()
