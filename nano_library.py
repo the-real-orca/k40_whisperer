@@ -70,11 +70,13 @@ class K40_CLASS:
             raise StandardError(msg)
                 
         response = None
-        while response==None:
+        read_cnt = 0
+        while response==None and read_cnt < 10:
             try:
                 response = self.dev.read(self.read_addr,self.read_length,self.timeout)
             except:
                 response = None
+                read_cnt = read_cnt + 1
         
         DEBUG = False
         if response != None:
@@ -172,7 +174,7 @@ class K40_CLASS:
                     packet[-1] = self.OneWireCRC(packet[1:len(packet)-2])
                     if not preprocess_crc:
                         self.send_packet_w_error_checking(packet,update_gui,stop_calc)
-                        update_gui("Sending Data to Laser on-the-fly = %.1f%%" %(100.0*float(i)/float(len_data)))
+                        update_gui("Sending Data to Laser = %.1f%%" %(100.0*float(i)/float(len_data)))
                     else:
                         packets.append(packet)
                         update_gui("Calculating CRC data and Generate Packets: %.1f%%" %(100.0*float(i)/float(len_data)))
@@ -194,19 +196,20 @@ class K40_CLASS:
             update_gui()
             self.send_packet_w_error_checking(line,update_gui,stop_calc)
             packet_cnt = packet_cnt+1.0
-            update_gui( "Sending Data to Laser = %.1f%%" %( 100.0*packet_cnt/len(packets) ))
+            update_gui( "Sending Data to Laser = %.1f%%" %( 100.0*packet_cnt/len(packets) ) )
         ##############################################################
 
 
     def send_packet_w_error_checking(self,line,update_gui=None,stop_calc=None):
-        cnt=1
-        while cnt < self.n_timeouts and True:
+        timeout_cnt = 1
+        crc_cnt     = 1
+        while timeout_cnt < self.n_timeouts and crc_cnt < self.n_timeouts:
             try:
                 self.send_packet(line)
             except:
-                msg = "USB Timeout #%d" %(cnt)
+                msg = "USB Timeout #%d" %(timeout_cnt)
                 update_gui(msg)
-                cnt=cnt+1
+                timeout_cnt=timeout_cnt+1
                 continue
                 
             ######################################
@@ -217,10 +220,14 @@ class K40_CLASS:
                     response = self.say_hello()
                 break #break and move on to next packet
             elif response == self.CRC_ERROR:
-                msg = "Data transmission (CRC) error #%d" %(cnt)               
+                msg = "Data transmission (CRC) error #%d" %(crc_cnt)               
                 update_gui(msg)
-                cnt=cnt+1
+                crc_cnt=crc_cnt+1
                 continue
+            elif response == None:
+                msg = "Controller board is not responding."                
+                update_gui(msg)
+                break #break and move on to next packet
             else: #response == self.OK:
                 break #break and move on to next packet
 
@@ -234,8 +241,12 @@ class K40_CLASS:
             #    msg = "Something Undefined happened: response=%s" %(response)
             #    break #break and move on to next packet
             
-        if cnt == self.n_timeouts:
-            msg = "Too Many Transmission Errors (%d)" %(cnt)
+        if crc_cnt == self.n_timeouts:
+            msg = "Too Many Transmission Errors (%d CRC Errors)" %(crc_cnt)
+            update_gui(msg)
+            raise StandardError(msg)
+        if timeout_cnt == self.n_timeouts:
+            msg = "Too Many Transmission Errors (%d Timeouts)" %(timeout_cnt)
             update_gui(msg)
             raise StandardError(msg)
         if stop_calc[0]:
