@@ -18,6 +18,7 @@ sudo pip3 install --upgrade pip
 # install K40 Whisperer
 cd ~
 git clone https://github.com/the-real-orca/k40_whisperer.git
+git checkout laser_whisperer
 cd k40_whisperer
 sudo pip3 install -r requirements.txt
 sudo chmod a+x k40_whisperer.py

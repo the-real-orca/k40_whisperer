@@ -5,7 +5,7 @@ Automatic Installation
 ----------------------
 
 ```bash
-wget https://raw.githubusercontent.com/the-real-orca/k40_whisperer/master/install_Raspberry.sh
+wget https://raw.githubusercontent.com/the-real-orca/k40_whisperer/laser_whisperer/install_Raspberry.sh
 chmod a+x ./install_Raspberry.sh
 ./install_Raspberry.sh
 ```
