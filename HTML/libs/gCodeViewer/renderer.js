@@ -41,6 +41,7 @@ GCODE.renderer = (function(){
         modelCenter: {x: 0, y: 0},
         moveModel: true,
         differentiateColors: true,
+		fadeLines: false,
         showNextLayer: false,
         alpha: false,
         actualWidth: false,
@@ -57,6 +58,11 @@ GCODE.renderer = (function(){
     var extrusionSpeeds = [];
     var extrusionSpeedsByLayer = {};
 
+	var toHex = function(n){
+	  var hex = n.toString(16);
+	  while (hex.length < 2) {hex = "0" + hex; }
+	  return hex;
+	};
 
     var reRender = function(){
         var gCodeOpts = GCODE.gCodeReader.getOptions();
@@ -350,7 +356,13 @@ GCODE.renderer = (function(){
             else if(cmds[i].extrude){
                 if(cmds[i].retract==0){
                     if(speedIndex>=0){
-                        ctx.strokeStyle = renderOptions["colorLine"][speedIndex];
+                        var color = renderOptions["colorLine"][speedIndex];
+						if (renderOptions["fadeLines"]) {
+							var alpha = 255 - (toProgress-i);
+							if ( alpha < 50 ) alpha = 50;
+							color = color.substr(0, 7) + toHex(alpha);
+						}
+						ctx.strokeStyle = color;
                     }else if(speedIndex===-1){
                         var val = parseInt(cmds[i].errLevelB).toString(16);
 //                        var val = '8A';

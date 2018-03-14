@@ -23,6 +23,8 @@
 	</div>
 </div>
 <script>
+	
+	const playbackSpeed = 2;
 
 	processMessage = function(e){
 		var data = e.data;
@@ -44,12 +46,14 @@
 			case 'analyzeDone':
 				GCODE.gCodeReader.processAnalyzeModelDone(data.msg);
 				GCODE.renderer.setOption({
+			        colorLine: ["#800000", "#000080", "#ff0000", "#ffff00"],
 					showMoves: true,
 					showLastPos: true,
 					showRetracts: false,
 					moveModel: true,
 					differentiateColors: true,
 					renderAnalysis: true,
+					fadeLines: true,
 					alpha: false
 				});
 				GCODE.gCodeReader.passDataToRenderer();
@@ -64,7 +68,7 @@
 						var dx = (seg.prevX - seg.x);
 						var dy = (seg.prevY - seg.y);
 						var dist = Math.sqrt(dx*dx + dy*dy);
-						var time = dist / seg.speed * 500000;
+						var time = dist / seg.speed * 1000000 / playbackSpeed;
 						if (time == NaN) time = 100;
 						if (time > 5000) time = 5000;
 						if (time < 0) time = 0;
