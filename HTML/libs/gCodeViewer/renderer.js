@@ -27,6 +27,7 @@ GCODE.renderer = (function(){
     var renderOptions = {
         showMoves: true,
         showRetracts: true,
+		showLastPos: false,
         colorGrid: "#bbbbbb",
         extrusionWidth: 1,
 //        colorLine: ["#000000", "#aabb88",  "#ffe7a0", "#6e7700", "#331a00", "#44ba97", "#08262f", "#db0e00", "#ff9977"],
@@ -35,6 +36,7 @@ GCODE.renderer = (function(){
         colorMove: "#00ff00",
         colorRetract: "#ff0000",
         colorRestart: "#0000ff",
+		colorLastPos: "#ff00ff",
         sizeRetractSpot: 2,
         modelCenter: {x: 0, y: 0},
         moveModel: true,
@@ -320,7 +322,6 @@ GCODE.renderer = (function(){
                 speedIndex=0;
             }
 
-
             if(!cmds[i].extrude&&!cmds[i].noMove){
 //                ctx.stroke();
                 if(cmds[i].retract == -1){
@@ -400,6 +401,16 @@ GCODE.renderer = (function(){
             prevX = x*zoomFactor;
             prevY = y*zoomFactor;
         }
+
+		if(renderOptions["showLastPos"]){
+			ctx.strokeStyle = renderOptions["colorLastPos"];
+			ctx.fillStyle = renderOptions["colorLastPos"];
+			ctx.beginPath();
+			ctx.arc(prevX, prevY, renderOptions["sizeRetractSpot"], 0, Math.PI*2, true);
+			ctx.stroke();
+			ctx.fill();
+		}
+		
         ctx.stroke();
     };
 

@@ -223,8 +223,6 @@ GCODE.gCodeReader = (function(){
             if(gCodeOptions["purgeEmptyLayers"])purgeLayers();
 //            console.log(model);
             GCODE.renderer.doRender(model, 0);
-            GCODE.renderer3d.setModel(model);
-
         },
         processLayerFromWorker: function(msg){
 //            var cmds = msg.cmds;
