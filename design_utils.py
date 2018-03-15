@@ -188,24 +188,41 @@ class Drawing:
 			j = 0
 			a = self.polylines[i]
 			pointsA = a.getPoints()
+			# test for empty line
 			if len(pointsA)==0:
 				self.polylines.pop(i)
 				continue
 			while j < len(self.polylines):
+				if i == j:
+					j += 1
+					continue				
 				b = self.polylines[j]
 				pointsB = b.getPoints()
 				if len(pointsB)==0:
 					j += 1
 					continue
-				connectedEndStart = equal(pointsA[-1], pointsB[0], dim=2)	# compare x,y end point with start point of segments
-				connectedEndEnd = equal(pointsA[-1], pointsB[-1], dim=2)	# compare x,y end point with end point of segments
-				if i != j and (connectedEndStart or connectedEndEnd) \
-					and (a.color == b. color or ignoreColor):
+				connectedStartStart = equal(pointsA[0], pointsB[0])	# compare x,y end point with start point of segments
+				connectedStartEnd = equal(pointsA[0], pointsB[-1])	# compare x,y end point with end point of segments
+				connectedEndStart = equal(pointsA[-1], pointsB[0])	# compare x,y end point with start point of segments
+				connectedEndEnd = equal(pointsA[-1], pointsB[-1])	# compare x,y end point with end point of segments
+				if (connectedStartStart or connectedStartEnd or connectedEndStart or connectedEndEnd) \
+					and (a.color == b.color or ignoreColor):
+					if connectedStartStart:
+						a.reverse()
+						pointsA = a.getPoints()
+					if connectedStartEnd:
+						a.reverse()
+						pointsA = a.getPoints()
+						b.reverse()
+						pointsB = b.getPoints()
 					if connectedEndEnd:
 						b.reverse()
+						pointsB = b.getPoints()
+
 					# connect segments
 					a.append(b)
-					# remove added segment from path and re-adjust indizes
+					
+					# remove added segment from path and re-adjust indices
 					self.polylines.pop(j)
 					if j < i: i -= 1
 				else:
@@ -315,7 +332,7 @@ class Drawing:
 
 	
 def equal(a, b, tol=0.001, dim=False):
-	# use max distance for comparing
+	# use manhattan distance for comparing
 	d = abs(np.array(a)-np.array(b))
 	if dim:
 		d = d[:dim]

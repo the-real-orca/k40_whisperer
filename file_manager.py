@@ -16,11 +16,11 @@ class FileManager:
 		return os.path.relpath(path, self.webRootPath)		
 		
 	def openDXF(self, path):
-		dxf_import=DXF_CLASS()
+		dxf_import=DXF_CLASS()		
 		try:
-			fd = open(path)
-			dxf_import.GET_DXF_DATA(fd, tol_deg=1)
-			fd.close()
+			with open(path) as fd:
+				dxf_import.GET_DXF_DATA(fd, tol_deg=2)
+#				dxf_import.GET_DXF_DATA(fd, tol_deg=1) #TODO
 		except StandardError as e:
 			logging.error("DXF Load Failed: " + str(e))
 			return False
@@ -28,7 +28,7 @@ class FileManager:
 			logging.error("Unable To open Drawing Exchange File (DXF) file.")
 			return False
 
-#		dxf_lines=dxf_import.DXF_COORDS_GET(new_origin=False)
+#		dxf_lines=dxf_import.DXF_COORDS_GET(new_origin=False) # TODO
 		dxf_lines=dxf_import.DXF_COORDS_GET_TYPE(new_origin=False, engrave=False)
 		if dxf_import.dxf_messages != "":
 			logging.info("DXF Import: " + str(dxf_import.dxf_messages))
@@ -58,6 +58,7 @@ class FileManager:
 		# create drawings object
 		name = os.path.basename(path).replace("_", " ")
 		drawing = design.Drawing(polylines, name=name)
+		# optimice drawing object
 		drawing.combineLines()
 
 		return drawing
