@@ -360,6 +360,13 @@ svg #workspaceRect {
 	fill: white;
 }
 
+#canvas {
+	max-width: 100%;
+	max-height: 100%;
+	border: 0.2em solid #CCC;
+	background: white;
+}
+
 .workspaceItem {
 	display: flex;
     flex-direction: row;

@@ -18,6 +18,12 @@
 	<script type='text/javascript' src='libs/js/knockout-3.4.2.js'></script>
 	<script type='text/javascript' src='libs/js/knockout.mapping-2.4.1.js'></script>
 
+	<!-- gCodeViewer -->
+	<script> GCODE = {}; </script>
+	<script type="text/javascript" src="libs/gCodeViewer/gCodeReader.js"></script>
+	<script type="text/javascript" src="libs/gCodeViewer/renderer.js"></script>
+	<script type="text/javascript" src="libs/gCodeViewer/analyzer.js"></script>
+
 	<!-- Tabs -->
 	<link rel="stylesheet" href="tabs.css">
 
@@ -271,13 +277,26 @@
 			</div>
 		</div>
 
-		<!-- Placeholder -->
-		<input id="Placeholder" name="mainTabsGroup" type="radio" />
-		<label class="title" for="Placeholder"><i class="icon-file-code-1"></i></label>
+		<!-- GCodeViewer -->
+		<input id="GCodeViewer" name="mainTabsGroup" type="radio" />
+		<label class="title" for="GCodeViewer"><i class="icon-beaker"></i>#</label>
 		<div class="content center">
 			<div class="flex">
-				<pre data-bind="text: debug"></pre>
+				<div class="workspace">
+					<canvas id="canvas" width="1000" height="1000"></canvas>
+				</div>
+				<div class="workspaceControl">
+					<div class="">
+						<span class="parameterName">speed</span><input type="number" placeholder="1" min="0" data-bind="value: gCodeViewer.playbackSpeed"/><span class="unit">x</span>
+						<br>
+						<button class="icon-play large" data-bind="click: getGCode"></button>
+					</div>
+					<div class="small">
+						based on <br><a href="http://gcode.ws/"><img src="libs/gCodeViewer/logo.png" style="height: 2em;"></a>
+					</div>
+				</div>
 			</div>
+
 		</div>
 
 		<!-- Setup -->
@@ -298,6 +317,16 @@
 				</div>
 			</div>
 		</div>
+
+		<!-- Placeholder -->
+		<input id="Placeholder" name="mainTabsGroup" type="radio" />
+		<label class="title" for="Placeholder"><i class="icon-info-circled"></i></label>
+		<div class="content center">
+			<div class="flex">
+				<pre data-bind="text: debug"></pre>
+			</div>
+		</div>
+
 	</div>
 
 	<!-- ------------------------------------------------------------------------------ -->

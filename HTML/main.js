@@ -1,5 +1,6 @@
 
 var updateInterval = 200
+var gCodeWorker = false
 
 function clone(obj) {
 	return JSON.parse(JSON.stringify(obj));
@@ -780,6 +781,88 @@ function sendFile() {
 }
 
 
+// gCodeViewer
+function processWorkerMessage(e) {
+	var data = e.data;
+	switch (data.cmd) {
+		case 'returnModel':
+			gCodeWorker.postMessage({
+					"cmd":"analyzeModel", "msg":{}
+			});
+			break;
+		case 'returnLayer':
+			GCODE.gCodeReader.processLayerFromWorker(data.msg);
+			break;
+		case 'returnMultiLayer':
+			GCODE.gCodeReader.processMultiLayerFromWorker(data.msg);
+			break;
+		case 'analyzeProgress':
+			// ignore
+			break;
+		case 'analyzeDone':
+			GCODE.gCodeReader.processAnalyzeModelDone(data.msg);
+			GCODE.renderer.setOption({
+		        colorLine: ["#800000", "#000080", "#ff0000", "#ffff00"],
+				showMoves: true,
+				showRetracts: false,
+				showLastPos: true,
+		        modelCenter: {x: 0, y: 0},
+		        moveModel: false,
+				differentiateColors: true,
+				fadeLines: true,
+				alpha: false
+			});
+			GCODE.gCodeReader.passDataToRenderer();
+
+			var layer = GCODE.renderer.debugGetModel()[0]
+			var pos = 0;
+			var len = GCODE.renderer.getLayerNumSegments(0);
+			var animationCallback = function() {
+				pos++;
+				if ( pos < len ) {
+					GCODE.renderer.render(0, 0, pos);
+					var seg = layer[pos];
+					var dx = (seg.prevX - seg.x);
+					var dy = (seg.prevY - seg.y);
+					var dist = Math.sqrt(dx*dx + dy*dy);
+					var time = dist / seg.speed * 1000000 / viewModel.gCodeViewer.playbackSpeed();
+					if (time == NaN) time = 100;
+					if (time > 5000) time = 5000;
+					if (time < 0) time = 0;
+					setTimeout(animationCallback, time);
+				} else {
+					GCODE.renderer.setOption({showLastPos: false});
+				}
+			}
+			animationCallback();
+
+			break;
+		default:
+			console.log("default msg received: " + data.cmd);
+	}
+}
+
+function getGCode() {
+	$.ajax({
+		type: 'GET',
+		url: "emulator/2018-03-13_120334.gcode",
+		dataType: 'text',
+		success: function(data){
+			data = data.split('\n');
+			GCODE.gCodeReader.init();
+			gCodeWorker.postMessage({
+				"cmd": "parseGCode",
+				"msg": {
+					gcode: data,
+					options: {
+						firstReport: 5
+					}
+				}
+			});
+		}
+	})
+}
+
 // view model data
 var viewModel = {
 	instable: false,
@@ -894,6 +977,10 @@ var viewModel = {
 		},
 		owner: this
 	}),
+	gCodeViewer: {
+		playbackSpeed: ko.observable(10),
+		currentSeg: ko.observable()
+	},
 	dialog: {
 		fullscreen: ko.observable(false),
 		itemsList: ko.observable(false),
@@ -1000,6 +1087,11 @@ function init() {
 	document.addEventListener('MSFullscreenChange', fullscreenEventHandler, false);
 	viewModel.touchMode('ontouchstart' in window || navigator.msMaxTouchPoints || window.screen.width <= 1024)
     if ( viewModel.touchMode() ) viewModel.dialog.fullscreen(true)
+
+
+	// gCodeViewer
+	gCodeWorker = new Worker('libs/gCodeViewer/Worker.js');
+	gCodeWorker.addEventListener('message', processWorkerMessage, false);
 }
 
 function isFullscreen() {

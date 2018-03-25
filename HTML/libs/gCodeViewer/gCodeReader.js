@@ -187,6 +187,10 @@ GCODE.gCodeReader = (function(){
 // ***** PUBLIC *******
     return {
 
+	    init: function(){
+            model = [];
+            z_heights = [];
+        },
         loadFile: function(reader){
 //            console.log("loadFile");
             model = [];
