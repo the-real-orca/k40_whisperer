@@ -1,3 +1,10 @@
 *.pyc
 /Thumbs.db
 /.spyproject
+/venv
+/HTML/computed
+/HTML/uploads
+/.idea
+/HTML/emulator/testcut.gcode
+/HTML/config
+/HTML/gCodeViewer-master.zip

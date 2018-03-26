@@ -1,3 +1,8 @@
 lxml
 pyusb
 pillow
+flask
+gevent
+svgutils
+numpy
+matplotlib

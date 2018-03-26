@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta name="language" content="english" />
+
+	<script> GCODE = {}; </script>
+	<script type="text/javascript" src="gCodeReader.js"></script>
+	<script type="text/javascript" src="renderer.js"></script>
+	<script type="text/javascript" src="analyzer.js"></script>
+
+</head>
+<body>
+
+<div id="wrap" class="">
+	<img src="logo.png">
+	<div>
+		<canvas id="canvas" width="650" height="620"></canvas>
+	</div>
+</div>
+<script>
+
+	var processMessage = function(e){
+		var data = e.data;
+		switch (data.cmd) {
+			case 'returnModel':
+				worker.postMessage({
+						"cmd":"analyzeModel", "msg":{}					  
+				});
+				break;
+		
+			case 'analyzeDone':
+				GCODE.gCodeReader.processAnalyzeModelDone(data.msg);
+				GCODE.gCodeReader.passDataToRenderer();
+				break;
+			case 'returnLayer':
+				GCODE.gCodeReader.processLayerFromWorker(data.msg);
+				break;
+			case 'returnMultiLayer':
+				GCODE.gCodeReader.processMultiLayerFromWorker(data.msg);
+				break;
+			case 'analyzeProgress':
+				// ignore
+				break;
+			default:
+				console.log("default msg received: " + data.cmd);
+		}
+	};
+
+
+	worker = new Worker('Worker.js');
+	worker.addEventListener('message', processMessage, false);
+
+	
+	var input = [
+		"M452	; set laser mode units to mm",
+		"G21	; set units to mm",
+		"G90	; absolute positioning",
+		"G28	; home",
+		"G0 Z1 E0	; WORKAROUND for G-Code Viewer",
+		"M83	; E1 WORKAROUND for G-Code Viewer",
+		"; polyline #0",
+		"G0 X15.00 Y-5.00",
+		"G1 X15.00 Y-5.00 E1",
+		"G1 X5.00 Y-5.00 E1",
+		"G1 X5.00 Y-15.00 E1",
+		"G1 X15.00 Y-15.00 E1",
+		"G1 X15.00 Y-5.00 E1"
+	];
+	worker.postMessage({
+		"cmd": "parseGCode",
+		"msg": {
+			gcode: input,
+			options: {
+				firstReport: 5
+			}
+		}
+	});
+	delete input;	
+	
+	
+				
+</script>
+
+
+</body>
+</html>

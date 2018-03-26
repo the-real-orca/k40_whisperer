@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta name="language" content="english" />
+
+	<!-- gCodeViewer -->
+	<script> GCODE = {}; </script>
+	<script type="text/javascript" src="libs/gCodeViewer/gCodeReader.js"></script>
+	<script type="text/javascript" src="libs/gCodeViewer/renderer.js"></script>
+	<script type="text/javascript" src="libs/gCodeViewer/analyzer.js"></script>
+
+	<!-- Zepto -->
+	<script type='text/javascript' src='libs/js/zepto.min.js'></script>
+	
+</head>
+<body>
+
+<div id="wrap" class="">
+	<img src="libs/gCodeViewer/logo.png">
+	<div>
+		<canvas id="canvas" width="650" height="620"></canvas>
+	</div>
+</div>
+<script>
+	
+	const playbackSpeed = 2;
+
+	processMessage = function(e){
+		var data = e.data;
+		switch (data.cmd) {
+			case 'returnModel':
+				worker.postMessage({
+						"cmd":"analyzeModel", "msg":{}					  
+				});
+				break;
+			case 'returnLayer':
+				GCODE.gCodeReader.processLayerFromWorker(data.msg);
+				break;
+			case 'returnMultiLayer':
+				GCODE.gCodeReader.processMultiLayerFromWorker(data.msg);
+				break;
+			case 'analyzeProgress':
+				// ignore
+				break;
+			case 'analyzeDone':
+				GCODE.gCodeReader.processAnalyzeModelDone(data.msg);
+				GCODE.renderer.setOption({
+			        colorLine: ["#800000", "#000080", "#ff0000", "#ffff00"],
+					showMoves: true,
+					showLastPos: true,
+					showRetracts: false,
+					moveModel: true,
+					differentiateColors: true,
+					renderAnalysis: true,
+					fadeLines: true,
+					alpha: false
+				});
+				GCODE.gCodeReader.passDataToRenderer();
+				var layer = GCODE.renderer.debugGetModel()[0]
+				var pos = 0;
+				var len = GCODE.renderer.getLayerNumSegments(0);
+				var animationCallback = function() {
+					pos++;
+					if ( pos < len ) {
+						GCODE.renderer.render(0, 0, pos);
+						var seg = layer[pos];
+						var dx = (seg.prevX - seg.x);
+						var dy = (seg.prevY - seg.y);
+						var dist = Math.sqrt(dx*dx + dy*dy);
+						var time = dist / seg.speed * 1000000 / playbackSpeed;
+						if (time == NaN) time = 100;
+						if (time > 5000) time = 5000;
+						if (time < 0) time = 0;
+						setTimeout(animationCallback, time);
+					} else {
+						GCODE.renderer.setOption({showLastPos: false});
+					}
+				}
+				animationCallback();
+				
+				break;
+			default:
+				console.log("default msg received: " + data.cmd);
+		}
+	};
+
+
+	worker = new Worker('libs/gCodeViewer/Worker.js');
+	worker.addEventListener('message', processMessage, false);
+
+	
+	$.ajax({
+		type: 'GET',
+		url: "emulator/2018-03-13_120334.gcode",
+		dataType: 'text',
+		success: function(data){
+			data = data.split('\n');
+			worker.postMessage({
+				"cmd": "parseGCode",
+				"msg": {
+					gcode: data,
+					options: {
+						firstReport: 5
+					}
+				}
+			});
+		}
+	})
+	
+
+
+	
+				
+</script>
+
+
+</body>
+</html>

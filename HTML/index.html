@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<!-- Picnic CSS -->
+	<link rel="stylesheet" href="libs/css/picnic.min.css">
+
+	<!-- Icons -->
+	<link rel="stylesheet" href="libs/css/laser-font.css">
+	<link rel="stylesheet" href="libs/css/animation.css">
+
+	<!-- Zepto -->
+	<script type='text/javascript' src='libs/js/zepto.min.js'></script>
+
+	<!-- Knockout.js MVVM -->
+	<script type='text/javascript' src='libs/js/knockout-3.4.2.js'></script>
+	<script type='text/javascript' src='libs/js/knockout.mapping-2.4.1.js'></script>
+
+	<!-- gCodeViewer -->
+	<script> GCODE = {}; </script>
+	<script type="text/javascript" src="libs/gCodeViewer/gCodeReader.js"></script>
+	<script type="text/javascript" src="libs/gCodeViewer/renderer.js"></script>
+	<script type="text/javascript" src="libs/gCodeViewer/analyzer.js"></script>
+
+	<!-- Tabs -->
+	<link rel="stylesheet" href="tabs.css">
+
+	<!-- Messages -->
+	<link rel="stylesheet" href="msg.css">
+	<script src="msg.js"></script>
+
+	<!-- Input Controllers -->
+	<script src="gamepad.js"></script>
+
+	<!--  -->
+	<link rel="stylesheet" href="main.css">
+	<script type='text/javascript' src='main.js'></script>
+
+</head>
+<body>
+
+	<!-- header -->
+	<div class="header">
+		<div class="title">
+			<h1 data-bind="click: getStatus"><i class="icon-hazard-laser"></i> Laser Whisperer</h1>
+		</div>
+		<div class="TODO">
+			<!-- TODO -->
+			(<span data-bind="numericValue: pos.x"></span>,<span data-bind="numericValue: pos.y"></span>)
+		</div>
+		<div class="statusLine">
+			<span class="dangerous" data-bind="css: { ok: status.laser, error: alert.laser }"><i class="icon-flash"></i></span>&nbsp;
+			<span data-bind="css: { ok: status.airAssist, error: alert.airAssist }"><i class="icon-airassist"></i><span data-bind="numericValue: status.airAssist, precision: 0" class="unit"></span><span class="unit">%</span></span>&nbsp;
+
+			<span data-bind="css: { ok: status.waterTemp, error: alert.waterTemp }"><i class="icon-thermometer"></i><span data-bind="numericValue: status.waterTemp, precision: 0" class="unit"></span><span class="unit" data-bind="text: unit.temp"></span></span>&nbsp;
+			<span data-bind="css: { ok: status.waterFlow, error: alert.waterFlow }"><i class="icon-water"></i><span data-bind="numericValue: status.waterFlow, precision: 1" class="unit"></span><span class="unit" data-bind="text: unit.flow"></span></span>&nbsp;
+
+				<span data-bind="css: { ok: status.usb, error: alert.usb }" ><i class="icon-usb"></i></span>&nbsp;
+			<span data-bind="css: { ok: status.network, error: alert.network }" ><i data-bind="css: status.networkIcon"></i></span>&nbsp;
+		</div>
+	</div>
+
+	<!-- message stack -->
+	<div class="flex">
+		<div id="stack" class="right message-stack half-700 third-1000" data-bind="template: {foreach: msgList, afterAdd: fxFadeIn, beforeRemove: fxSlideUpRemove}">
+			<article class="card message" data-bind="css: type">
+			  <header>
+				  <span data-bind="html: header"></span>
+				  <span class="close">
+					<span data-bind="visible: timeoutHandle, click: removeTimeout">
+						<span class="timeout" data-bind="style: { animationDuration: timeout+'s'}"></span>
+					</span>
+					<b data-bind="click: remove">&times;</b>
+				</span>
+			  </header>
+			  <section data-bind="html: text"></section>
+			</article>
+		</div>
+	</div>
+
+	<!-- main content -->
+	<div class="tabs side-right">
+
+		<!-- Workspace -->
+		<input id="Workspace" name="mainTabsGroup" type="radio" checked />
+		<label class="title" for="Workspace"><i class="icon-picture"></i></label>
+		<div class="content center" >
+			<div class="flex">
+				<div class="workspace">
+	<!--
+					<svg viewBox="0 0 320 200" width="100%" height="100%">
+						<path stroke="black" fill="cyan" d="M 0,0 L 320,0 L 320,200 L 0,200 z"/>
+						<path fill="red"  d="M 0,0 L 320,0 L 160,200 z"/>
+						<path stroke="black" fill="none" d="M 160,0 L 260,100 L 160,200 L 60,100 z"/>
+					</svg>
+	-->				
+					<svg data-bind="attr: {viewBox: (-workspace.margin()) +' '+ (-workspace.margin()) +' '+ (workspace.width()+workspace.margin()*2) +' '+ (workspace.height()+workspace.margin()*2) }"  width="100%" height="100%" preserveAspectRatio="xMidYMin meet">
+						<rect data-bind="attr: {width: workspace.width()+workspace.margin()*2, height: workspace.height()+workspace.margin()*2, x:-workspace.margin(), y: -workspace.margin()}" id="canvasRect" />
+
+						<rect data-bind="attr: {width: workspace.width(), height: workspace.height(), x: 0, y: 0}" id="workspaceRect" />
+						
+						<defs><clipPath id="clip"><use xlink:href="#canvasRect"/></clipPath></defs>
+		
+						<g clip-path="url(#clip)">
+							<use href="images/origin.svg#origin" data-bind="attr: {x: toX( workspace.workspaceOrigin.x ), y: toY( workspace.workspaceOrigin.y )}"></use>
+							<g data-bind="foreach: workspace.items">
+								<use data-bind="attr: {href: url()+'#root', x: workX( x ), y: workY( y )}"></use>
+							</g>
+						</g>
+					</svg>
+				</div>
+				<div class="workspaceControl">
+					<div>
+						<input id="uploadFile" name="file" type="file" onchange="change: sendFile()"></input>
+						<button class="icon-folder-open large" data-bind="click: uploadFile"></button>
+					</div>
+					<div>
+						<button class="icon-layers large" data-bind="click: ()=>{$('#dialog_itemsList').click()}, enable: workspace.items().length > 0"></button>
+					</div>
+					<div>
+						<button class="error icon-trash large" data-bind="click: workspaceClear, enable: workspace.items().length > 0"></button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Workspace Origin -->
+		<input id="Position" name="mainTabsGroup" type="radio"/>
+		<label class="title" for="Position"><i class="icon-move"></i></label>
+		<div class="content center">
+			<div class="flex">
+				<div class="moveControl">
+					<table class="move">
+						<tr>
+							<td></td><td></td><td></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginY.bind($data, 10), enable: status.usb() && !status.laser()"><i class="toUp icon-move_fast"></i></button></td>
+							<td></td><td></td><td></td>
+						</tr>
+						<tr>
+							<td></td><td>
+								<label class="indicator">
+									<input type="radio" value="top-left" name="indicator" data-bind="checked: workspace.indicator"></input>
+									<i class="button icon-top-left"></i>
+								</label>
+							</td><td></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginY.bind($data, 1), enable: status.usb() && !status.laser()"><i class="toUp icon-move_std"></i></button></td>
+							<td></td><td>
+								<label class="indicator">
+									<input type="radio" value="top-right" name="indicator" data-bind="checked: workspace.indicator"></input>
+									<i class="button icon-top-right"></i>
+								</label>
+							</td><td></td>
+						</tr>
+						<tr>
+							<td></td><td></td><td></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginY.bind($data, 0.1), enable: status.usb() && !status.laser()"><i class="toUp icon-move_slow"></i></button></td>
+							<td></td><td></td><td></td>
+						</tr>
+						<tr>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginX.bind($data, -10), enable: status.usb() && !status.laser()"><i class="toLeft icon-move_fast"></i></button></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginX.bind($data, -1), enable: status.usb() && !status.laser()"><i class="toLeft icon-move_std"></i></button></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginX.bind($data, -0.1), enable: status.usb() && !status.laser()"><i class="toLeft icon-move_slow"></i></button></td>
+							
+							<td>
+								<label class="indicator">
+									<input type="radio" value="origin" name="indicator" data-bind="checked: workspace.indicator"></input>
+									<i class="button icon-origin"></i>
+								</label>
+							</td>
+							
+							<td><button class="move" data-bind="click: moveWorkspaceOriginX.bind($data, 0.1), enable: status.usb() && !status.laser()"><i class="toRight icon-move_slow"></i></button></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginX.bind($data, 1), enable: status.usb() && !status.laser()"><i class="toRight icon-move_std"></i></button></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginX.bind($data, 10), enable: status.usb() && !status.laser()"><i class="toRight icon-move_fast"></i></button></td>
+						</tr>
+						<tr>
+							<td></td><td></td><td></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginY.bind($data, -0.1), enable: status.usb() && !status.laser()"><i class="toDown icon-move_slow"></i></button></td>
+							<td></td><td></td><td></td>
+						</tr>
+						<tr>
+							<td></td><td>
+								<label class="indicator">
+									<input type="radio" value="bottom-left" name="indicator" data-bind="checked: workspace.indicator"></input>
+									<i class="button icon-bottom-left"></i>
+								</label>
+							</td><td></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginY.bind($data, -1), enable: status.usb() && !status.laser()"><i class="toDown icon-move_std"></i></button></td>
+							<td></td><td>
+								<label class="indicator">
+									<input type="radio" value="bottom-right" name="indicator" data-bind="checked: workspace.indicator"></input>
+									<i class="button icon-bottom-right"></i>
+								</label>
+							</td><td></td>
+						</tr>
+						<tr>
+							<td></td><td></td><td></td>
+							<td><button class="move" data-bind="click: moveWorkspaceOriginY.bind($data, -10), enable: status.usb() && !status.laser()"><i class="toDown icon-move_fast"></i></button></td>
+							<td></td><td></td><td></td>
+						</tr>
+					</table>
+				</div>
+				<div class="moveSidePanel">
+					<fieldset class="positionDisplay">
+						<legend><i class="icon-origin large"></i></legend>
+						<div>
+							<b>X:</b> <input type="number" data-bind="numericValue: workspace.workspaceOrigin.x, precision: 2, enable: pos.valid"></input><span class="unit" data-bind="text: unit.pos"></span>
+						</div>
+						<div>
+							<b>Y:</b> <input type="number" data-bind="numericValue: workspace.workspaceOrigin.y, precision: 2, enable: pos.valid"></input><span class="unit" data-bind="text: unit.pos"></span>
+						</div>
+						<button data-bind="css: {success: !pos.valid()}, click: resetWorkspaceOrigin, enable: status.usb() && !status.laser()"><i class="icon-forward"></i> (0,0)</button>
+					</fieldset>
+					<fieldset class="laserControl">
+						<legend><i class="icon-attention large"></i></legend>
+						<button data-bind="click: unlock, enable: status.usb() && !status.laser()"><i class="icon-eject"></i></button>
+						<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off"></i></button>
+						<button class="error" data-bind="click: releaseLaser, visible: status.usb, enable: !status.laser()"><i class="icon-off"></i></button>
+					</fieldset>
+				</div>
+			</div>
+		</div>
+
+		<!-- Process -->
+		<input id="Process" name="mainTabsGroup" type="radio"/>
+		<label class="title" for="Process"><i class="icon-flash"></i></label>
+		<div class="content center">
+			<div class="flex">
+				<div class="profile">
+					<input class="name" input="text" placeholder="profile name" data-bind="value: profile.name" />
+					<button class="TODO icon-floppy disabled"></button>
+					<label for="dialog_profilesList" class="button icon-tasks"></label>
+				</div>
+				<div class="taskList">
+					<div data-bind="foreach: tasks">
+						<div class="taskItem">
+							<span class="index" data-bind="text: $index()+1"></span>
+							<div class="progress grow">
+								<div data-bind="style: {width: progress()+'%', backgroundColor: _.statusColor()}" >
+									<span data-bind="text: progress()+'%'" class="TODO"></span>
+								</div>
+								<label class="name" for="dialog_taskSettings" data-bind="text: name, click: ()=>{$root.selectedTask($data);return true}"></label>
+								<span class="status">
+									<span data-bind="css: _.statusIcon" class=""></span>
+								</span>
+							</div>
+
+							<button class="gray icon-ellipsis-horizontal" data-bind="click: ()=>{_.showMenu(true)}"></button>
+							<div class="popup" data-bind="css: {active: _.showMenu}">
+								<div class="overlay" data-bind="click: ()=>{_.showMenu(false)}"></div>
+								<div class="content">
+									<button class="error icon-trash" data-bind="click: ()=>{$root.tasks.remove($data); _.showMenu(false)}"></button>
+									<!-- ko if: $index() > 0 -->
+										<button class="icon-up" data-bind="click: ()=>{$root.tasks.move($index(), $index()-1); _.showMenu(false)}"></button>
+									<!-- /ko -->
+									<!-- ko if: ($index()+1) < $root.tasks().length -->
+										<button class="icon-down" data-bind="click: ()=>{$root.tasks.move($index(), $index()+1); _.showMenu(false)}"></button>
+									<!-- /ko -->
+									<!-- ko if: ($index()+1) == $root.tasks().length -->
+										<button class="icon-plus" data-bind="click: ()=>{$root.tasks.push(taskViewModel()); _.showMenu(false)}"></button>
+									<!-- /ko -->
+									<div class="vertical-ruler"></div>
+									<button class="icon-sliders" data-bind="click: ()=>{$root.selectedTask($data); $root.dialog.taskSettings(true); _.showMenu(false)}"></button>
+									<button class="icon-play" data-bind="click: ()=>{taskRun($data.id()); _.showMenu(false)}, enable: $root.status.usb && !$root.status.laser()"></button>
+									<button class="gray icon-logout" data-bind="click: ()=>{_.showMenu(false)}"></button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="taskSidePanel">
+					<button class="success" data-bind="click: taskRunAll, visible: !status.laser() && status.usb()"><i class="icon-play x-large"></i></button>
+					<button class="error" data-bind="click: stop, visible: status.laser() && status.usb()"><i class="icon-close-octagon x-large"></i></button>
+					<button class="success" data-bind="click: initLaser, visible: !status.usb()"><i class="icon-off x-large"></i></button>
+				</div>
+			</div>
+		</div>
+
+		<!-- GCodeViewer -->
+		<input id="GCodeViewer" name="mainTabsGroup" type="radio" />
+		<label class="title" for="GCodeViewer"><i class="icon-beaker"></i>#</label>
+		<div class="content center">
+			<div class="flex">
+				<div class="workspace">
+					<canvas id="canvas" width="1000" height="1000"></canvas>
+				</div>
+				<div class="workspaceControl">
+					<div class="">
+						<span class="parameterName">speed</span><input type="number" placeholder="1" min="0" data-bind="value: gCodeViewer.playbackSpeed"/><span class="unit">x</span>
+						<br>
+						<button class="icon-play large" data-bind="click: getGCode"></button>
+					</div>
+					<div class="small">
+						based on <br><a href="http://gcode.ws/"><img src="libs/gCodeViewer/logo.png" style="height: 2em;"></a>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<!-- Setup -->
+		<input id="Setup" name="mainTabsGroup" type="radio" />
+		<label class="title" for="Setup"><i class="icon-wrench"></i></label>
+		<div class="content center">
+			<div class="flex">
+				<div >
+					<span class="">Full Screen Mode</span>
+					<button class="pseudo icon-toggle-off large" data-bind="visible: !status.fullscreen(), click: ()=>{enterFullscreen(); return true}"></button>
+					<button class="pseudo icon-toggle-on large" data-bind="visible: status.fullscreen(), click: ()=>{exitFullscreen(); return true}"></button>
+				</div>
+				<div >
+					<button data-bind="click: releaseLaser" class="TODO">Reset USB</button>
+				</div>
+				<div >
+					<button data-bind="click: ()=>{location.reload(true)}" class="TODO">Reload</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Placeholder -->
+		<input id="Placeholder" name="mainTabsGroup" type="radio" />
+		<label class="title" for="Placeholder"><i class="icon-info-circled"></i></label>
+		<div class="content center">
+			<div class="flex">
+				<pre data-bind="text: debug"></pre>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- ------------------------------------------------------------------------------ -->
+	<!-- fullscreen dialog -->
+	<div class="modal">
+		<input id="dialog_fullscreen" type="checkbox" data-bind="checked: dialog.fullscreen" />
+		<label for="dialog_fullscreen" class="overlay"></label>
+		<article>
+			<header>
+				<h3>small display detected</h3>
+				<label for="dialog_fullscreen" class="close">&times;</label>
+			</header>
+			<section class="center">
+				<br>
+				<label for="dialog_fullscreen" class="button success large" data-bind="click: ()=>{enterFullscreen(); return true}">Full Screen Mode</label><br>
+				<br>
+				<label for="dialog_fullscreen" class="button">Browser Mode</label><br>
+				<br>
+			</section>
+		</article>
+	</div>
+
+	<!-- item dialog -->
+	<div class="modal">
+		<input id="dialog_itemsList" type="checkbox" data-bind="checked: dialog.itemsList"/>
+		<label for="dialog_itemsList" class="overlay"></label>
+		<article class="itemsList">
+			<header>
+				<i class="icon-layers large"></i>
+				<label for="dialog_itemsList" class="close x-large icon-logout"></label>
+			</header>
+			<section class="content">
+				<div data-bind="foreach: workspace.items">
+					<div class="workspaceItem">
+						<label class="grow">
+							<input type="checkbox" name="selected" data-bind="checked: selected"/><span class="checkable"></span>
+							<span class="index" data-bind="text: $index()+1"></span>
+							<span class="name" data-bind="text: name"></span>
+						</label>
+
+						<label for="dialog_itemSettings" class="gray button icon-sliders" data-bind="click: ()=>{return itemPrepareParams($index())}"></label>
+
+						<button class="error icon-trash" data-bind="click: ()=>{workspaceRemoveItem($data.id())}"></button>
+					</div>
+				</div>
+				<hr>
+				<div class="workspaceItem">
+					<label>
+						<input type="checkbox"  data-bind="checked: selectAllItems"/><span class="checkable"></span>
+						all / none
+					</label>
+
+					<span class="grow"></span>
+
+					<button class="icon-folder-open" data-bind="click: uploadFile"></button>
+
+					<label for="dialog_itemSettings" class="button icon-sliders" data-bind="click: ()=>{return itemPrepareParams()}"></label>
+
+					<button class="error icon-trash" data-bind="click: ()=>{workspaceRemoveItem()}"></button>
+				</div>
+			</section>
+		</article>
+	</div>
+	<div class="modal">
+		<input id="dialog_itemSettings" type="checkbox" data-bind="checked: dialog.itemsSettings"/>
+		<label for="dialog_itemSettings" class="overlay"></label>
+		<article class="item settings" data-bind="with: selectedItems">
+			<header>
+				<span class="name" data-bind="text: name" ></span>
+				<label for="dialog_itemSettings" class="close x-large icon-logout"></label>
+			</header>
+			<section class="content">
+				<div class="parameterTable" >
+					<span class="parameterName">pos</span>
+					<div data-bind="visible: showAbs()" class="TODO">
+						<div>
+							<span class="coordinate">X</span>
+							<input type="number" data-bind="numericValue: ax"></input>
+							<span class="unit" data-bind="text: $root.unit.pos"></span>
+						</div>
+
+						<div>
+							<span class="coordinate">Y</span>
+							<input type="number" data-bind="numericValue: dy"></input>
+							<span class="unit" data-bind="text: $root.unit.pos"></span>
+						</div>
+
+						<span class="spacing"/>
+						<div>
+							<input id="showAbs" type="checkbox" data-bind="checked: showAbs" />
+							<label class="toggleSwitch" for="showAbs">
+								<span class="checkable"><b>abs</b> <i class="icon-toggle-left large"></i> rel</span>
+							</label>
+						</div>
+					</div>
+					<div data-bind="visible: !showAbs()" class="TODO">
+						<div>
+							<span class="coordinate">&Delta;X</span>
+							<input type="number" data-bind="numericValue: dx"></input>
+							<span class="unit" data-bind="text: $root.unit.pos"></span>
+						</div>
+
+						<div>
+							<span class="coordinate">&Delta;Y</span>
+							<input type="number" data-bind="numericValue: dy"></input>
+							<span class="unit" data-bind="text: $root.unit.pos"></span>
+						</div>
+
+						<span class="spacing"/>
+						<div>
+							<label class="toggleSwitch" for="showAbs">
+								<span class="checkable">abs <i class="icon-toggle-right large"></i> <b>rel</b></span>
+							</label>
+						</div>
+					</div>
+
+
+					<span class="parameterName">align</span>
+					<div>
+						<button data-bind="click: alignLeftOfAxis" class="icon-align-right large"></button>
+						<button data-bind="click: alignRightOfAxis" class="icon-align-left large"></button>
+						<button data-bind="click: alignToOrigin" class="icon-origin large"></button>
+						<button data-bind="click: alignAboveOfAxis" class="icon-align-bottom large"></button>
+						<button data-bind="click: alignUnderAxis" class="icon-align-top large"></button>
+					</div>
+
+
+<!--
+					<span class="parameterName">size</span>
+					<div>
+						<input type="number"></input>
+						<span class="unit">%</span>
+					</div>
+
+					<span class="parameterName">arrange</span>
+					<div>
+						<button class="icon-resize-horizontal">/button>
+						<button class="icon-resize-vertical">/button>
+					</div>
+-->
+
+					<span class="parameterName">edit</span>
+					<div>
+						<button class="icon-rotate-left large" data-bind="click: itemsRotateSelected.bind($data,90)"></button>
+						<button class="icon-rotate-right large" data-bind="click: itemsRotateSelected.bind($data,-90)"></button>
+						<span class="spacing"></span>
+						<button class="icon-mirror-x large" data-bind="click: itemsMirrorSelected.bind($data,'X')"></button>
+						<button class="icon-mirror-y large" data-bind="click: itemsMirrorSelected.bind($data,'Y')"></button>
+					</div>
+
+					<span class="parameterName">color</span>
+					<div>
+						<label class="colorSelect" style="color: #222">
+							<input name="color" type="radio" value="black" data-bind="checked: color" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: red">
+							<input name="color" type="radio" value="red" data-bind="checked: color" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: green">
+							<input name="color" type="radio" value="green" data-bind="checked: color" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: blue">
+							<input name="color" type="radio" value="blue" data-bind="checked: color" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: orange">
+							<input name="color" type="radio" value="orange" data-bind="checked: color" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: darkcyan">
+							<input name="color" type="radio" value="darkcyan" data-bind="checked: color" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: magenta">
+							<input name="color" type="radio" value="magenta" data-bind="checked: color" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+					</div>
+
+				</div>
+			</section>
+		</article>
+	</div>
+
+	<!-- task dialog -->
+	<div class="modal">
+		<input id="dialog_profilesList" type="checkbox" data-bind="checked: dialog.profilesList"/>
+		<label for="dialog_profilesList" class="overlay"></label>
+		<article class="profilesList">
+			<header>
+				<i class="icon-tasks x-large"></i>
+				<label for="dialog_profilesList" class="close x-large icon-logout"></label>
+			</header>
+			<section class="content">
+				<div data-bind="foreach: profile.list">
+					<div class="profileItem">
+						<label class="name grow" data-bind="text: name, click: setActiveProfile.bind($data,id)"></label>
+
+						<label for="dialog_itemSettings" class="button icon-folder-open" data-bind="click: setActiveProfile.bind($data,id)"></label>
+
+						<button class="error icon-trash" data-bind="click: removeProfile.bind($data,id)"></button>
+					</div>
+				</div>
+				<hr>
+				<div class="profileItem">
+					<span class="grow"></span>
+
+					<button class="icon-plus" data-bind="click: setActiveProfile.bind($data,null)"></button>
+				</div>
+			</section>
+		</article>
+	</div>
+	<div class="modal">
+		<input id="dialog_taskSettings" type="checkbox" data-bind="checked: dialog.taskSettings"/>
+		<label for="dialog_taskSettings" class="overlay"></label>
+		<article class="taskSettings" data-bind="with: selectedTask">
+			<header>
+				<input class="name" input="text" placeholder="task name" data-bind="value: name" />
+				<label for="dialog_taskSettings" class="close x-large icon-logout"></label>
+			</header>
+			<section class="content">
+				<div class="parameterTable" >
+					<span class="parameterName">color</span>
+					<div>
+						<label class="colorSelect" style="color: #222">
+							<input name="color" type="checkbox" value="black" data-bind="checked: colors" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: red">
+							<input name="color" type="checkbox" value="red" data-bind="checked: colors" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: green">
+							<input name="color" type="checkbox" value="green" data-bind="checked: colors" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: blue">
+							<input name="color" type="checkbox" value="blue" data-bind="checked: colors" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: orange">
+							<input name="color" type="checkbox" value="orange" data-bind="checked: colors" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: darkcyan">
+							<input name="color" type="checkbox" value="darkcyan" data-bind="checked: colors" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+						<label class="colorSelect" style="color: magenta">
+							<input name="color" type="checkbox" value="magenta" data-bind="checked: colors" />
+							<span class="checkable"><i class="icon-brush large"></i></span>
+						</label>
+					</div>
+
+					<span class="parameterName">type</span>
+					<div>
+						<label class="typeSelect" >
+							<input name="typeSelect" type="radio" value="vector"  data-bind="checked: type"/>
+							<span class="checkable"><i class="icon-lines large"></i></span>
+						</label>
+						<label class="typeSelect" >
+							<input name="typeSelect" type="radio" value="raster" data-bind="checked: type"/>
+							<span class="checkable"><i class="icon-dots large"></i></span>
+						</label>
+					</div>
+
+					<span class="parameterName">speed</span>
+					<div>
+						<input type="number" placeholder="10" min="0" data-bind="value: speed"/> <span class="unit" data-bind="text: $root.unit.speed"></span>
+
+						<span class="spacing"/>
+						<div>
+							<span class="parameterName">repeat</span>
+							<div>
+								<input type="number" placeholder="1" min="1" data-bind="value: repeat"/> <i class="unit icon-retweet large"></i>
+							</div>
+						</div>
+					</div>
+
+<!-- TODO
+					<span class="parameterName">message</span>
+					<div>
+						<label>
+							<input type="checkbox" />
+							<span class="checkable"><i class="icon-bell-alt"></i></span>
+						</label>
+						<textarea class="" placeholder="task message ..."></textarea>
+					</div>
+-->
+				</div>
+			</section>
+		</article>
+	</div>
+
+
+	<!-- wait overlay -->
+	<div class="modal">
+		<input id="wait_overlay" type="checkbox" data-bind="checked: dialog.wait" />
+		<div class="overlay"></div>
+		<div class="wait">
+			<div> <i class="icon-spin animate-spin"></i> </div>
+			<div data-bind="html: dialog.wait, visible: dialog.wait()!==true"></div>
+		</div>
+	</div>
+	<script type='text/javascript'>
+		init();
+	</script>
+</body>
+</html>

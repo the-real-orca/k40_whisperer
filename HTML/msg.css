@@ -1,0 +1,157 @@
+.message {
+	background: #e0e0e0;
+	padding: .3em;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	color: #505050;
+	border-radius: .2em;
+	box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.75) inset, .3em .3em .2em rgba(100, 100, 100, 0.4);
+}
+
+.message.prime {
+  background: #0074d9;
+  color: #1054a9;
+}	
+.message.success {
+  background: #2ecc40;
+  color: #108c20;
+}
+.message.warning {
+  background: #ff851b;
+  color: #cf651b;
+}
+.message.error {
+  background: #ff4136;
+  color: #af1116;
+}
+.message > header {
+	font-style: bold;
+	padding: .1em .5em;
+	border: 0;
+}	
+.message > header > .close {
+	top: 0;
+	right: 0;
+}
+.message section {
+	font-size: 80%;
+	padding: .1em .8em;
+}
+
+.message-stack {
+	position: fixed;
+	top: 0;
+	border-radius: 0.3em;
+	padding: 0.1em 0.6em;
+	z-index: 99;
+}
+
+@media all and (max-width: 700px) {
+	.message-stack {
+		position: static;
+	}
+}
+@media print {
+	.message-stack {
+		position: static;
+	}
+}
+
+@keyframes slideLeft {
+	0% {width: 5em; content: "\025CB";}
+	100% {width: 0; content: "\025CF";}
+}
+
+.fadeIn {
+	animation: fadeIn 1s;
+}
+@keyframes fadeIn {
+	from {opacity: 0;}
+	to {opacity: 1;}
+}
+
+.fadeOut {
+	opacity: 0;
+	transition: opacity 0.4s;
+}
+
+.slideUp {
+	overflow: hidden;
+	animation: slideUp 0.3s linear both;
+}
+@keyframes slideUp {
+	0% {max-height: 80vh;}
+	100% {max-height: 0; margin-top: 0; margin-bottom: 0;}
+}
+
+.slideDown {
+	overflow: hidden;
+	animation: slideDown 0.3s linear both;
+}
+@keyframes slideDown {
+	0% {max-height: 0; margin-top: 0; margin-bottom: 0;}
+	99% {max-height: 80vh;}
+	100% {max-height: initial;}
+}
+
+.timeout {
+    display: inline-block;
+    position: relative;
+    height: 1em;
+    width: 0.5em;
+    margin-left: 0.5em;
+    overflow: visible;
+    animation: jump 10s linear forwards;
+    z-index: 0;
+    border-color: #A0A0A0;
+    border-width: 0;
+    border-style: none;
+}
+
+.timeout:before {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    content: '';
+    border: inherit;
+    border-radius: 100%;
+    border-right-width: .5em;
+    border-style: solid;
+    margin-left: -0.5em;
+    animation: inherit;
+}
+
+.timeout:after {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    content: '';
+    border: inherit;
+    border-radius: 100%;
+    border-left-width: .5em;
+    margin-left: -0.5em;
+    border-style: solid;
+    animation: inherit;
+    animation-name: rotate;
+    animation-iteration-count: infinite;
+}
+
+@keyframes rotate {
+	0% {
+		transform: rotate(360deg);
+	}
+	100% {
+		transform: rotate(0deg);
+	}
+}
+
+@keyframes jump {
+	0% {
+		clip: unset;
+		z-index: 0;
+	}
+	100% {
+		z-index: 1;
+	    border-style: none;
+		overflow: hidden;
+	}
+}

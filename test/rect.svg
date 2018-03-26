@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='ASCII' standalone='yes'?>
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" version="1.1" width="40.2mm" viewBox="0 0 10 10" height="20.2mm">
+  <g id="root">
+    <polyline fill="none" points="0,0 10,0, 10,10, 0,10 0,0" stroke="black" stroke-linecap="square" stroke-width="0.2"/>
+    <polyline fill="red" points="0,0 3,0, 0,3 0,0" stroke="red" stroke-linecap="square" stroke-width="0.2"/>
+  </g>
+</svg>
