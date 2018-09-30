@@ -17,7 +17,7 @@
 <body>
 
 <div id="wrap" class="">
-	<img src="libs/gCodeViewer/logo.png">
+	<!-- <img src="libs/gCodeViewer/logo.png"> -->
 	<div>
 		<canvas id="canvas" width="650" height="620"></canvas>
 	</div>
@@ -26,13 +26,15 @@
 	
 	const playbackSpeed = 2;
 
+canvas = document.getElementById('canvas');
+ctx = canvas.getContext('2d'); // TODO
+
 	processMessage = function(e){
 		var data = e.data;
+console.log(data);  // TODO
 		switch (data.cmd) {
 			case 'returnModel':
-				worker.postMessage({
-						"cmd":"analyzeModel", "msg":{}					  
-				});
+				worker.postMessage({"cmd":"analyzeModel", "msg":{} });
 				break;
 			case 'returnLayer':
 				GCODE.gCodeReader.processLayerFromWorker(data.msg);
@@ -50,21 +52,24 @@
 					showMoves: true,
 					showLastPos: true,
 					showRetracts: false,
-					moveModel: true,
+					moveModel: false,
 					differentiateColors: true,
-					renderAnalysis: true,
+					renderAnalysis: false,
 					fadeLines: true,
-					alpha: false
+					alpha: false,
+					bed: {x: 200, y: 100},
+					bedOffset: {x: 0, y: -100}
 				});
+console.log(GCODE.renderer.getOptions());  // TODO
 				GCODE.gCodeReader.passDataToRenderer();
 				var layer = GCODE.renderer.debugGetModel()[0]
-				var pos = 0;
+				var progress = 0;
 				var len = GCODE.renderer.getLayerNumSegments(0);
 				var animationCallback = function() {
-					pos++;
-					if ( pos < len ) {
-						GCODE.renderer.render(0, 0, pos);
-						var seg = layer[pos];
+					progress++;
+					if ( progress < len ) {
+						GCODE.renderer.render(0, 0, progress);
+						var seg = layer[progress];
 						var dx = (seg.prevX - seg.x);
 						var dy = (seg.prevY - seg.y);
 						var dist = Math.sqrt(dx*dx + dy*dy);
@@ -78,10 +83,10 @@
 					}
 				}
 				animationCallback();
-				
+
 				break;
 			default:
-				console.log("default msg received: " + data.cmd);
+				console.log("unknown msg received: " + data.cmd);
 		}
 	};
 
@@ -89,10 +94,9 @@
 	worker = new Worker('libs/gCodeViewer/Worker.js');
 	worker.addEventListener('message', processMessage, false);
 
-	
 	$.ajax({
 		type: 'GET',
-		url: "emulator/2018-03-13_120334.gcode",
+		url: "emulator/2018-09-30_182417.gcode",
 		dataType: 'text',
 		success: function(data){
 			data = data.split('\n');

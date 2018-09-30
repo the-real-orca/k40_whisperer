@@ -577,7 +577,6 @@ function updateStatus(received) {
 				viewModel.lastMessageTime = msg.timestamp
 			}
 		}
-
 	}
 
 	// update workspace
@@ -644,6 +643,17 @@ function updateStatus(received) {
 		}
 
 		viewModel.dirty.workspace.reset()
+	}
+
+	// update jobs
+	if ( received.jobs instanceof Array )  {
+		for ( var i = received.jobs.length - 1; i >= 0; i-- ) {
+			var job = received.jobs[i];
+			if ( job.status == "finished" ) {
+				viewModel.gCodeViewer.filename(job.name);
+				break;
+			}
+		}
 	}
 
 	// update profiles / tasks
@@ -806,11 +816,12 @@ function processWorkerMessage(e) {
 				showMoves: true,
 				showRetracts: false,
 				showLastPos: true,
-		        modelCenter: {x: 0, y: 0},
 		        moveModel: false,
 				differentiateColors: true,
 				fadeLines: true,
-				alpha: false
+				alpha: false,
+				bed: {x: 200, y: 100},
+				bedOffset: {x: 0, y: -100}
 			});
 			GCODE.gCodeReader.passDataToRenderer();
 
@@ -845,7 +856,7 @@ function processWorkerMessage(e) {
 function getGCode() {
 	$.ajax({
 		type: 'GET',
-		url: "emulator/2018-03-13_120334.gcode",
+		url: "emulator/" + viewModel.gCodeViewer.filename(),
 		dataType: 'text',
 		success: function(data){
 			data = data.split('\n');
@@ -978,6 +989,7 @@ var viewModel = {
 		owner: this
 	}),
 	gCodeViewer: {
+		filename: ko.observable(""),
 		playbackSpeed: ko.observable(10),
 		currentSeg: ko.observable()
 	},

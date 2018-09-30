@@ -16,6 +16,7 @@ class LASER_CLASS:
 		self.active = False
 		self.progress = 0
 		self.mode = ""
+		self.jobList = []
 
 	def __del__(self):
 		self.release()
@@ -94,14 +95,14 @@ class LASER_CLASS:
 		
 	def processVector(self, polylines, feedRate, originX = 0, originY = 0, repeat = 1):
 		if not( self.isInit() ) or self.active: return
+		self.active = True
+		filename = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S.gcode")
 		try:
 			logging.info("LASER_CLASS processVector")
-			self.active = True
 			self.progress = 0
 			self.mode = "prepare"
 			path = "HTML/emulator"
 			mkpath(path)
-			filename = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S.gcode")
 			path = os.path.join(path, filename)
 
 			# save G-code
@@ -154,6 +155,7 @@ class LASER_CLASS:
 				logging.error("LASER_CLASS processVector ERROR: " + str(e))
 		finally:
 			self.active = False
+			self.jobList.append({'name': filename, 'status': self.mode, 'timestamp': int(time.time() * 1000)})
 
 
 

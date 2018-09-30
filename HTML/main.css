@@ -399,6 +399,24 @@ svg #workspaceRect {
 	margin-top: 4em;
 }
 
+
+.gCode {
+	padding: 1em;
+	width: calc(100% - 20em);
+	height: 90vh;
+}
+.gCodeControl {
+	padding: 1em;
+	padding-left: 0;
+	width: 20em;
+}
+.gCodeControl > *:not(:first-child) {
+	margin-top: 2em;
+}
+.gCodeControl > fieldset > div {
+	padding: 0.5em;
+}
+
 .small {
 	font-size: 75% !important;
 }

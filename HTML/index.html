@@ -282,15 +282,21 @@
 		<label class="title" for="GCodeViewer"><i class="icon-beaker"></i>#</label>
 		<div class="content center">
 			<div class="flex">
-				<div class="workspace">
-					<canvas id="canvas" width="1000" height="1000"></canvas>
+				<div class="gCode">
+					<canvas id="canvas" width="800" height="600"></canvas>
 				</div>
-				<div class="workspaceControl">
-					<div class="">
-						<span class="parameterName">speed</span><input type="number" placeholder="1" min="0" data-bind="value: gCodeViewer.playbackSpeed"/><span class="unit">x</span>
-						<br>
-						<button class="icon-play large" data-bind="click: getGCode"></button>
-					</div>
+				<div class="gCodeControl">
+					<fieldset class="">
+						<div>
+							<span class="parameterName">file</span><input type="text" data-bind="value: gCodeViewer.filename"/>
+						</div>
+						<div>
+							<span class="parameterName">speed</span><input type="number" placeholder="1" min="0" data-bind="value: gCodeViewer.playbackSpeed"/><span class="unit">x</span>
+						</div>
+						<div>
+							<button class="icon-play large" data-bind="click: getGCode"></button>
+						</div>
+					</fieldset>
 					<div class="small">
 						based on <br><a href="http://gcode.ws/"><img src="libs/gCodeViewer/logo.png" style="height: 2em;"></a>
 					</div>

@@ -75,6 +75,7 @@ def getStatus():
 			"x": laser.x,
 			"y": laser.y
 		},
+		"jobs": laser.jobList,
 		"workspace": workspace.toJson(),
 		"profile": taskmanager.toJson()
 	}
