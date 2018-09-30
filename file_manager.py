@@ -1,7 +1,7 @@
 import os
 from distutils.dir_util import mkpath
 import re
-from dxf import DXF_CLASS
+from libs.k40_whisperer.dxf import DXF_CLASS
 import svgutils.transform as sg
 from lxml import etree
 import design_utils as design

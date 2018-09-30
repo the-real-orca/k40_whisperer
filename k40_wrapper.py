@@ -28,8 +28,8 @@ import messages as msg
 
 ##############################################################################
 
-from nano_library import K40_CLASS
-from egv import egv
+from libs.k40_whisperer.nano_library import K40_CLASS
+from libs.k40_whisperer.egv import egv
 
 # [255, 206, 111, 8, 18, 0] -> busy / idle ?
 # [255, 236, 111, 8, 2, 0] -> finished processing buffer
