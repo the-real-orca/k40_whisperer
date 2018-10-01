@@ -109,6 +109,7 @@ class SVG_READER(inkex.Effect):
         self.inscape_exe_list.append("C:\\Program Files (x86)\\Inkscape\\inkscape.exe")
         self.inscape_exe_list.append("/usr/bin/inkscape")
         self.inscape_exe_list.append("/usr/local/bin/inkscape")
+        self.inscape_exe_list.append("/Applications/Inkscape.app/Contents/Resources/bin/inkscape")
         self.inscape_exe = None
         self.lines =[]
         self.Cut_Type = {}
@@ -336,13 +337,17 @@ class SVG_READER(inkex.Effect):
             elif (node.tag == inkex.addNS('polygon','svg')) or (node.tag == inkex.addNS('polyline','svg')):
                 points = node.get('points')
                 if not points:
-                    return  
+                    return
+               
+                points = points.replace(',', ' ')
+                while points.find('  ') > -1:
+                    points = points.replace('  ', ' ')
+                    
                 points = points.strip().split(" ")
-                points = map(lambda x: x.split(","), points)
                 d = "M "
-                for point in points:
-                    x = float(point[0])
-                    y = float(point[1])
+                for i in range(0,len(points),2):
+                    x = float(points[i])
+                    y = float(points[i+1])
                     d = d + "%f,%f " %(x,y)
 
                 #Close the loop if it is a ploygon
