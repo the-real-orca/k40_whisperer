@@ -270,10 +270,10 @@ class LASER_CLASS:
 			for loop, line in enumerate(polylines, start=1):
 				if not(line): continue
 				points = line.getPoints()
-				x = np.zeros((len(points), 3))
-				x[:,0:2] = points
-				x[:,2] = loop
-				ecoords.extend(x.tolist())
+				e = np.zeros((len(points), 3))
+				e[:,0:2] = points
+				e[:,2] = loop
+				ecoords.extend(e.tolist())
 				if self._stop_flag[0]:
 					raise RuntimeError("stopped")
 				idle()
@@ -283,6 +283,7 @@ class LASER_CLASS:
 
 	# TODO check movement area
 
+	
 			# generate data for K40 controller board
 			data = []
 			egv_inst = egv(target=lambda s:data.append(s))
@@ -299,6 +300,8 @@ class LASER_CLASS:
 				update_gui=self._updateCallback,
 				stop_calc=self._stop_flag
 			)
+
+
 			if self._stop_flag[0]:
 				raise  RuntimeError("stopped")
 			idle()
@@ -322,7 +325,7 @@ class LASER_CLASS:
 				self._waitWhileBussy()
 				logging.debug("buffer empty")
 				# decrease repeat counter
-				repeat = 0 # TODOint(repeat) - 1
+				repeat = 0 # TODO int(repeat) - 1
 
 			self.progress = 100
 			self.mode = "finished"
@@ -340,5 +343,6 @@ class LASER_CLASS:
 
 
 	def processRaster(self, raster, feedRate, originX = 0, originY = 0, repeat = 1):
+# TODO
 		return
 
