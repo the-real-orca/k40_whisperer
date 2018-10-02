@@ -31,6 +31,9 @@ class Polyline:
 	def __bool__(self):
 		return len(self._points) > 0
 
+	def equals(self, other):
+		return np.array_equal(self._points, other.getPoints() )
+
 	def update(self):
 		pass
 
@@ -120,12 +123,15 @@ class Drawing:
 		self.id = int(time.time()*10)
 		self.name = name
 		self.sortIndex = None
+		self.polylines = []
 		if len(polylines) > 0:
 			for line in polylines:
 				logging.debug("drawing.line: " + str(line))
-				if not(isinstance(line, Polyline)):
+				if isinstance(line, list) or isinstance(line, np.ndarray):
+					line = Polyline(line)
+				elif not (isinstance(line, Polyline)):
 					raise Exception("TYPE ERROR should be: Polyline, is: " + line.__class__.__name__)
-		self.polylines = polylines
+				self.polylines.append(line)
 		self.position = position
 		self._strokeWidth = 0.4
 		self.update()
@@ -207,21 +213,21 @@ class Drawing:
 				connectedEndEnd = equal(pointsA[-1], pointsB[-1])	# compare x,y end point with end point of segments
 				if (connectedStartStart or connectedStartEnd or connectedEndStart or connectedEndEnd) \
 					and (a.color == b.color or ignoreColor):
-					if connectedStartStart:
-						a.reverse()
-						pointsA = a.getPoints()
-					if connectedStartEnd:
-						a.reverse()
-						pointsA = a.getPoints()
+					if connectedEndStart:
+						# just connect, nothing else to do
+						pass
+					elif connectedEndEnd:
 						b.reverse()
-						pointsB = b.getPoints()
-					if connectedEndEnd:
+					elif connectedStartStart:
+						a.reverse()
+					elif connectedStartEnd:
+						a.reverse()
 						b.reverse()
-						pointsB = b.getPoints()
 
 					# connect segments
 					a.append(b)
-					
+					pointsA = a.getPoints()
+
 					# remove added segment from path and re-adjust indices
 					self.polylines.pop(j)
 					if j < i: i -= 1
