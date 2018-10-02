@@ -1,4 +1,4 @@
-import design_utils as design
+import drawing_utils
 
 import time
 import logging
@@ -11,7 +11,7 @@ class Task:
 	VECTOR = "vector"
 	RASTER = "raster"
 
-	def __init__(self, id, name="", colors=[design.BLACK], speed=100, intensity=0, type=VECTOR, repeat=1):
+	def __init__(self, id, name="", colors=[drawing_utils.BLACK], speed=100, intensity=0, type=VECTOR, repeat=1):
 		self.id = id
 		self.name = name
 		self.colors = colors
@@ -33,7 +33,7 @@ class Profile:
 	def setTasks(self, tasks):
 		self.tasks = []
 		for task in tasks:
-			self.tasks.append(Task(id=task['id'], name=task.get('name', ""), colors=task.get('colors', [design.BLACK]), speed=task.get('speed', 0), type=task.get('type', None),
+			self.tasks.append(Task(id=task['id'], name=task.get('name', ""), colors=task.get('colors', [drawing_utils.BLACK]), speed=task.get('speed', 0), type=task.get('type', None),
 		                              repeat=task.get('repeat', 1)))
 
 	def toJson(self):
@@ -191,7 +191,7 @@ class TaskManager:
 
 			# connect segmented polylines and reorder from inner to outer
 			logging.debug("TaskManager optimize polylines: " + str(polylines))
-			draw = design.Drawing(polylines, name=task.name)
+			draw = drawing_utils.Drawing(polylines, name=task.name)
 			draw.optimize(ignoreColor=True)
 
 			# to laser

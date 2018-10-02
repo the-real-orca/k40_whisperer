@@ -1,0 +1,53 @@
+@startuml
+
+package drawing_utils {
+	class Drawing {
+		name
+		polylines
+		+optimize()
+		-combineLines()
+		-reorderInnerToOuter()
+	}
+
+	class Polyline {
+		color
+		points
+		+contains(polyline)
+	}
+
+	Drawing *-- "many" Polyline
+}
+
+
+package file_manager {
+	class FileManager {
+		rootPath
+		webRootPath
+		+open(path)
+		-openDXF(path)
+	}
+}
+
+
+package laser_... {
+	interface Laser {
+		+init(endstopX = 0, endstopY = 0)
+		+release()
+		+isInit()
+		+enable()
+		+unlock()
+		+isActive()
+		+home()
+		+move(dx, dy)
+		+moveTo(x, y)
+		+stop()
+		+processVector(polylines, feedRate, originX = 0, originY = 0, repeat = 1)
+		+processRaster(raster, feedRate, originX = 0, originY = 0, repeat = 1)
+	}
+}
+
+
+@enduml
+
+
+

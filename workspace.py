@@ -1,5 +1,5 @@
 import re
-import design_utils as design
+import drawing_utils
 import time
 import logging
 
@@ -163,7 +163,7 @@ class Workspace:
 			if len(set(colors)) == 1:
 				itemJson['color'] = item.polylines[0].color
 			else:
-				itemJson['color'] = design.COLOR_MIXED
+				itemJson['color'] = drawing_utils.COLOR_MIXED
 			json["items"].append(itemJson)
 
 		return json
@@ -187,7 +187,7 @@ class Workspace:
 			
 		# color
 		color = params.get('color', None)
-		if color and color != design.COLOR_MIXED:
+		if color and color != drawing_utils.COLOR_MIXED:
 			for line in drawing.polylines:
 				if line.color != color:
 					line.color = color

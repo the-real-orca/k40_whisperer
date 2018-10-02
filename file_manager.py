@@ -4,7 +4,7 @@ import re
 from libs.k40_whisperer.dxf import DXF_CLASS
 import svgutils.transform as sg
 from lxml import etree
-import design_utils as design
+import drawing_utils
 import logging
 
 class FileManager:
@@ -19,8 +19,8 @@ class FileManager:
 		dxf_import=DXF_CLASS()		
 		try:
 			with open(path) as fd:
-				dxf_import.GET_DXF_DATA(fd, tol_deg=2)
-#				dxf_import.GET_DXF_DATA(fd, tol_deg=1) #TODO
+				dxf_import.GET_DXF_DATA(fd, lin_tol=.01)
+#				dxf_import.GET_DXF_DATA(fd, lin_tol=.001) #TODO
 		except StandardError as e:
 			logging.error("DXF Load Failed: " + str(e))
 			return False
@@ -52,12 +52,12 @@ class FileManager:
 			logging.warning("DXF Import: unknown unit: " + str(dxf_units))
 			return False
 
-		color=design.RED
-		polylines = design.makePolylines(dxf_lines, scale=dxf_scale, color=color)
+		color=drawing_utils.RED
+		polylines = drawing_utils.makePolylines(dxf_lines, scale=dxf_scale, color=color)
 
 		# create drawings object
 		name = os.path.basename(path).replace("_", " ")
-		drawing = design.Drawing(polylines, name=name)
+		drawing = drawing_utils.Drawing(polylines, name=name)
 		# optimice drawing object
 		drawing.combineLines()
 

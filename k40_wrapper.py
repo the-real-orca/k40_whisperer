@@ -39,13 +39,13 @@ from libs.k40_whisperer.egv import egv
 def idle():
 	time.sleep(0.1)
 
-class LASER_CLASS:
-	def __init__(self, board_name="LASER-M2"):
+class Laser:
+	def __init__(self, endstopX = 0, endstopY = 0, board_name="LASER-M2"):
 		self.unit = ""
 		self.scale = 0
 		self.x = False
 		self.y = False
-		self.endstopPos = [0,0]
+		self.endstopPos = [endstopX, endstopY]
 		self.active = False
 		self.repeat = 0
 		self.mode = ""
@@ -86,10 +86,6 @@ class LASER_CLASS:
 		time.sleep(1)
 		self.home()
 		msg.send('success', "K40 Laser connected")
-
-	def setEndstopPos(self, endstopPos):
-		self.endstopPos = endstopPos
-
 
 	def isInit(self):
 		return ( self.nano.dev != None )

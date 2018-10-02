@@ -1,5 +1,5 @@
 from task_manager import Profile, Task
-import design_utils as design
+import drawing_utils
 from distutils.dir_util import mkpath
 import json as json_tools
 import logging
@@ -29,13 +29,13 @@ config = {
 				'id': "sample",
 				'name': "sample profile",
 				'tasks': [
-					{'id': "engrave", 'name': "engrave", 'colors': [design.BLUE], 'speed': 30, 'type': Task.VECTOR},
-					{'id': "cut", 'name': "cut", 'colors': [design.BLACK, design.RED], 'speed': 10, 'type': Task.VECTOR, 'repeat': 1}
+					{'id': "engrave", 'name': "engrave", 'colors': [drawing_utils.BLUE], 'speed': 30, 'type': Task.VECTOR},
+					{'id': "cut", 'name': "cut", 'colors': [drawing_utils.BLACK, drawing_utils.RED], 'speed': 10, 'type': Task.VECTOR, 'repeat': 1}
 				]
 			}
 		],
 		'laser': {
-					'endstopPos': [0,5],
+					'endstopPos': [0, -5],
 #					'type': k40_wrapper		# K40 China Laser
 					'type': laser_emulator	# Simulated Laser for Testing
 				},
@@ -54,8 +54,8 @@ config = {
 }
 
 def configLaser():
-	laser = config['laser']['type'].LASER_CLASS()
-	laser.setEndstopPos(config['laser']['endstopPos'])
+	endstop = config['laser']['endstopPos']
+	laser = config['laser']['type'].Laser(endstop[0], endstop[1])
 	return laser
 		
 def configFileManager(filemanager):

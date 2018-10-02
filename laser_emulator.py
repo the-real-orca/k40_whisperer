@@ -8,8 +8,8 @@ import messages as msg
 def idle():
 	time.sleep(0.1)
 
-class LASER_CLASS:
-	def __init__(self):
+class Laser:
+	def __init__(self, endstopX = 0, endstopY = 0):
 		self.x = False
 		self.y = False
 		self._init = False
@@ -27,7 +27,8 @@ class LASER_CLASS:
 		msg.send('success', "Laser Emulator connected")
 		self._init = True
 
-	def setEndstopPos(self, endstopPos):
+	""" set endstop position in laser coordinates """
+	def setEndstopPos(self, x, y):
 		pass
 
 	def isInit(self):
