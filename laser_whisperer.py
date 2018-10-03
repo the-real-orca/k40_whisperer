@@ -22,6 +22,7 @@ logConsole.setFormatter(format)
 logConsole.setLevel(logging.INFO)
 logging.getLogger('').addHandler(logConsole)
 # create file handler
+mkpath(COMPUTED_FOLDER)
 logFile = logging.FileHandler(COMPUTED_FOLDER + "/laser_whisperer.log")
 logFile.setFormatter(format)
 logFile.setLevel(logging.DEBUG)
