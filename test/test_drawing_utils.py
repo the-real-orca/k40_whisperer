@@ -10,13 +10,13 @@ class Test_combineLines(unittest.TestCase):
 	def tearDown(self):
 		drawing = drawing_utils.Drawing(self.lines)
 		drawing.combineLines()
-		self.assertEqual( 1,  len(drawing.polylines))
+		self.assertEqual( 1,  len(drawing.polylines) )
 		computed = drawing.polylines[0]
 		expected = drawing_utils.Polyline(self.expected)
 		self.assertTrue( expected.equals(computed),
 		                 self._testMethodName +
-		                 "\nExpected: " + np.array_str(expected.getPoints()) +
-		                 "\nActual: " + np.array_str(computed.getPoints()) )
+		                 "\nExpected: " + str(expected.encode()) +
+		                 "\nActual: " + str(computed.encode()) )
 
 	def test_end_to_start(self):
 		self.lines = [ [[0,0], [1,0], [2,0]],
@@ -70,15 +70,25 @@ class Test_reorderInnerToOuter(unittest.TestCase):
 		for i, computed in enumerate(drawing.polylines):
 			expected = drawing_utils.Polyline(self.expected[i])
 			self.assertTrue( expected.equals(computed),
-			                 self._testMethodName +
-			                 "\nExpected: " + np.array_str(expected.getPoints()) +
-			                 "\nActual: " + np.array_str(computed.getPoints()) )
+			                 self._testMethodName + " #" + str(i) +
+			                 "\nExpected: " + str(expected.encode()) +
+			                 "\nActual: " + str(computed.encode()) )
 
 	def test_simple_square(self):
 		self.lines = [ [[-2, -2], [2, -2], [2, 2], [-2, 2], [-2, -2]],
 		               [[-1,-1], [1, -1], [1, 1], [-1,1], [-1,-1]] ]
 		self.expected = [ [[-1,-1], [1, -1], [1, 1], [-1,1], [-1,-1]],
 		               [[-2, -2], [2, -2], [2, 2], [-2, 2], [-2, -2]] ]
+
+	def test_hash_square(self):
+		self.lines = [ [[-10, 2], [10, 2]], [[-10, -2], [10, -2]],
+		               [[-2, -10], [-2, 10]], [[2, -10], [2, 10]],
+		               [[-1,-1], [1, -1], [1, 1], [-1,1], [-1,-1]] ]
+		self.expected = [ [[-1,-1], [1, -1], [1, 1], [-1,1], [-1,-1]],
+		                  [[-10, 2], [10, 2]], [[-10, -2], [10, -2]],
+		                  [[-2, -10], [-2, 10]], [[2, -10], [2, 10]] ]
+
+
 
 
 if __name__ == '__main__':

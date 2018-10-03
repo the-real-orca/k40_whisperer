@@ -2,7 +2,7 @@ import time
 import numpy as np
 import matplotlib.path as path
 import logging
-
+import json
 
 BLACK = "black"      #(0, 0, 0)
 WHITE = "white"      #(255, 255, 255)
@@ -50,10 +50,10 @@ class Polyline:
 		return Polyline(self._points + np.array(off), self.color)
 
 	def encode(self):
-		return {
+		return json.dumps({
 			"color": self.color,
-			"points": self.getPoints()
-			}
+			"points": self._points.tolist()
+			})
 
 	def appendPolyline(self, polyline):
 		points = polyline.getPoints()
