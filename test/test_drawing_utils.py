@@ -58,5 +58,28 @@ class Test_combineLines(unittest.TestCase):
 		               [[0,1], [0,0]] ]
 		self.expected = [[0,0], [1, 0], [1, 1], [0,1], [0,0]]
 
+class Test_reorderInnerToOuter(unittest.TestCase):
+	def setUp(self):
+		self.lines = []
+		self.expected = []
+
+	def tearDown(self):
+		drawing = drawing_utils.Drawing(self.lines)
+		drawing.reorderInnerToOuter()
+		self.assertEqual( len(self.expected),  len(drawing.polylines))
+		for i, computed in enumerate(drawing.polylines):
+			expected = drawing_utils.Polyline(self.expected[i])
+			self.assertTrue( expected.equals(computed),
+			                 self._testMethodName +
+			                 "\nExpected: " + np.array_str(expected.getPoints()) +
+			                 "\nActual: " + np.array_str(computed.getPoints()) )
+
+	def test_simple_square(self):
+		self.lines = [ [[-2, -2], [2, -2], [2, 2], [-2, 2], [-2, -2]],
+		               [[-1,-1], [1, -1], [1, 1], [-1,1], [-1,-1]] ]
+		self.expected = [ [[-1,-1], [1, -1], [1, 1], [-1,1], [-1,-1]],
+		               [[-2, -2], [2, -2], [2, 2], [-2, 2], [-2, -2]] ]
+
+
 if __name__ == '__main__':
 	unittest.main();
