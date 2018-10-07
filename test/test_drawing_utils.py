@@ -51,6 +51,14 @@ class Test_combineLines(unittest.TestCase):
 		               [[1,0], [2,0]] ]
 		self.expected = [[3,0], [2,0], [1,0], [0,0]]
 
+	def test_sparse_reordered(self):
+		self.lines = [ [[0,0], [1,0]],
+		               [[2,0], [3,0]],
+		               [[4,0], [5,0]],
+		               [[2,0], [1,0]],
+		               [[4,0], [3,0]] ]
+		self.expected = [[5, 0], [4, 0], [3, 0], [2, 0], [1, 0], [0, 0]]
+
 	def test_square(self):
 		self.lines = [ [[0,0], [1,0]],
 		               [[1,0], [1,1]],
