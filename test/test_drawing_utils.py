@@ -1,6 +1,8 @@
 import unittest
 import drawing_utils
 import numpy as np
+import Polygon, Polygon.IO, Polygon.Utils  # https://pypi.org/project/Polygon2/
+import math
 
 class Test_combineLines(unittest.TestCase):
 	def setUp(self):
@@ -88,6 +90,7 @@ class Test_reorderInnerToOuter(unittest.TestCase):
 		self.expected = [ [[-1,-1], [1, -1], [1, 1], [-1,1], [-1,-1]],
 		               [[-2, -2], [2, -2], [2, 2], [-2, 2], [-2, -2]] ]
 
+'''
 	def test_hash_square(self):
 		self.lines = [ [[-10, 2], [10, 2]], [[-10, -2], [10, -2]],
 		               [[-2, -10], [-2, 10]], [[2, -10], [2, 10]],
@@ -95,8 +98,40 @@ class Test_reorderInnerToOuter(unittest.TestCase):
 		self.expected = [ [[-1,-1], [1, -1], [1, 1], [-1,1], [-1,-1]],
 		                  [[-10, 2], [10, 2]], [[-10, -2], [10, -2]],
 		                  [[-2, -10], [-2, 10]], [[2, -10], [2, 10]] ]
+'''
+
+def pointDist(q, p):
+	return math.sqrt( (p[0]-q[0])**2 + (p[1]-q[1])**2 )
+
+def makePolygon(polyline):
+	ub = []; lb = []
+	poly = Polygon.Polygon()
+	q = np.array(polyline[0])
+	dd = [0,0]
+	for p in polyline[1:]:
+		p = np.array(p)
+		l = pointDist(q,p)
+		n = np.array([p[1]-q[1], -p[0]+q[0]]) / l
+		d = n * 2
+		print d
+		print q-d, p-d, p, q
+		poly = poly + Polygon.Polygon([q-d, p-d, p+d, q+d])
+		poly = poly + Polygon.Polygon([q-dd, q+dd, q+d, q-d])
+		q = p; dd = d
+	return poly
 
 
+class Test_polygon(unittest.TestCase):
+	def test_polygon(self):
+		p = makePolygon([[-10, 2], [10, 2], [20,20]])
+#		p = p + makePolygon([[-10, -2], [10, -2]])
+#		p = p + makePolygon([[2, -10], [2, 10]])
+#		p = p + makePolygon([[-2, -10], [-2, 10]])
+
+		#p = Polygon.Utils.convexHull(p)
+#		p = Polygon.Utils.fillHoles(p)
+		print p.contour(0)
+		Polygon.IO.writeSVG('test.svg', (p))
 
 
 if __name__ == '__main__':
